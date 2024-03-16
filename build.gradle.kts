@@ -5,7 +5,7 @@ plugins {
 
 group = "com.github.Matin2"
 description = "MCore"
-version = "1.0"
+version = "1.1"
 
 repositories {
     mavenCentral()
