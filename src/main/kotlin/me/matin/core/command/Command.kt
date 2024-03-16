@@ -45,7 +45,7 @@ class Command(private var subCommands: List<SubCommand>): TabExecutor {
             val allSubCommands: MutableList<String> = ArrayList()
             for (i in getSubCommands().indices) {
                 if (hasRequirements(sender, i)) allSubCommands.add(getSubCommands()[i].name)
-                allSubCommands.addAll(listOf(*getSubCommands()[i].aliases))
+                allSubCommands.addAll(getSubCommands()[i].aliases)
             }
             result = allSubCommands
         } else if (args.size >= 2) {
