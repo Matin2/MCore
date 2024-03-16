@@ -8,5 +8,5 @@ abstract class SubCommand {
     open val aliases: List<String> = ArrayList()
     open fun requirements(sender: CommandSender): Boolean = true
     abstract fun command(sender: CommandSender, args: Array<String>)
-    abstract fun tabComplete(sender: CommandSender?, args: Array<String>): List<String>
+    abstract fun tabComplete(sender: CommandSender, args: Array<String>): List<String>
 }
