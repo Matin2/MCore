@@ -7,7 +7,7 @@ repositories {
 	maven("https://jitpack.io")
 }
 dependencies {
-    compileOnly("com.github.Matin2:MCore:version")
+    compileOnly("com.github.Matin2:MCore:VERSION")
 }
 ```
 
@@ -24,8 +24,7 @@ Include the API using Maven:
     <dependency>
         <groupId>com.github.Matin2</groupId>
         <artifactId>MCore</artifactId>
-        <version>version</version>
-        <scope>provided</scope>
+        <version>VERSION</version>
     </dependency>
 </dependencies>
 ```
