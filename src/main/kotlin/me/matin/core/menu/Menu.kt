@@ -6,9 +6,9 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
-abstract class Menu(protected var playerMenuUtility: PlayerMenuUtility): InventoryHolder {
+abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): InventoryHolder {
 
-    protected lateinit var inventory: Inventory
+    private lateinit var inventory: Inventory
 
     abstract val name: Component
     abstract val rows: Int
