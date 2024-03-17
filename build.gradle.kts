@@ -21,6 +21,20 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
+tasks.processResources {
+    val ver = mapOf("version" to version)
+    inputs.properties(ver)
+    filteringCharset = "UTF-8"
+    filesMatching("plugin.yml") {
+        expand(ver)
+    }
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+    options.release.set(17)
+}
+
 kotlin {
     jvmToolchain(17)
 }
