@@ -5,8 +5,9 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.Plugin
 import java.io.File
 import java.io.IOException
+import java.util.logging.Level
 
-class Config(private val plugin: Plugin, private val config: String) {
+class Config(private val plugin: Plugin, config: String) {
 
     private val configYML = if (config.contains(".yml")) config else "$config.yml"
     private val file = File(plugin.dataFolder, configYML)
@@ -17,7 +18,7 @@ class Config(private val plugin: Plugin, private val config: String) {
             try {
                 file.createNewFile()
             } catch (e: IOException) {
-                println("Couldn't create $configYML")
+                plugin.logger.log(Level.WARNING, "Couldn't create $configYML")
             }
         }
     }
@@ -30,7 +31,7 @@ class Config(private val plugin: Plugin, private val config: String) {
         try {
             customFile.save(file)
         } catch (e: IOException) {
-            println("Couldn't save $configYML")
+            plugin.logger.log(Level.WARNING, "Couldn't create $configYML")
         }
     }
 

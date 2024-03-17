@@ -6,8 +6,8 @@ import me.matin.core.function.Plugins
 import me.matin.core.menu.MenuListeners
 import org.bukkit.Bukkit
 import org.bukkit.World
-import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.logging.Level
 
 class Core: JavaPlugin() {
     companion object {
@@ -21,11 +21,11 @@ class Core: JavaPlugin() {
         if (Plugins().hasPlugin("ProtocolLib")) protocolManager = ProtocolLibrary.getProtocolManager()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuListeners(), this)
-        println("Plugin enabled.")
+        this.logger.log(Level.INFO, "Plugin enabled.")
     }
 
     override fun onDisable() {
-        println("Plugin disabled.")
+        this.logger.log(Level.INFO, "Plugin enabled.")
     }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {

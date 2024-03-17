@@ -2,6 +2,7 @@ package me.matin.core.function
 
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
+import java.util.logging.Level
 
 class Plugins {
 
@@ -36,7 +37,7 @@ class Plugins {
     fun checkDepends(plugin: Plugin, depends: Array<String>) {
         for (pluginName in depends) {
             if (!hasPlugin(pluginName)) {
-                println("$pluginName is required but not installed, plugin disabled.")
+                plugin.logger.log(Level.WARNING, "$pluginName is required but not installed!")
                 Bukkit.getPluginManager().disablePlugin(plugin)
             }
         }
