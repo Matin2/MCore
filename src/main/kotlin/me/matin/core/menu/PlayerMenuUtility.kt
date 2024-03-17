@@ -2,7 +2,7 @@ package me.matin.core.menu
 
 import org.bukkit.entity.Player
 
-class PlayerMenuUtility(private var owner: Player) {
+open class PlayerMenuUtility(private var owner: Player) {
 
     private var playerMenuUtilityMap : HashMap<Player, PlayerMenuUtility> = HashMap()
 
