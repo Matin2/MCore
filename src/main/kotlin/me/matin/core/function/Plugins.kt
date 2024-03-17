@@ -11,7 +11,7 @@ class Plugins {
     }
 
     fun hasPlugins(pluginNames: String): Boolean {
-        val pluginNames1: Array<String> = pluginNames.split(',').toTypedArray()
+        val pluginNames1: Array<String> = pluginNames.split(',').dropLastWhile { it.isEmpty() }.toTypedArray()
         return hasPlugins(pluginNames1)
     }
 
@@ -33,7 +33,7 @@ class Plugins {
         return Bukkit.getPluginManager().getPlugin(pluginName)
     }
 
-    fun checkDepends(plugin: Plugin, depends: Array<String>) {
+    fun checkDepends(plugin: Plugin, depends: ArrayList<String>) {
         for (pluginName in depends) {
             if (!hasPlugin(pluginName)) {
                 println("$pluginName is required but not installed, plugin disabled.")
