@@ -11,6 +11,8 @@ import java.util.function.Predicate
 
 class AttackAnimation {
 
+    private var plugin = Core()
+
     enum class HandType {
         MAINHAND,
         OFFHAND
@@ -22,7 +24,7 @@ class AttackAnimation {
         if (Plugins().hasPlugin("ProtocolLib")) {
             Bukkit.getScheduler()
                 .runTaskAsynchronously(
-                    Core().plugin,
+                    plugin,
                     Runnable {
                         val playersInRange: Collection<Player> = filterOutOfRange(getOnlinePlayers(), player)
                         if (handType == HandType.MAINHAND) {
@@ -38,7 +40,7 @@ class AttackAnimation {
         if (!Plugins().hasPlugin("ProtocolLib")) return
 
         val packet1: PacketContainer =
-            Core().protocolManager.createPacket(PacketType.Play.Server.ANIMATION)
+            Core.protocolManager.createPacket(PacketType.Play.Server.ANIMATION)
         packet1.integers.write(0, entity.entityId)
         packet1.integers.write(1, 0)
 
@@ -49,7 +51,7 @@ class AttackAnimation {
         if (!Plugins().hasPlugin("ProtocolLib")) return
 
         val packet1: PacketContainer =
-            Core().protocolManager.createPacket(PacketType.Play.Server.ANIMATION)
+            Core.protocolManager.createPacket(PacketType.Play.Server.ANIMATION)
         packet1.integers.write(0, entity.entityId)
         packet1.integers.write(1, 3)
 
@@ -57,17 +59,17 @@ class AttackAnimation {
     }
 
     private fun sendPacket(players: Collection<Player>, entity: Player, packet: PacketContainer) {
-        if (!Core().plugin.isEnabled) {
+        if (!plugin.isEnabled) {
             return
         }
 
-        Bukkit.getScheduler().runTask(Core().plugin, Runnable {
+        Bukkit.getScheduler().runTask(plugin, Runnable {
             if (entity.isOnline) {
-                Core().protocolManager.sendServerPacket(entity, packet)
+                Core.protocolManager.sendServerPacket(entity, packet)
             }
             for (player in players) {
                 if (player.isOnline) {
-                    Core().protocolManager.sendServerPacket(player, packet)
+                    Core.protocolManager.sendServerPacket(player, packet)
                 }
             }
         })
@@ -87,7 +89,7 @@ class AttackAnimation {
         predicate: Predicate<Player>
     ): Collection<Player> {
         val playersInRange: MutableCollection<Player> = java.util.HashSet()
-        var range: Int = Core().corePlayerTrackingRange.getOrDefault(location.world, 64)
+        var range: Int = Core.corePlayerTrackingRange.getOrDefault(location.world, 64)
         range *= range
         for (player in players) {
             val playerLocation: Location = player.location

@@ -12,6 +12,8 @@ import org.bukkit.inventory.meta.Damageable
 
 class Item {
 
+    private var plugin = Core()
+
     enum class Modification {
         SET,
         ADD,
@@ -69,7 +71,7 @@ class Item {
             }
             if (mod != 0 && item.type != Material.AIR) {
                 damageable.damage = mod
-                Bukkit.getScheduler().runTaskAsynchronously(Core().plugin, Runnable {
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
                     item.setItemMeta(
                         damageable
                     )

@@ -6,13 +6,15 @@ import me.matin.core.function.Plugins
 import me.matin.core.menu.MenuListeners
 import org.bukkit.Bukkit
 import org.bukkit.World
+import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 
 class Core: JavaPlugin() {
-
-    lateinit var plugin: Core
-    lateinit var protocolManager: ProtocolManager
-    var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
+    companion object {
+        lateinit var plugin: Core
+        lateinit var protocolManager: ProtocolManager
+        var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
+    }
 
     override fun onEnable() {
         plugin = this
@@ -25,8 +27,6 @@ class Core: JavaPlugin() {
     override fun onDisable() {
         println("Plugin disabled.")
     }
-
-
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {
         playerTrackingRange.clear()
