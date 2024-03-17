@@ -12,12 +12,12 @@ class Core: JavaPlugin() {
 
     lateinit var plugin: Core
     lateinit var protocolManager: ProtocolManager
-    var playerTrackingRange: MutableMap<World, Int> = HashMap()
+    var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
 
     override fun onEnable() {
         plugin = this
         if (Plugins().hasPlugin("ProtocolLib")) protocolManager = ProtocolLibrary.getProtocolManager()
-        setPlayerTrackingRange(playerTrackingRange)
+        setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuListeners(), this)
         println("Plugin enabled.")
     }

@@ -87,7 +87,7 @@ class AttackAnimation {
         predicate: Predicate<Player>
     ): Collection<Player> {
         val playersInRange: MutableCollection<Player> = java.util.HashSet()
-        var range: Int = Core().playerTrackingRange.getOrDefault(location.world, 64)
+        var range: Int = Core().corePlayerTrackingRange.getOrDefault(location.world, 64)
         range *= range
         for (player in players) {
             val playerLocation: Location = player.location
