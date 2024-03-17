@@ -33,7 +33,7 @@ class Plugins {
         return Bukkit.getPluginManager().getPlugin(pluginName)
     }
 
-    fun checkDepends(plugin: Plugin, depends: ArrayList<String>) {
+    fun checkDepends(plugin: Plugin, depends: Array<String>) {
         for (pluginName in depends) {
             if (!hasPlugin(pluginName)) {
                 println("$pluginName is required but not installed, plugin disabled.")
