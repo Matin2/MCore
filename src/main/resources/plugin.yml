@@ -6,4 +6,3 @@ author: Matin3000
 prefix: MCore
 softdepend:
   - ProtocolLib
-  - spigot-language-kotlin
