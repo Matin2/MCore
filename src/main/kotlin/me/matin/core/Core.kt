@@ -11,21 +11,24 @@ import java.util.logging.Level
 
 class Core: JavaPlugin() {
     companion object {
+        @JvmStatic
         lateinit var plugin: Core
+        @JvmStatic
         lateinit var protocolManager: ProtocolManager
+        @JvmStatic
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
     }
 
     override fun onEnable() {
         plugin = this
-        if (Plugins().hasPlugin("ProtocolLib")) protocolManager = ProtocolLibrary.getProtocolManager()
+        if (Plugins.hasPlugin("ProtocolLib")) protocolManager = ProtocolLibrary.getProtocolManager()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuListeners(), this)
         this.logger.log(Level.INFO, "Plugin enabled.")
     }
 
     override fun onDisable() {
-        this.logger.log(Level.INFO, "Plugin enabled.")
+        this.logger.log(Level.INFO, "Plugin disabled.")
     }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {

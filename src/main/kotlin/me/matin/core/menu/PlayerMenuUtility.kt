@@ -15,20 +15,23 @@ open class PlayerMenuUtility(private var owner: Player) {
 
 class GetPlayerMenuUtility {
 
-    private var playerMenuUtilityMap : HashMap<Player, PlayerMenuUtility> = HashMap()
+    companion object {
 
-    fun get(player: Player): PlayerMenuUtility {
-        if (player in playerMenuUtilityMap) {
-            var playerMenuUtility = playerMenuUtilityMap[player]
-            if (playerMenuUtility == null) {
-                playerMenuUtility = PlayerMenuUtility(player)
+        var playerMenuUtilityMap: HashMap<Player, PlayerMenuUtility> = HashMap()
+
+        fun get(player: Player): PlayerMenuUtility {
+            if (player in playerMenuUtilityMap) {
+                var playerMenuUtility = playerMenuUtilityMap[player]
+                if (playerMenuUtility == null) {
+                    playerMenuUtility = PlayerMenuUtility(player)
+                    playerMenuUtilityMap[player] = playerMenuUtility
+                }
+                return playerMenuUtility
+            } else {
+                val playerMenuUtility = PlayerMenuUtility(player)
                 playerMenuUtilityMap[player] = playerMenuUtility
+                return playerMenuUtility
             }
-            return playerMenuUtility
-        } else {
-            val playerMenuUtility = PlayerMenuUtility(player)
-            playerMenuUtilityMap[player] = playerMenuUtility
-            return playerMenuUtility
         }
     }
 }

@@ -6,39 +6,47 @@ import java.util.logging.Level
 
 class Plugins {
 
-    fun hasPlugin(pluginName: String): Boolean {
-        val plugin = Bukkit.getPluginManager().getPlugin(pluginName)
-        return plugin != null && plugin.isEnabled
-    }
+    companion object {
 
-    fun hasPlugins(pluginNames: String): Boolean {
-        val pluginNames1: Array<String> = pluginNames.split(',').dropLastWhile { it.isEmpty() }.toTypedArray()
-        return hasPlugins(pluginNames1)
-    }
-
-    fun hasPlugins(pluginNames: Array<String>): Boolean {
-        val statues: MutableList<Boolean> = ArrayList()
-        for (pluginName in pluginNames) {
-            val plugin = Bukkit.getPluginManager().getPlugin(pluginName.trim())
-            if (plugin != null && plugin.isEnabled) {
-                statues.add(true)
-            } else {
-                statues.add(false)
-            }
+        @JvmStatic
+        fun hasPlugin(pluginName: String): Boolean {
+            val plugin = Bukkit.getPluginManager().getPlugin(pluginName)
+            return plugin != null && plugin.isEnabled
         }
-        for (b in statues) if (!b) return false
-        return true
-    }
 
-    fun getPlugin(pluginName: String): Plugin? {
-        return Bukkit.getPluginManager().getPlugin(pluginName)
-    }
+        @JvmStatic
+        fun hasPlugins(pluginNames: String): Boolean {
+            val pluginNames1: Array<String> = pluginNames.split(',').dropLastWhile { it.isEmpty() }.toTypedArray()
+            return hasPlugins(pluginNames1)
+        }
 
-    fun checkDepends(plugin: Plugin, depends: Array<String>) {
-        for (pluginName in depends) {
-            if (!hasPlugin(pluginName)) {
-                plugin.logger.log(Level.WARNING, "$pluginName is required but not installed!")
-                Bukkit.getPluginManager().disablePlugin(plugin)
+        @JvmStatic
+        fun hasPlugins(pluginNames: Array<String>): Boolean {
+            val statues: MutableList<Boolean> = ArrayList()
+            for (pluginName in pluginNames) {
+                val plugin = Bukkit.getPluginManager().getPlugin(pluginName.trim())
+                if (plugin != null && plugin.isEnabled) {
+                    statues.add(true)
+                } else {
+                    statues.add(false)
+                }
+            }
+            for (b in statues) if (!b) return false
+            return true
+        }
+
+        @JvmStatic
+        fun getPlugin(pluginName: String): Plugin? {
+            return Bukkit.getPluginManager().getPlugin(pluginName)
+        }
+
+        @JvmStatic
+        fun checkDepends(plugin: Plugin, depends: Array<String>) {
+            for (pluginName in depends) {
+                if (!hasPlugin(pluginName)) {
+                    plugin.logger.log(Level.WARNING, "$pluginName is required but not installed!")
+                    Bukkit.getPluginManager().disablePlugin(plugin)
+                }
             }
         }
     }

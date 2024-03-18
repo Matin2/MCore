@@ -5,7 +5,7 @@ plugins {
 
 group = "com.github.Matin2"
 description = "MCore"
-version = "3.1"
+version = "3.2"
 
 repositories {
     mavenCentral()
@@ -19,9 +19,6 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
     compileOnly("net.axay:spigot-language-kotlin:1.0.3")
-    compileOnly("net.kyori:adventure-api:4.16.0")
-    compileOnly("net.kyori:adventure-text-minimessage:4.16.0")
-    compileOnly("net.kyori:adventure-platform-bukkit:4.3.2")
 }
 
 java {
