@@ -12,20 +12,20 @@ import org.bukkit.inventory.meta.Damageable
 
 class Item {
 
+    enum class Modification {
+        SET,
+        ADD,
+        TAKE
+    }
+
+    enum class ModifyType {
+        DURABILITY,
+        AMOUNT,
+    }
+
     companion object {
 
         private var plugin = Core()
-
-        enum class Modification {
-            SET,
-            ADD,
-            TAKE
-        }
-
-        enum class ModifyType {
-            DURABILITY,
-            AMOUNT,
-        }
 
         @JvmStatic
         fun modify(modification: Modification, amount: Int, player: Player, slots: ArrayList<Int>, type: ModifyType) {
