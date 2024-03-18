@@ -10,6 +10,7 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
 
     private lateinit var inventory: Inventory
 
+    open val noCancelClickSlots: List<Int> = ArrayList()
     abstract val name: Component
     abstract val rows: Int
     abstract fun handleMenu(event: InventoryClickEvent)
