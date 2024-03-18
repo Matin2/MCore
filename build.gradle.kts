@@ -1,11 +1,12 @@
 plugins {
     kotlin("jvm") version "1.9.23"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     `maven-publish`
 }
 
 group = "com.github.Matin2"
 description = "MCore"
-version = "3.2.1"
+version = "3.3"
 
 repositories {
     mavenCentral()
@@ -18,7 +19,16 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
-    compileOnly("net.axay:spigot-language-kotlin:1.0.3")
+
+    api(kotlin("stdlib"))
+    api(kotlin("reflect"))
+}
+
+tasks.shadowJar {
+    dependencies {
+        exclude(dependency("com.comphenix.protocol:ProtocolLib:5.1.0"))
+    }
+    archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
 java {
