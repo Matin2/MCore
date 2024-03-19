@@ -5,8 +5,8 @@ import org.bukkit.command.CommandSender
 abstract class SubCommand {
 
     abstract val name: String
-    open val aliases: List<String> = ArrayList()
+    open val aliases: ArrayList<String> = ArrayList()
     open fun requirements(sender: CommandSender): Boolean = true
     abstract fun command(sender: CommandSender, args: Array<String>)
-    abstract fun tabComplete(sender: CommandSender, args: Array<String>): List<String>
+    abstract fun tabComplete(sender: CommandSender, args: Array<String>): ArrayList<String>
 }
