@@ -25,8 +25,6 @@ class Item {
 
     companion object {
 
-        private var plugin = Core()
-
         @JvmStatic
         fun modify(modification: Modification, amount: Int, player: Player, slots: ArrayList<Int>, type: ModifyType) {
             for (slot in slots) {
@@ -75,7 +73,7 @@ class Item {
                 }
                 if (mod != 0 && item.type != Material.AIR) {
                     damageable.damage = mod
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+                    Bukkit.getScheduler().runTaskAsynchronously(Core.plugin, Runnable {
                         item.setItemMeta(
                             damageable
                         )

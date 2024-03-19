@@ -17,8 +17,10 @@ class GetPlayerMenuUtility {
 
     companion object {
 
+        @JvmStatic
         var playerMenuUtilityMap: HashMap<Player, PlayerMenuUtility> = HashMap()
 
+        @JvmStatic
         fun get(player: Player): PlayerMenuUtility {
             if (player in playerMenuUtilityMap) {
                 var playerMenuUtility = playerMenuUtilityMap[player]
