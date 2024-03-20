@@ -2,35 +2,25 @@ package me.matin.core.menu
 
 import org.bukkit.entity.Player
 
-open class PlayerMenuUtility(private var owner: Player) {
+class PlayerMenuUtility {
 
-    fun getOwner(): Player {
-        return owner
-    }
-
-    fun setOwner(owner: Player) {
-        this.owner = owner
-    }
-}
-
-class GetPlayerMenuUtility {
+    open class MenuUtility(var owner: Player)
 
     companion object {
 
-        @JvmStatic
-        var playerMenuUtilityMap: HashMap<Player, PlayerMenuUtility> = HashMap()
+        private var playerMenuUtilityMap: HashMap<Player, MenuUtility> = HashMap()
 
         @JvmStatic
-        fun get(player: Player): PlayerMenuUtility {
+        fun get(player: Player): MenuUtility {
             if (player in playerMenuUtilityMap) {
                 var playerMenuUtility = playerMenuUtilityMap[player]
                 if (playerMenuUtility == null) {
-                    playerMenuUtility = PlayerMenuUtility(player)
+                    playerMenuUtility = MenuUtility(player)
                     playerMenuUtilityMap[player] = playerMenuUtility
                 }
                 return playerMenuUtility
             } else {
-                val playerMenuUtility = PlayerMenuUtility(player)
+                val playerMenuUtility = MenuUtility(player)
                 playerMenuUtilityMap[player] = playerMenuUtility
                 return playerMenuUtility
             }

@@ -1,4 +1,4 @@
-package me.matin.core.function
+package me.matin.core.function.item
 
 import me.matin.core.Core
 import org.bukkit.Bukkit
@@ -12,46 +12,35 @@ import org.bukkit.inventory.meta.Damageable
 
 class Item {
 
-    enum class Modification {
-        SET,
-        ADD,
-        TAKE
-    }
-
-    enum class ModifyType {
-        DURABILITY,
-        AMOUNT,
-    }
-
     companion object {
 
         @JvmStatic
-        fun modify(modification: Modification, amount: Int, player: Player, slots: ArrayList<Int>, type: ModifyType) {
+        fun modify(type: ItemModifyType, modificationType: ItemModificationType, modificationAmount: Int, player: Player, slots: ArrayList<Int>) {
             for (slot in slots) {
                 when (type) {
-                    ModifyType.AMOUNT -> modifyAmount(modification, amount, player, slot)
-                    ModifyType.DURABILITY -> modifyDurability(modification, amount, player, slot)
+                    ItemModifyType.AMOUNT -> modifyAmount(modificationType, modificationAmount, player, slot)
+                    ItemModifyType.DURABILITY -> modifyDurability(modificationType, modificationAmount, player, slot)
                 }
             }
         }
 
         @JvmStatic
-        fun modify(modification: Modification, amount: Int, player: Player, slot: Int, type: ModifyType) {
+        fun modify(type: ItemModifyType, modificationType: ItemModificationType, modificationAmount: Int, player: Player, slot: Int) {
             when (type) {
-                ModifyType.AMOUNT -> modifyAmount(modification, amount, player, slot)
-                ModifyType.DURABILITY -> modifyDurability(modification, amount, player, slot)
+                ItemModifyType.AMOUNT -> modifyAmount(modificationType, modificationAmount, player, slot)
+                ItemModifyType.DURABILITY -> modifyDurability(modificationType, modificationAmount, player, slot)
             }
         }
 
-        private fun modifyAmount(modification: Modification, amount: Int, player: Player, slot: Int) {
+        private fun modifyAmount(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
             var mod: Int
             val item = player.inventory.getItem(slot) ?: return
             val itemAmount = if (item.type == Material.AIR) 0 else item.amount
             val itemMaxAmount = if (item.type == Material.AIR) 0 else item.maxStackSize
             mod = when (modification) {
-                Modification.SET -> amount
-                Modification.ADD -> itemAmount + amount
-                Modification.TAKE -> itemAmount - amount
+                ItemModificationType.SET -> amount
+                ItemModificationType.ADD -> itemAmount + amount
+                ItemModificationType.TAKE -> itemAmount - amount
             }
             if (mod > itemMaxAmount) mod = itemMaxAmount
             if (itemAmount != 0) {
@@ -59,7 +48,7 @@ class Item {
             }
         }
 
-        private fun modifyDurability(modification: Modification, amount: Int, player: Player, slot: Int) {
+        private fun modifyDurability(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
             val item = player.inventory.getItem(slot) ?: return
             if (item.type != Material.AIR && !item.itemMeta.isUnbreakable && item.itemMeta is Damageable) {
                 val damageable = item.itemMeta as Damageable
@@ -67,9 +56,9 @@ class Item {
                 val mod: Int
                 val itemDamage = if (damageable.hasDamage()) damageable.damage else 0
                 mod = when (modification) {
-                    Modification.SET -> itemMaxDurability - amount
-                    Modification.ADD -> itemDamage - amount
-                    Modification.TAKE -> itemDamage + amount
+                    ItemModificationType.SET -> itemMaxDurability - amount
+                    ItemModificationType.ADD -> itemDamage - amount
+                    ItemModificationType.TAKE -> itemDamage + amount
                 }
                 if (mod != 0 && item.type != Material.AIR) {
                     damageable.damage = mod

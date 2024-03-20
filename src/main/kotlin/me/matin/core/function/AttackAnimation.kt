@@ -13,8 +13,6 @@ class AttackAnimation {
 
     companion object {
 
-        private var plugin = Core()
-
         private fun getOnlinePlayers(): Collection<Player> = HashSet(Bukkit.getOnlinePlayers())
 
         @JvmStatic
@@ -22,7 +20,7 @@ class AttackAnimation {
             if (Plugins.hasPlugin("ProtocolLib")) {
                 Bukkit.getScheduler()
                     .runTaskAsynchronously(
-                        plugin,
+                        Core.plugin,
                         Runnable {
                             val playersInRange: Collection<Player> = filterOutOfRange(getOnlinePlayers(), player)
                             if (mainHand) sendMainhandMovement(playersInRange, player)
@@ -54,11 +52,11 @@ class AttackAnimation {
         }
 
         private fun sendPacket(players: Collection<Player>, entity: Player, packet: PacketContainer) {
-            if (!plugin.isEnabled) {
+            if (!Core.plugin.isEnabled) {
                 return
             }
 
-            Bukkit.getScheduler().runTask(plugin, Runnable {
+            Bukkit.getScheduler().runTask(Core.plugin, Runnable {
                 if (entity.isOnline) {
                     Core.protocolManager.sendServerPacket(entity, packet)
                 }
