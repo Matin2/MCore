@@ -6,14 +6,16 @@ import org.bukkit.command.TabExecutor
 
 class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-        if (args.isNotEmpty()) {
-            for (i in subCommands.indices) {
-                if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
-                    subCommands[i].command(sender, args)
+        override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
+            if (args != null) {
+                if (args.isNotEmpty()) {
+                    for (i in subCommands.indices) {
+                        if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
+                            subCommands[i].command(sender, args)
+                        }
+                    }
                 }
             }
-        }
         return true
     }
 
@@ -34,27 +36,29 @@ class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<String>
+        args: Array<out String>?
     ): ArrayList<String> {
         var result: ArrayList<String> = ArrayList()
-        if (args.size == 1) {
-            for (i in subCommands.indices) {
-                if (hasRequirements(sender, i)) {
-                    result.add(subCommands[i].name)
-                    result.addAll(subCommands[i].aliases)
+        if (args != null) {
+            if (args.size == 1) {
+                for (i in subCommands.indices) {
+                    if (hasRequirements(sender, i)) {
+                        result.add(subCommands[i].name)
+                        result.addAll(subCommands[i].aliases)
+                    }
+                }
+            } else if (args.size >= 2) {
+                for (i in subCommands.indices) {
+                    if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
+                        result = subCommands[i].tabComplete(sender, args.copyOfRange(1,args.size))
+                    }
                 }
             }
-        } else if (args.size >= 2) {
-            for (i in subCommands.indices) {
-                if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
-                    result = subCommands[i].tabComplete(sender, args.drop(1).toTypedArray())
+            for (i in 2..args.size) {
+                if (args.size == i && args[i - 2].isEmpty()) {
+                    result = ArrayList()
+                    break
                 }
-            }
-        }
-        for (i in 2..args.size) {
-            if (args.size == i && args[i - 2].isEmpty()) {
-                result = ArrayList()
-                break
             }
         }
         return result
