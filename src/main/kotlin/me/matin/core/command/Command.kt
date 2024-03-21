@@ -4,15 +4,17 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 
-class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
+open class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
 
-        override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
-            if (args != null) {
-                if (args.isNotEmpty()) {
-                    for (i in subCommands.indices) {
-                        if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
-                            subCommands[i].command(sender, args)
-                        }
+        override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>?): Boolean {
+            if (!args.isNullOrEmpty()) {
+                for (i in args.indices) {
+                    if (args[i] == null) args[i] = ""
+                }
+                for (i in subCommands.indices) {
+                    if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
+                        val subArgs = args.copyOfRange(1,args.size)
+                        subCommands[i].command(sender, label, args[0], subArgs)
                     }
                 }
             }
@@ -28,6 +30,8 @@ class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
         return false
     }
 
+    open fun canSee(sender: CommandSender): Boolean = subCommands.stream().anyMatch { it.requirements(sender) }
+
     private fun hasRequirements(sender: CommandSender, i: Int): Boolean {
         return subCommands[i].requirements(sender)
     }
@@ -36,10 +40,13 @@ class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<out String>?
+        args: Array<String>?
     ): ArrayList<String> {
         var result: ArrayList<String> = ArrayList()
-        if (args != null) {
+        if (!args.isNullOrEmpty()) {
+            for (i in args.indices) {
+                if (args[i] == null) args[i] = ""
+            }
             if (args.size == 1) {
                 for (i in subCommands.indices) {
                     if (hasRequirements(sender, i)) {
@@ -50,7 +57,7 @@ class Command(private val subCommands: ArrayList<SubCommand>): TabExecutor {
             } else if (args.size >= 2) {
                 for (i in subCommands.indices) {
                     if (isSubCommand(args[0], i) && hasRequirements(sender, i)) {
-                        result = subCommands[i].tabComplete(sender, args.copyOfRange(1,args.size))
+                        result = subCommands[i].tabComplete(sender, label, args[0], args.copyOfRange(1,args.size))
                     }
                 }
             }
