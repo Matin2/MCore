@@ -14,11 +14,13 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+    maven("https://libraries.minecraft.net/")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+    implementation("me.lucko:commodore:2.2")
 
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
@@ -27,7 +29,9 @@ dependencies {
 tasks.shadowJar {
     dependencies {
         exclude(dependency("com.comphenix.protocol:ProtocolLib:5.1.0"))
+        exclude(dependency("com.mojang:brigadier"))
     }
+    relocate("me.lucko.commodore", "me.matin.core.commodore")
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
