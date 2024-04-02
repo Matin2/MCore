@@ -6,32 +6,31 @@ plugins {
 
 group = "com.github.Matin2"
 description = "MCore"
-version = "1.2.2"
+version = "1.2.3"
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://jitpack.io")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-    maven("https://libraries.minecraft.net/")
+    maven("https://repo.aikar.co/content/groups/aikar/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
-    implementation("me.lucko:commodore:2.2")
-
+    implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
 }
 
 tasks.shadowJar {
     dependencies {
-        exclude(dependency("com.comphenix.protocol:ProtocolLib:5.1.0"))
         exclude(dependency("com.mojang:brigadier"))
     }
-    relocate("me.lucko.commodore", "me.matin.core.commodore")
+    relocate("co.aikar.commands", "me.matin.core.aikar.commands")
+    relocate("co.aikar.locales", "me.matin.core.aikar.locales")
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
