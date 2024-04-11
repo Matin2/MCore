@@ -1,4 +1,4 @@
-package me.matin.core.function.item
+package me.matin.core.managers.item
 
 enum class ItemModifyType {
     DURABILITY,

@@ -1,27 +1,26 @@
-package me.matin.core.function
+package me.matin.core.managers
 
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
-import java.util.logging.Level
 
-class Plugins {
+class DependencyManager {
 
     companion object {
 
         @JvmStatic
-        fun hasPlugin(pluginName: String): Boolean {
+        fun isPluginInstalled(pluginName: String): Boolean {
             val plugin = Bukkit.getPluginManager().getPlugin(pluginName)
             return plugin != null && plugin.isEnabled
         }
 
         @JvmStatic
-        fun hasPlugins(pluginNames: String): Boolean {
+        fun arePluginsInstalled(pluginNames: String): Boolean {
             val pluginNames1: Array<String> = pluginNames.split(',').dropLastWhile { it.isEmpty() }.toTypedArray()
-            return hasPlugins(pluginNames1)
+            return arePluginsInstalled(pluginNames1)
         }
 
         @JvmStatic
-        fun hasPlugins(pluginNames: Array<String>): Boolean {
+        fun arePluginsInstalled(pluginNames: Array<String>): Boolean {
             val statues: MutableList<Boolean> = ArrayList()
             for (pluginName in pluginNames) {
                 val plugin = Bukkit.getPluginManager().getPlugin(pluginName.trim())
@@ -43,8 +42,8 @@ class Plugins {
         @JvmStatic
         fun checkDepends(plugin: Plugin, depends: Array<String>) {
             for (pluginName in depends) {
-                if (!hasPlugin(pluginName)) {
-                    plugin.logger.log(Level.WARNING, "$pluginName is required but not installed!")
+                if (!isPluginInstalled(pluginName)) {
+                    plugin.logger.warning("$pluginName is required but not installed!")
                     Bukkit.getPluginManager().disablePlugin(plugin)
                 }
             }

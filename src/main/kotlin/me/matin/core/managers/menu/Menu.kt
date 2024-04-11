@@ -1,4 +1,4 @@
-package me.matin.core.menu
+package me.matin.core.managers.menu
 
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
-abstract class Menu(private var playerMenuUtility: PlayerMenuUtility.MenuUtility): InventoryHolder {
+abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): InventoryHolder {
 
     private lateinit var inventory: Inventory
 
@@ -42,8 +42,7 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility.MenuUtility
             else if (event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                 event.isCancelled = true
             }
-        }
-        if (inv == topInv && event.slot !in cancelClickIgnoredSlots) event.isCancelled = true
+        } else if (inv == topInv && event.slot !in cancelClickIgnoredSlots) event.isCancelled = true
     }
 
     override fun getInventory(): Inventory {
