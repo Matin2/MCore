@@ -1,9 +1,8 @@
 package me.matin.core
 
-import com.comphenix.protocol.ProtocolLibrary
-import com.comphenix.protocol.ProtocolManager
-import me.matin.core.function.Plugins
-import me.matin.core.menu.MenuListeners
+import com.github.retrooper.packetevents.PacketEvents
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
+import me.matin.core.managers.menu.MenuManager
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
@@ -12,23 +11,28 @@ import java.util.logging.Level
 class Core: JavaPlugin() {
     companion object {
         @JvmStatic
-        lateinit var plugin: Core
-        @JvmStatic
-        lateinit var protocolManager: ProtocolManager
-        @JvmStatic
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
     }
 
     override fun onEnable() {
-        plugin = this
-        if (Plugins.hasPlugin("ProtocolLib")) protocolManager = ProtocolLibrary.getProtocolManager()
+        PacketEvents.getAPI().init()
         setPlayerTrackingRange(corePlayerTrackingRange)
-        server.pluginManager.registerEvents(MenuListeners(), this)
-        this.logger.log(Level.INFO, "Plugin enabled.")
+        server.pluginManager.registerEvents(MenuManager(), this)
+        logger.log(Level.INFO, "Plugin enabled.")
+    }
+
+    override fun onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
+        PacketEvents.getAPI().settings.reEncodeByDefault(false)
+            .checkForUpdates(true)
+            .bStats(false)
+        PacketEvents.getAPI().load()
+        logger.log(Level.INFO, "Plugin loaded.")
     }
 
     override fun onDisable() {
-        this.logger.log(Level.INFO, "Plugin disabled.")
+        PacketEvents.getAPI().terminate()
+        logger.log(Level.INFO, "Plugin disabled.")
     }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {

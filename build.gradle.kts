@@ -11,26 +11,26 @@ version = "1.2.3"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://oss.sonatype.org/service/local/staging/deploy/maven2")
     maven("https://repo.aikar.co/content/groups/aikar/")
+    maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
+    implementation("com.github.retrooper.packetevents:spigot:2.2.1")
+
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
 }
 
 tasks.shadowJar {
-    dependencies {
-        exclude(dependency("com.mojang:brigadier"))
-    }
-    relocate("co.aikar.commands", "me.matin.core.aikar.commands")
-    relocate("co.aikar.locales", "me.matin.core.aikar.locales")
+    relocate("co.aikar", "me.matin.core.aikar")
+    relocate("com.github.retrooper.packetevents", "me.matin.core.packetevents.api")
+    relocate("io.github.retrooper.packetevents", "me.matin.core.packetevents.impl")
+    relocate("net.kyori", "me.matin.core.packetevents.kyori")
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
