@@ -6,7 +6,7 @@ plugins {
 
 group = "com.github.Matin2"
 description = "MCore"
-version = "1.2.3"
+version = "1.2.4"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,7 @@ dependencies {
 
 tasks.shadowJar {
     relocate("co.aikar", "me.matin.core.aikar")
+    relocate("assets", "me.matin.core.packetevents.assets")
     relocate("com.github.retrooper.packetevents", "me.matin.core.packetevents.api")
     relocate("io.github.retrooper.packetevents", "me.matin.core.packetevents.impl")
     relocate("net.kyori", "me.matin.core.packetevents.kyori")
