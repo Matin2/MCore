@@ -23,8 +23,8 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
     abstract fun setMenuItems()
 
     fun open() {
-        if (rowsOrType !is Int && rowsOrType !is InventoryType) throw IllegalArgumentException("'rowsOrType' must be either Integer or InventoryType")
-        if (rowsOrType is Int && rowsOrType !in 1..6) throw IllegalArgumentException("'rows' must be between 1 and 6")
+        if (rowsOrType !is Int && rowsOrType !is InventoryType) return
+        if (rowsOrType is Int && rowsOrType !in 1..6) return
         if (rowsOrType is Int && rowsOrType in 1..6) {
             inventory = Bukkit.createInventory(this, rowsOrType as Int * 9, title)
         } else if (rowsOrType is InventoryType) {
