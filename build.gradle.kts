@@ -6,7 +6,7 @@ plugins {
 
 group = "com.github.Matin2"
 description = "MCore"
-version = "1.2.4"
+version = "1.2.5"
 
 repositories {
     mavenCentral()
@@ -31,7 +31,11 @@ tasks.shadowJar {
     relocate("assets", "me.matin.core.packetevents.assets")
     relocate("com.github.retrooper.packetevents", "me.matin.core.packetevents.api")
     relocate("io.github.retrooper.packetevents", "me.matin.core.packetevents.impl")
-    relocate("net.kyori", "me.matin.core.packetevents.kyori")
+    dependencies {
+        exclude(dependency("org.jetbrains:annotations"))
+        exclude(dependency("com.google.code.gson:gson"))
+        exclude(dependency("net.kyori:"))
+    }
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
