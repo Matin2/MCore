@@ -14,7 +14,8 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
 
     abstract val title: Component
 
-    abstract val rowsOrType: Any
+    abstract val type: MenuType
+    open var rows: Int = 3
 
     open val cancelClickIgnoredSlots: ArrayList<Int> = ArrayList()
     open val freezeBottomInv: Boolean = false
@@ -23,15 +24,15 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
     abstract fun setMenuItems()
 
     fun open() {
-        if (rowsOrType !is Int && rowsOrType !is InventoryType) return
-        if (rowsOrType is Int && rowsOrType !in 1..6) return
-        if (rowsOrType is Int && rowsOrType in 1..6) {
-            inventory = Bukkit.createInventory(this, rowsOrType as Int * 9, title)
-        } else if (rowsOrType is InventoryType) {
-            inventory = Bukkit.createInventory(this, rowsOrType as InventoryType, title)
+        if (type == MenuType.NORMAL) {
+            if (rows < 1) rows = 1
+            if (rows > 6) rows = 6
+            inventory = Bukkit.createInventory(this, rows * 9, title)
+        } else {
+            inventory = Bukkit.createInventory(this, type.type, title)
         }
-        this.setMenuItems()
-        playerMenuUtility.owner.openInventory(inventory)
+        setMenuItems()
+        playerMenuUtility.player.openInventory(inventory)
     }
 
     open fun cancelClick(event: InventoryClickEvent) {
