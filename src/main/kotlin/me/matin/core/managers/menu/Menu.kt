@@ -27,9 +27,7 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
             if (rows < 1) rows = 1
             if (rows > 6) rows = 6
             inventory = Bukkit.createInventory(this, rows * 9, title)
-        } else {
-            inventory = Bukkit.createInventory(this, type.type, title)
-        }
+        } else inventory = Bukkit.createInventory(this, type.type, title)
         setMenuItems()
         playerMenuUtility.player.openInventory(inventory)
     }
