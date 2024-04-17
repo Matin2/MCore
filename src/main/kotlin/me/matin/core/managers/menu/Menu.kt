@@ -19,6 +19,8 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
     open val cancelClickIgnoredSlots: ArrayList<Int> = ArrayList()
     open val freezeBottomInv: Boolean = false
 
+    open val antiCursorItemLoss: Boolean = true
+
     abstract fun handleMenu(event: InventoryClickEvent)
     abstract fun setMenuItems()
 

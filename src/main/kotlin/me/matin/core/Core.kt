@@ -31,6 +31,9 @@ class Core: JavaPlugin() {
     }
 
     override fun onDisable() {
+        Bukkit.getOnlinePlayers().forEach {
+            MenuManager.checkCursor(it)
+        }
         PacketEvents.getAPI().terminate()
         logger.log(Level.INFO, "Plugin disabled.")
     }
