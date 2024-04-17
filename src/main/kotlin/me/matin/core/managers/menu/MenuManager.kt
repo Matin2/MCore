@@ -37,21 +37,21 @@ class MenuManager: Listener {
 
     companion object {
 
-        private var playerMenuUtilityMap: HashMap<Player, PlayerMenuUtility> = HashMap()
+        private var playerMenuUtilMap: HashMap<Player, PlayerMenuUtil> = HashMap()
 
         @JvmStatic
-        fun getPlayerMenuUtility(player: Player): PlayerMenuUtility {
-            if (player in playerMenuUtilityMap) {
-                var playerMenuUtility = playerMenuUtilityMap[player]
-                if (playerMenuUtility == null) {
-                    playerMenuUtility = PlayerMenuUtility(player)
-                    playerMenuUtilityMap[player] = playerMenuUtility
+        fun getPlayerMenuUtil(player: Player): PlayerMenuUtil {
+            if (player in playerMenuUtilMap) {
+                var playerMenuUtil = playerMenuUtilMap[player]
+                if (playerMenuUtil == null) {
+                    playerMenuUtil = PlayerMenuUtil(player)
+                    playerMenuUtilMap[player] = playerMenuUtil
                 }
-                return playerMenuUtility
+                return playerMenuUtil
             } else {
-                val playerMenuUtility = PlayerMenuUtility(player)
-                playerMenuUtilityMap[player] = playerMenuUtility
-                return playerMenuUtility
+                val playerMenuUtil = PlayerMenuUtil(player)
+                playerMenuUtilMap[player] = playerMenuUtil
+                return playerMenuUtil
             }
         }
 

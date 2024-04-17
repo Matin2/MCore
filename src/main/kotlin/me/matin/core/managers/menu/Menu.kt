@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
-abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): InventoryHolder {
+abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder {
 
     private lateinit var inventory: Inventory
 
@@ -31,7 +31,7 @@ abstract class Menu(private var playerMenuUtility: PlayerMenuUtility): Inventory
             inventory = Bukkit.createInventory(this, rows * 9, title)
         } else inventory = Bukkit.createInventory(this, type.type, title)
         setMenuItems()
-        playerMenuUtility.player.openInventory(inventory)
+        playerMenuUtil.player.openInventory(inventory)
     }
 
     open fun cancelClick(event: InventoryClickEvent) {
