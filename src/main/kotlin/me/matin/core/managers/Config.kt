@@ -3,10 +3,8 @@ package me.matin.core.managers
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.Plugin
+import java.io.File
 import java.io.IOException
-import kotlin.io.path.Path
-import kotlin.io.path.createFile
-import kotlin.io.path.createParentDirectories
 
 class Config(plugin: Plugin, config: String) {
 
@@ -19,23 +17,20 @@ class Config(plugin: Plugin, config: String) {
             return field.trim()
         }
 
-    private val path = Path("${plugin.dataFolder.path}/${conf}")
-    private lateinit var configFile: FileConfiguration
+    private val configFile = File("${plugin.dataFolder.path}/${conf}")
+    lateinit var config: FileConfiguration
 
     @Throws(IOException::class)
     fun init() {
-        path.normalize()
-        path.createParentDirectories()
-        if (!path.toFile().exists()) path.createFile()
-        configFile = YamlConfiguration.loadConfiguration(path.toFile())
+        if (!configFile.parentFile.exists()) configFile.parentFile.mkdirs()
+        if (!configFile.exists()) configFile.createNewFile()
+        config = YamlConfiguration.loadConfiguration(configFile)
     }
 
-    fun get(): FileConfiguration = configFile
-
     @Throws(IOException::class)
-    fun save() = configFile.save(path.toFile())
+    fun save() = config.save(configFile)
 
     fun reload() {
-        configFile = YamlConfiguration.loadConfiguration(path.toFile())
+        config = YamlConfiguration.loadConfiguration(configFile)
     }
 }
