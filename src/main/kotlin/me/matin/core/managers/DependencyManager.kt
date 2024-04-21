@@ -14,12 +14,6 @@ class DependencyManager {
         }
 
         @JvmStatic
-        fun arePluginsInstalled(pluginNames: String): Boolean {
-            val pluginNames1: Array<String> = pluginNames.split(',').dropLastWhile { it.isEmpty() }.toTypedArray()
-            return arePluginsInstalled(pluginNames1)
-        }
-
-        @JvmStatic
         fun arePluginsInstalled(pluginNames: Array<String>): Boolean {
             val statues: MutableList<Boolean> = ArrayList()
             for (pluginName in pluginNames) {
@@ -46,6 +40,16 @@ class DependencyManager {
                     plugin.logger.warning("$pluginName is required but not installed!")
                     Bukkit.getPluginManager().disablePlugin(plugin)
                 }
+            }
+        }
+
+        @JvmStatic
+        fun checkDepends(plugin: Plugin) {
+            for (pluginName in plugin.description.depend) {
+                if (pluginName == null) continue
+                if (isPluginInstalled(pluginName)) continue
+                plugin.logger.warning("$pluginName is required but not installed!")
+                Bukkit.getPluginManager().disablePlugin(plugin)
             }
         }
     }
