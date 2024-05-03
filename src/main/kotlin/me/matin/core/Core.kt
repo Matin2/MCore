@@ -1,6 +1,9 @@
 package me.matin.core
 
 import com.github.retrooper.packetevents.PacketEvents
+import de.tr7zw.changeme.nbtapi.NBTContainer
+import dev.jorel.commandapi.CommandAPI
+import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.matin.core.managers.menu.MenuManager
 import org.bukkit.Bukkit
@@ -16,6 +19,7 @@ class Core: JavaPlugin() {
 
     override fun onEnable() {
         PacketEvents.getAPI().init()
+        CommandAPI.onEnable()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager(), this)
         logger.log(Level.INFO, "Plugin enabled.")
@@ -27,6 +31,12 @@ class Core: JavaPlugin() {
             .checkForUpdates(true)
             .bStats(false)
         PacketEvents.getAPI().load()
+        CommandAPI.onLoad(CommandAPIBukkitConfig(this)
+            .shouldHookPaperReload(true)
+            .silentLogs(true)
+            .usePluginNamespace()
+            .initializeNBTAPI(NBTContainer::class.java, ::NBTContainer)
+        )
         logger.log(Level.INFO, "Plugin loaded.")
     }
 
@@ -34,6 +44,7 @@ class Core: JavaPlugin() {
         Bukkit.getOnlinePlayers().forEach {
             MenuManager.checkCursor(it)
         }
+        CommandAPI.onDisable()
         PacketEvents.getAPI().terminate()
         logger.log(Level.INFO, "Plugin disabled.")
     }
