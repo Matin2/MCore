@@ -1,25 +1,24 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    `maven-publish`
+    id("maven-publish")
 }
 
 group = "com.github.Matin2"
-description = "MCore"
-version = "1.2.5"
+version = "1.2.6"
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-    maven("https://repo.aikar.co/content/groups/aikar/")
     maven("https://repo.codemc.io/repository/maven-releases/")
+    maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://jitpack.io")
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
+    implementation("de.tr7zw:item-nbt-api:2.12.4")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.4.0")
     implementation("com.github.retrooper.packetevents:spigot:2.2.1")
 
     api(kotlin("stdlib"))
@@ -27,10 +26,12 @@ dependencies {
 }
 
 tasks.shadowJar {
-    relocate("co.aikar", "me.matin.core.aikar")
-    relocate("assets", "me.matin.core.packetevents.assets")
-    relocate("com.github.retrooper.packetevents", "me.matin.core.packetevents.api")
-    relocate("io.github.retrooper.packetevents", "me.matin.core.packetevents.impl")
+    val dir = "me.matin.core.libs"
+    relocate("de.tr7zw.changeme.nbtapi", "$dir.nbtapi")
+    relocate("dev.jorel.commandapi", "$dir.commandapi")
+    relocate("assets", "$dir.packetevents.assets")
+    relocate("com.github.retrooper.packetevents", "$dir.packetevents.api")
+    relocate("io.github.retrooper.packetevents", "$dir.packetevents.impl")
     dependencies {
         exclude(dependency("org.jetbrains:annotations"))
         exclude(dependency("com.google.code.gson:gson"))
@@ -39,8 +40,12 @@ tasks.shadowJar {
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
+
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks.processResources {
@@ -54,18 +59,18 @@ tasks.processResources {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release.set(17)
+    options.release.set(21)
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = project.description.toString()
+            artifactId = project.name
             version = project.version.toString()
 
             from(components["java"])
