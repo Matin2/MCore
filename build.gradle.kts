@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     id("io.github.goooler.shadow") version "8.1.7"
-    id("io.papermc.paperweight.userdev") version "1.7.0"
     id("maven-publish")
 }
 
@@ -14,11 +13,15 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        name = "sonatype-oss-snapshots"
+    }
     maven("https://jitpack.io")
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("net.kyori:adventure-api:4.17.0-SNAPSHOT")
     implementation("de.tr7zw:item-nbt-api:2.12.4")
     implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.4.0")
     implementation("com.github.retrooper.packetevents:spigot:2.2.1")
@@ -42,13 +45,8 @@ tasks.shadowJar {
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
-artifacts {
-    archives(tasks.shadowJar)
-}
-
 tasks.build {
     dependsOn(tasks.shadowJar)
-    paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
 }
 
 val javaVersion = 21
