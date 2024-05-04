@@ -39,32 +39,12 @@ tasks.shadowJar {
         exclude(dependency("com.google.code.gson:gson"))
         exclude(dependency("net.kyori:"))
     }
-}
-
-tasks.register<Copy>("renameJar") {
-    dependsOn("jar")
-    dependsOn("shadowJar")
-    from(layout.buildDirectory.dir("libs"))
-    into(layout.buildDirectory.dir("libs"))
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    rename("(.+)-dev-all.jar", "$1.jar")
-}
-
-tasks.withType<GenerateModuleMetadata> {
-    dependsOn("renameJar")
-}
-
-tasks.register<Delete>("deleteJars") {
-    dependsOn("renameJar")
-    delete(fileTree(layout.buildDirectory.dir("libs")).matching {
-        include("**-dev**.jar")
-    })
+    archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
 tasks.build {
     dependsOn(tasks.shadowJar)
     paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
-    finalizedBy("deleteJars")
 }
 
 val javaVersion = 21
