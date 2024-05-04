@@ -14,10 +14,6 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.codemc.io/repository/maven-public/")
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        name = "sonatype-oss-snapshots"
-    }
-    maven("https://plugins.gradle.org/m2/")
     maven("https://jitpack.io")
 }
 
