@@ -42,6 +42,10 @@ tasks.shadowJar {
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
 
+artifacts {
+    archives(tasks.shadowJar)
+}
+
 tasks.build {
     dependsOn(tasks.shadowJar)
     paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
