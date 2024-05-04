@@ -42,14 +42,20 @@ tasks.shadowJar {
 }
 
 tasks.register<Copy>("renameJar") {
+    dependsOn("jar")
+    dependsOn("shadowJar")
     from(layout.buildDirectory.dir("libs"))
     into(layout.buildDirectory.dir("libs"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     rename("(.+)-dev-all.jar", "$1.jar")
-    finalizedBy("deleteJars")
+}
+
+tasks.withType<GenerateModuleMetadata> {
+    dependsOn("renameJar")
 }
 
 tasks.register<Delete>("deleteJars") {
+    dependsOn("renameJar")
     delete(fileTree(layout.buildDirectory.dir("libs")).matching {
         include("**-dev**.jar")
     })
@@ -58,7 +64,11 @@ tasks.register<Delete>("deleteJars") {
 tasks.build {
     dependsOn(tasks.shadowJar)
     paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
-    finalizedBy("renameJar")
+    finalizedBy("deleteJars")
+}
+
+tasks.publishToMavenLocal {
+    dependsOn(tasks.build)
 }
 
 val javaVersion = 21
