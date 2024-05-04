@@ -3,6 +3,7 @@ package me.matin.core.managers
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 
+@Suppress("UnstableApiUsage")
 class DependencyManager {
 
     companion object {
@@ -45,7 +46,7 @@ class DependencyManager {
 
         @JvmStatic
         fun checkDepends(plugin: Plugin) {
-            for (pluginName in plugin.description.depend) {
+            for (pluginName in plugin.pluginMeta.pluginDependencies) {
                 if (pluginName == null) continue
                 if (isPluginInstalled(pluginName)) continue
                 plugin.logger.warning("$pluginName is required but not installed!")

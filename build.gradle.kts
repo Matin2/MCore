@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.23"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.7"
     id("maven-publish")
 }
 
@@ -12,14 +12,21 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        name = "sonatype-oss-snapshots"
+    }
+    maven("https://plugins.gradle.org/m2/")
     maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("net.kyori:adventure-api:4.17.0-SNAPSHOT")
     implementation("de.tr7zw:item-nbt-api:2.12.4")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.4.0")
-    implementation("com.github.retrooper.packetevents:spigot:2.2.1")
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.4.0")
+    implementation("com.github.retrooper.packetevents:spigot:2.2.1") {
+        exclude("com.google.code.gson:gson")
+    }
 
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
@@ -44,8 +51,12 @@ tasks.build {
     dependsOn(tasks.shadowJar)
 }
 
+val javaVersion = 21
+
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.processResources {
@@ -59,11 +70,11 @@ tasks.processResources {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release.set(21)
+    options.release.set(javaVersion)
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(javaVersion)
 }
 
 publishing {

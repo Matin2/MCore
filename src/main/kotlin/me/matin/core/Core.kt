@@ -9,7 +9,6 @@ import me.matin.core.managers.menu.MenuManager
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.logging.Level
 
 class Core: JavaPlugin() {
     companion object {
@@ -22,7 +21,7 @@ class Core: JavaPlugin() {
         CommandAPI.onEnable()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager(), this)
-        logger.log(Level.INFO, "Plugin enabled.")
+        logger.info("Plugin enabled.")
     }
 
     override fun onLoad() {
@@ -37,7 +36,7 @@ class Core: JavaPlugin() {
             .usePluginNamespace()
             .initializeNBTAPI(NBTContainer::class.java, ::NBTContainer)
         )
-        logger.log(Level.INFO, "Plugin loaded.")
+        logger.info("Plugin loaded.")
     }
 
     override fun onDisable() {
@@ -46,7 +45,7 @@ class Core: JavaPlugin() {
         }
         CommandAPI.onDisable()
         PacketEvents.getAPI().terminate()
-        logger.log(Level.INFO, "Plugin disabled.")
+        logger.info("Plugin disabled.")
     }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {
