@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     id("io.github.goooler.shadow") version "8.1.7"
+    id("io.papermc.paperweight.userdev") version "1.7.0"
     id("maven-publish")
 }
 
@@ -9,6 +10,7 @@ version = "1.2.6"
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.codemc.io/repository/maven-public/")
@@ -20,13 +22,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("net.kyori:adventure-api:4.17.0-SNAPSHOT")
+    paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
     implementation("de.tr7zw:item-nbt-api:2.12.4")
     implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.4.0")
-    implementation("com.github.retrooper.packetevents:spigot:2.2.1") {
-        exclude("com.google.code.gson:gson")
-    }
+    implementation("com.github.retrooper.packetevents:spigot:2.2.1")
 
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
@@ -44,11 +43,26 @@ tasks.shadowJar {
         exclude(dependency("com.google.code.gson:gson"))
         exclude(dependency("net.kyori:"))
     }
-    archiveFileName.set("${project.name}-${project.version}.jar")
+}
+
+tasks.register<Copy>("renameJar") {
+    from(layout.buildDirectory.dir("libs"))
+    into(layout.buildDirectory.dir("libs"))
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    rename("(.+)-dev-all.jar", "$1.jar")
+    finalizedBy("deleteJars")
+}
+
+tasks.register<Delete>("deleteJars") {
+    delete(fileTree(layout.buildDirectory.dir("libs")).matching {
+        include("**-dev**.jar")
+    })
 }
 
 tasks.build {
     dependsOn(tasks.shadowJar)
+    paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
+    finalizedBy("renameJar")
 }
 
 val javaVersion = 21
