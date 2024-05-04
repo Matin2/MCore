@@ -52,6 +52,7 @@ tasks.register<Copy>("renameJar") {
 
 tasks.withType<GenerateModuleMetadata> {
     dependsOn("renameJar")
+    dependsOn("deleteJars")
 }
 
 tasks.register<Delete>("deleteJars") {
@@ -69,6 +70,7 @@ tasks.build {
 
 tasks.publishToMavenLocal {
     dependsOn(tasks.build)
+    dependsOn("deleteJars")
 }
 
 val javaVersion = 21
