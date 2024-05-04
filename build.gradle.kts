@@ -52,7 +52,6 @@ tasks.register<Copy>("renameJar") {
 
 tasks.withType<GenerateModuleMetadata> {
     dependsOn("renameJar")
-    dependsOn("deleteJars")
 }
 
 tasks.register<Delete>("deleteJars") {
@@ -66,11 +65,6 @@ tasks.build {
     dependsOn(tasks.shadowJar)
     paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
     finalizedBy("deleteJars")
-}
-
-tasks.publishToMavenLocal {
-    dependsOn(tasks.build)
-    dependsOn("deleteJars")
 }
 
 val javaVersion = 21
