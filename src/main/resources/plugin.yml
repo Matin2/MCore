@@ -4,3 +4,10 @@ main: me.matin.core.Core
 api-version: '1.20'
 author: Matin3000
 prefix: MCore
+softdepend:
+  - ProtocolLib
+  - ProtocolSupport
+  - ViaVersion
+  - ViaBackwards
+  - ViaRewind
+  - Geyser-Spigot
