@@ -9,6 +9,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 
+@Suppress("unused")
 object ItemManager {
 
     @JvmStatic
