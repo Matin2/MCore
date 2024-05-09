@@ -6,17 +6,20 @@ import me.matin.core.Core
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class HandMovementManager(private val player: Player) {
+@Suppress("unused")
+object AnimationManager {
 
-    fun swingHand(mainHand: Boolean) {
+    @JvmStatic
+    fun swingHand(player: Player, mainHand: Boolean) {
         val animationType = if (mainHand) WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM else WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_OFF_HAND
         val animation = WrapperPlayServerEntityAnimation(player.entityId, animationType)
-        for (target in getTargetPlayers()) {
+        for (target in getNearbyPlayers(player)) {
             PacketEvents.getAPI().playerManager.sendPacket(target, animation)
         }
     }
 
-    private fun getTargetPlayers(): Collection<Player> {
+    @JvmStatic
+    private fun getNearbyPlayers(player: Player): Collection<Player> {
         val players: MutableCollection<Player> = HashSet()
         players.add(player)
         var range: Int = Core.corePlayerTrackingRange.getOrDefault(player.location.world, 64)
