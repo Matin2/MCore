@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "1.9.24"
     id("io.github.goooler.shadow") version "8.1.7"
     id("maven-publish")
 }
@@ -21,10 +21,9 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("net.kyori:adventure-api:4.17.0-SNAPSHOT")
     implementation("de.tr7zw:item-nbt-api:2.12.4")
     implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.4.0")
-    implementation("com.github.retrooper.packetevents:spigot:2.2.1")
+    implementation("com.github.retrooper.packetevents:spigot:2.3.0")
 
     api(kotlin("stdlib"))
     api(kotlin("reflect"))
