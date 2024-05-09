@@ -2,6 +2,7 @@ package me.matin.core.managers.menu
 
 import org.bukkit.event.inventory.InventoryType
 
+@Suppress("unused")
 enum class MenuType(val type: InventoryType) {
     NORMAL(InventoryType.CHEST),
     ANVIL(InventoryType.ANVIL),

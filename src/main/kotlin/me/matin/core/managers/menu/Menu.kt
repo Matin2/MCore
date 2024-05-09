@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
+@Suppress("unused")
 abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder {
 
     private lateinit var inventory: Inventory

@@ -6,6 +6,7 @@ import org.bukkit.plugin.Plugin
 import java.io.File
 import java.io.IOException
 
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class Config(plugin: Plugin, config: String) {
 
     private var conf: String = config
