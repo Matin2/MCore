@@ -26,8 +26,9 @@ class Core: JavaPlugin() {
 
     override fun onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
-        PacketEvents.getAPI().settings.reEncodeByDefault(false)
-            .checkForUpdates(true)
+        PacketEvents.getAPI().settings
+            .reEncodeByDefault(false)
+            .checkForUpdates(false)
             .bStats(false)
         PacketEvents.getAPI().load()
         CommandAPI.onLoad(CommandAPIBukkitConfig(this)
