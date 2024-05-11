@@ -42,6 +42,11 @@ object DependencyManager {
     fun checkDepends(plugin_versions: Map<String, String>): Map<String, Boolean> {
         val map = HashMap<String, Boolean>()
         for (name in plugin_versions.keys) {
+            val versions = plugin_versions[name]!!
+            if (versions.isBlank()) {
+                map[name] = isPluginInstalled(name)
+                continue
+            }
             if (!isPluginInstalled(name)) {
                 map[name] = false
                 continue
@@ -54,11 +59,16 @@ object DependencyManager {
     @JvmStatic
     fun checkDepends(plugin_versions: Map<String, String>, forEach: (String, Boolean) -> Unit) {
         for (name in plugin_versions.keys) {
-            if (!isPluginInstalled(name)) {
-                forEach(name.trim(), false)
+            val versions = plugin_versions[name]!!
+            if (versions.isBlank()) {
+                forEach(name, isPluginInstalled(name))
                 continue
             }
-            forEach(name, checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, plugin_versions[name]!!))
+            if (!isPluginInstalled(name)) {
+                forEach(name, false)
+                continue
+            }
+            forEach(name, checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, versions))
         }
     }
 
