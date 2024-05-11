@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.Matin2"
-version = "1.2.7"
+version = "1.2.8"
 
 repositories {
     mavenCentral()
@@ -22,7 +22,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     implementation("de.tr7zw:item-nbt-api:2.12.4")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.4.0")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.4.1")
     implementation("com.github.retrooper.packetevents:spigot:2.3.0")
 
     api(kotlin("stdlib"))
