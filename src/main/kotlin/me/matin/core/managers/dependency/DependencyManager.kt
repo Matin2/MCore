@@ -1,4 +1,4 @@
-package me.matin.core.managers
+package me.matin.core.managers.dependency
 
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
@@ -23,52 +23,54 @@ object DependencyManager {
     }
 
     @JvmStatic
-    fun checkDepends(plugins: Set<String>): Map<String, Boolean> {
-        val map = HashMap<String, Boolean>()
+    fun checkDepends(plugins: Set<String>): Map<String, CheckedDepend> {
+        val map = HashMap<String, CheckedDepend>()
         plugins.forEach {
-            map[it] = isPluginInstalled(it)
+            map[it] = if (isPluginInstalled(it)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED
         }
         return map
     }
 
     @JvmStatic
-    fun checkDepends(plugins: Set<String>, forEach: (String, Boolean) -> Unit) {
+    fun checkDepends(plugins: Set<String>, forEach: (String, CheckedDepend) -> Unit) {
         plugins.forEach {
-            forEach(it, isPluginInstalled(it))
+            forEach(it, if (isPluginInstalled(it)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED)
         }
     }
 
     @JvmStatic
-    fun checkDepends(plugin_versions: Map<String, String>): Map<String, Boolean> {
-        val map = HashMap<String, Boolean>()
+    fun checkDepends(plugin_versions: Map<String, String>): Map<String, CheckedDepend> {
+        val map = HashMap<String, CheckedDepend>()
         for (name in plugin_versions.keys) {
             val versions = plugin_versions[name]!!
             if (versions.isBlank()) {
-                map[name] = isPluginInstalled(name)
+                map[name] = if (isPluginInstalled(name)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED
                 continue
             }
             if (!isPluginInstalled(name)) {
-                map[name] = false
+                map[name] = CheckedDepend.NOT_INSTALLED
                 continue
             }
-            map[name] = checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, plugin_versions[name]!!)
+            map[name] = if (checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, versions))
+                CheckedDepend.INSTALLED else CheckedDepend.WRONG_VERSION
         }
         return map
     }
 
     @JvmStatic
-    fun checkDepends(plugin_versions: Map<String, String>, forEach: (String, Boolean) -> Unit) {
+    fun checkDepends(plugin_versions: Map<String, String>, forEach: (String, CheckedDepend) -> Unit) {
         for (name in plugin_versions.keys) {
             val versions = plugin_versions[name]!!
             if (versions.isBlank()) {
-                forEach(name, isPluginInstalled(name))
+                forEach(name, if (isPluginInstalled(name)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED)
                 continue
             }
             if (!isPluginInstalled(name)) {
-                forEach(name, false)
+                forEach(name, CheckedDepend.NOT_INSTALLED)
                 continue
             }
-            forEach(name, checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, versions))
+            forEach(name, if (checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, versions))
+                CheckedDepend.INSTALLED else CheckedDepend.WRONG_VERSION)
         }
     }
 
