@@ -16,7 +16,7 @@ object DependencyManager {
     fun arePluginsInstalled(pluginNames: Array<String>): Boolean {
         val statues = ArrayList<Boolean>()
         pluginNames.forEach {
-            val plugin = Bukkit.getPluginManager().getPlugin(it.trim())
+            val plugin = Bukkit.getPluginManager().getPlugin(it)
             statues.add(plugin != null && plugin.isEnabled)
         }
         return statues.all { it }
@@ -32,9 +32,9 @@ object DependencyManager {
     }
 
     @JvmStatic
-    fun checkDepends(plugins: Set<String>, function: (String, Boolean) -> Unit) {
+    fun checkDepends(plugins: Set<String>, forEach: (String, Boolean) -> Unit) {
         plugins.forEach {
-            function(it.trim(), isPluginInstalled(it))
+            forEach(it, isPluginInstalled(it))
         }
     }
 
@@ -43,35 +43,41 @@ object DependencyManager {
         val map = HashMap<String, Boolean>()
         for (name in plugin_versions.keys) {
             if (!isPluginInstalled(name)) {
-                map[name.trim()] = false
+                map[name] = false
                 continue
             }
-            map[name.trim()] = checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, plugin_versions[name]!!)
+            map[name] = checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, plugin_versions[name]!!)
         }
         return map
     }
 
     @JvmStatic
-    fun checkDepends(plugin_versions: Map<String, String>, function: (String, Boolean) -> Unit) {
+    fun checkDepends(plugin_versions: Map<String, String>, forEach: (String, Boolean) -> Unit) {
         for (name in plugin_versions.keys) {
             if (!isPluginInstalled(name)) {
-                function(name.trim(), false)
+                forEach(name.trim(), false)
                 continue
             }
-            function(name.trim(), checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, plugin_versions[name]!!))
+            forEach(name, checkVersions(Bukkit.getPluginManager().getPlugin(name)!!, plugin_versions[name]!!))
         }
     }
 
     private fun checkVersions(plugin: Plugin, versions: String): Boolean {
         val version = plugin.pluginMeta.version.uppercase()
-        val map = HashMap<String, Boolean>()
-        versions.split('\\').filter { it.isNotBlank() }.forEach {
-            val ver = it.trim().uppercase()
-            if (ver.startsWith('*')) map[ver] = version.contains(ver.trimStart('*'))
-            else if (ver.startsWith("!*")) map[ver] = !version.contains(ver.trimStart('!', '*'))
-            else if (ver.startsWith('!')) map[ver] = version != ver.trimStart('!')
-            else map[ver] = version == ver
+        val status = ArrayList<Boolean>()
+        versions.split('\\').forEach {
+            val ver = it.uppercase()
+            with (ver) { when {
+                startsWith('*') -> status.add(version.contains(ver.removePrefix("*")))
+                startsWith('>') -> status.add(version.startsWith(ver.removePrefix(">")))
+                startsWith('<') -> status.add(version.endsWith(ver.removePrefix("<")))
+                startsWith("!*") -> status.add(!version.contains(ver.removePrefix("!*")))
+                startsWith("!>") -> status.add(version.startsWith(ver.removePrefix("!>")))
+                startsWith("!<") -> status.add(version.endsWith(ver.removePrefix("!<")))
+                startsWith('!') -> status.add(version != ver.removePrefix("!"))
+                else -> status.add(version == ver)
+            } }
         }
-        return map.values.any { it }
+        return status.any { it }
     }
 }
