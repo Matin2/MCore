@@ -32,7 +32,7 @@ object DependencyManager {
     }
 
     @JvmStatic
-    fun checkDepends(plugins: Set<String>, action: (String, CheckedDepend) -> Unit, registerListener: Plugin? = null) {
+    fun checkDepends(plugins: Set<String>, registerListener: Plugin? = null, action: (String, CheckedDepend) -> Unit) {
         plugins.forEach {
             action(it, if (isPluginInstalled(it)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED)
         }
@@ -59,7 +59,7 @@ object DependencyManager {
     }
 
     @JvmStatic
-    fun checkDepends(plugin_versions: Map<String, String>, action: (String, CheckedDepend) -> Unit, registerListener: Plugin? = null) {
+    fun checkDepends(plugin_versions: Map<String, String>, registerListener: Plugin? = null, action: (String, CheckedDepend) -> Unit) {
         for (name in plugin_versions.keys) {
             val versions = plugin_versions[name]!!
             if (versions.isBlank()) {
