@@ -36,7 +36,9 @@ object DependencyManager {
         plugins.forEach {
             action(it, if (isPluginInstalled(it)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED)
         }
-        if (registerListener != null) Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), registerListener)
+        registerListener?.let {
+            Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), it)
+        }
     }
 
     @JvmStatic
@@ -73,7 +75,9 @@ object DependencyManager {
             action(name, if (Bukkit.getPluginManager().getPlugin(name)!!.checkVersions(versions))
                 CheckedDepend.INSTALLED else CheckedDepend.WRONG_VERSION)
         }
-        if (registerListener != null) Bukkit.getPluginManager().registerEvents(DependencyListener(plugin_versions, action), registerListener)
+        registerListener?.let {
+            Bukkit.getPluginManager().registerEvents(DependencyListener(plugin_versions, action), it)
+        }
     }
 
     internal fun Plugin.checkVersions(versions: String): Boolean {

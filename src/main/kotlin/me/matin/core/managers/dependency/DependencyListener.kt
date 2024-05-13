@@ -25,10 +25,9 @@ class DependencyListener(private val plugins: Set<String>, private val action: (
     fun onPluginEnable(event: PluginEnableEvent) {
         if (event.plugin.name !in plugins) return
         val name = event.plugin.name
-        if (pluginVersions != null) {
+        pluginVersions?.let {
             action(name, if (event.plugin.checkVersions(pluginVersions!![name]!!))
                 CheckedDepend.INSTALLED else CheckedDepend.WRONG_VERSION)
-        }
-        else action(name, CheckedDepend.INSTALLED)
+        } ?: run { action(name, CheckedDepend.INSTALLED) }
     }
 }
