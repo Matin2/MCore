@@ -11,11 +11,9 @@ class Config(plugin: Plugin, config: String) {
 
     private var conf: String = config
         get() {
-            while (field.startsWith('/')) {
-                field = field.removePrefix("/")
-            }
-            if (!field.endsWith(".yml")) return "$field.yml".trim()
-            return field.trim()
+            if (field.startsWith('/'))field.trimStart('/')
+            if (!field.endsWith(".yml")) return "$field.yml"
+            return field
         }
 
     private val configFile = File("${plugin.dataFolder.path}/${conf}")
