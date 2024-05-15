@@ -1,11 +1,13 @@
 package me.matin.core
 
 import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.event.PacketListenerPriority
 import de.tr7zw.changeme.nbtapi.NBTContainer
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.matin.core.managers.menu.MenuManager
+import me.matin.core.managers.packet.PacketListener
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
@@ -17,7 +19,10 @@ class Core: JavaPlugin() {
     }
 
     override fun onEnable() {
-        PacketEvents.getAPI().init()
+        PacketEvents.getAPI().let {
+            it.init()
+            it.eventManager.registerListener(PacketListener(), PacketListenerPriority.LOW)
+        }
         CommandAPI.onEnable()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager(), this)
@@ -26,11 +31,13 @@ class Core: JavaPlugin() {
 
     override fun onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
-        PacketEvents.getAPI().settings
-            .reEncodeByDefault(false)
-            .checkForUpdates(false)
-            .bStats(false)
-        PacketEvents.getAPI().load()
+        PacketEvents.getAPI().let {
+            it.settings
+                .reEncodeByDefault(false)
+                .checkForUpdates(false)
+                .bStats(false)
+            it.load()
+        }
         CommandAPI.onLoad(CommandAPIBukkitConfig(this)
             .shouldHookPaperReload(true)
             .silentLogs(true)

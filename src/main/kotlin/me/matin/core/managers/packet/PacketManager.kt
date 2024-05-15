@@ -1,8 +1,9 @@
-package me.matin.core.managers
+package me.matin.core.managers.packet
 
 import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.protocol.player.Equipment
 import com.github.retrooper.packetevents.protocol.player.EquipmentSlot
+import com.github.retrooper.packetevents.protocol.player.HumanoidArm
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEquipment
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
@@ -16,7 +17,7 @@ import java.util.*
 import kotlin.collections.HashSet
 
 @Suppress("unused")
-object ProtocolManager {
+object PacketManager {
 
     @JvmStatic
     fun swingHand(player: Player, mainHand: Boolean) {
@@ -42,15 +43,17 @@ object ProtocolManager {
         return players
     }
 
+    @JvmStatic
     fun showTotem(player: Player, model: Optional<Int>) {
         if (!model.isPresent) playTotem(player).also { return }
-        val totem = ItemStack(Material.TOTEM_OF_UNDYING)
-        totem.itemMeta.also {
-            it.setCustomModelData(model.get())
-            totem.setItemMeta(it)
-        }
         val oldItem = player.inventory.itemInOffHand
-        changeItem(player, totem, EquipmentSlot.OFF_HAND)
+        ItemStack(Material.TOTEM_OF_UNDYING).let {
+            it.itemMeta.let { meta ->
+                meta.setCustomModelData(model.get())
+                it.setItemMeta(meta)
+            }
+            changeItem(player, it, EquipmentSlot.OFF_HAND)
+        }
         playTotem(player)
         changeItem(player, oldItem, EquipmentSlot.OFF_HAND)
     }
@@ -66,5 +69,10 @@ object ProtocolManager {
         val equipment = Equipment(slot, packetItem)
         val packet = WrapperPlayServerEntityEquipment(player.entityId, listOf(equipment))
         PacketEvents.getAPI().playerManager.sendPacket(player, packet)
+    }
+
+    @JvmStatic
+    fun getClientHand(player: Player): HumanoidArm {
+        return PacketListener.clientHandMap[player] ?: HumanoidArm.RIGHT
     }
 }
