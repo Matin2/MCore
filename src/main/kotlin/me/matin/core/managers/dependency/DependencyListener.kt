@@ -11,7 +11,7 @@ class DependencyListener(private val plugins: Set<String>, private val action: (
 
     private var pluginVersions: Map<String, String>? = null
 
-    constructor(plugin_versions: Map<String, String>, action: (String, CheckedDepend) -> Unit): this(plugin_versions.keys, action) {
+    constructor(plugin_versions: Map<String, String>, action: (name: String, state: CheckedDepend) -> Unit): this(plugin_versions.keys, action) {
         this.pluginVersions = plugin_versions
     }
 
