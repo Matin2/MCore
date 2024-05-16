@@ -60,10 +60,9 @@ class Core: JavaPlugin() {
         playerTrackingRange.clear()
         val defaultRange =
             Bukkit.getServer().spigot().config.getInt("world-settings.default.entity-tracking-range.players", 64)
-        for (world in Bukkit.getServer().worlds) {
-            val range = Bukkit.getServer()
-                .spigot().config.getInt("world-settings." + world.name + ".entity-tracking-range.players", defaultRange)
-            playerTrackingRange[world] = range
+        Bukkit.getServer().worlds.forEach {
+            playerTrackingRange[it] = Bukkit.getServer().spigot()
+                .config.getInt("world-settings." + it.name + ".entity-tracking-range.players", defaultRange)
         }
     }
 

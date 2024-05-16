@@ -59,13 +59,10 @@ class MenuManager: Listener {
         @JvmStatic
         fun checkCursor(player: Player) {
             val cursor = player.openInventory.cursor
-            val inv = player.openInventory.topInventory
-            val menu = inv.holder as? Menu ?: return
-            if (!menu.antiCursorItemLoss) return
-            if (!cursor.isEmpty && !cursor.type.isAir) {
-                val result = player.inventory.addItem(cursor)
-                if (result.isNotEmpty()) ItemManager.drop(cursor, player.location , BlockFace.UP)
-            }
+            if (cursor.isEmpty || cursor.type.isAir) return
+            if (!(player.openInventory.topInventory.holder as? Menu ?: return).antiCursorItemLoss) return
+            val result = player.inventory.addItem(cursor)
+            if (result.isNotEmpty()) ItemManager.drop(cursor, player.location , BlockFace.UP)
         }
     }
 }

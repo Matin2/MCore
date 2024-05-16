@@ -6,6 +6,8 @@ import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import kotlin.math.max
+import kotlin.math.min
 
 @Suppress("unused")
 abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder {
@@ -27,8 +29,7 @@ abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder
 
     fun open() {
         if (type == MenuType.NORMAL) {
-            if (rows < 1) rows = 1
-            if (rows > 6) rows = 6
+            rows = min(max(rows,1) ,6)
             inventory = Bukkit.createInventory(this, rows * 9, title)
         } else inventory = Bukkit.createInventory(this, type.type, title)
         setMenuItems()

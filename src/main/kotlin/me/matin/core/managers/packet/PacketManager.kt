@@ -14,7 +14,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.*
-import kotlin.collections.HashSet
+import kotlin.collections.ArrayList
 
 @Suppress("unused")
 object PacketManager {
@@ -24,21 +24,20 @@ object PacketManager {
         val animationType =
             if (mainHand) WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM
             else WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_OFF_HAND
-        val animation = WrapperPlayServerEntityAnimation(player.entityId, animationType)
-        for (target in getNearbyPlayers(player)) {
-            PacketEvents.getAPI().playerManager.sendPacket(target, animation)
+        WrapperPlayServerEntityAnimation(player.entityId, animationType).let { packet ->
+            getNearbyPlayers(player).forEach { PacketEvents.getAPI().playerManager.sendPacket(it, packet) }
         }
     }
 
     @JvmStatic
     private fun getNearbyPlayers(player: Player): Collection<Player> {
-        val players: MutableCollection<Player> = HashSet()
-        players.add(player)
-        var range: Int = Core.corePlayerTrackingRange.getOrDefault(player.location.world, 64)
-        range *= range
-        for (p in Bukkit.getOnlinePlayers()) {
-            if (p.location.world == player.location.world && (p.location.distanceSquared(player.location) <= range))
-                players.add(p)
+        val players: ArrayList<Player> = arrayListOf(player)
+        val range = Core.corePlayerTrackingRange.getOrDefault(player.location.world, 64).let { it * it }
+        val location = player.location
+        Bukkit.getOnlinePlayers().forEach {
+            val loc = it.location
+            if (loc.world == location.world && loc.distanceSquared(location) <= range)
+                players.add(it)
         }
         return players
     }
@@ -58,9 +57,8 @@ object PacketManager {
         changeItem(player, oldItem, EquipmentSlot.OFF_HAND)
     }
 
-    private fun playTotem(player: Player) {
-        val packet = WrapperPlayServerEntityStatus(player.entityId, 35)
-        PacketEvents.getAPI().playerManager.sendPacket(player, packet)
+    private fun playTotem(player: Player) = WrapperPlayServerEntityStatus(player.entityId, 35).let {
+        PacketEvents.getAPI().playerManager.sendPacket(player, it)
     }
 
     @JvmStatic

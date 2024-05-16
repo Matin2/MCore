@@ -1,6 +1,5 @@
 package me.matin.core.managers.item
 
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -8,6 +7,7 @@ import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
+import kotlin.math.min
 
 @Suppress("unused")
 object ItemManager {
@@ -32,41 +32,29 @@ object ItemManager {
     }
 
     private fun modifyAmount(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
-        var mod: Int
         val item = player.inventory.getItem(slot) ?: return
         if (item.type == Material.AIR) return
-        val itemAmount = item.amount
-        val itemMaxAmount = item.maxStackSize
-        mod = when (modification) {
+        val newAmount = when (modification) {
             ItemModificationType.SET -> amount
-            ItemModificationType.ADD -> itemAmount + amount
-            ItemModificationType.TAKE -> itemAmount - amount
+            ItemModificationType.ADD -> item.amount + amount
+            ItemModificationType.TAKE -> item.amount - amount
         }
-        if (mod > itemMaxAmount) mod = itemMaxAmount
-        if (itemAmount != 0) {
-            item.amount = mod
-        }
+        if (newAmount == 0) return
+        item.amount = min(newAmount, item.maxStackSize)
     }
 
     private fun modifyDurability(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
         val item = player.inventory.getItem(slot) ?: return
         if (item.type == Material.AIR || item.itemMeta.isUnbreakable) return
         val damageable = item.itemMeta as? Damageable ?: return
-        val itemMaxDurability = item.type.maxDurability.toInt()
-        val mod: Int
-        val itemDamage = if (damageable.hasDamage()) damageable.damage else 0
-        mod = when (modification) {
-            ItemModificationType.SET -> itemMaxDurability - amount
-            ItemModificationType.ADD -> itemDamage - amount
-            ItemModificationType.TAKE -> itemDamage + amount
+        val damage = when (modification) {
+            ItemModificationType.SET -> item.type.maxDurability - amount
+            ItemModificationType.ADD -> damageable.damage - amount
+            ItemModificationType.TAKE -> damageable.damage + amount
         }
-        if (mod == 0 || item.type == Material.AIR) return
-        damageable.damage = mod
-        Bukkit.getScheduler().runTaskAsynchronously(Bukkit.getPluginManager().getPlugin("MCore")!!, Runnable {
-            item.setItemMeta(
-                damageable
-            )
-        })
+        if (damage == 0) return
+        damageable.damage = damage
+        item.setItemMeta(damageable)
     }
 
     @JvmStatic
