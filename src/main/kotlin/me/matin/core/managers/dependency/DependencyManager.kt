@@ -23,9 +23,9 @@ object DependencyManager {
     }
 
     @JvmStatic
-    fun checkDepends(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, state: CheckedDepend) -> Unit) {
+    fun checkDepends(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, installed: Boolean) -> Unit) {
         plugins.forEach {
-            action(it, if (isPluginInstalled(it)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED)
+            action(it, isPluginInstalled(it))
         }
         registerListener?.let {
             Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), it)
@@ -33,26 +33,25 @@ object DependencyManager {
     }
 
     @JvmStatic
-    fun checkDepends(pluginToVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: CheckedDepend) -> Unit) {
+    fun checkDepends(pluginToVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: DependencyState) -> Unit) {
         for (name in pluginToVersions.keys) {
             val versions = pluginToVersions[name]!!
             if (versions.isBlank()) {
-                action(name, if (isPluginInstalled(name)) CheckedDepend.INSTALLED else CheckedDepend.NOT_INSTALLED)
+                action(name, if (isPluginInstalled(name)) DependencyState.INSTALLED else DependencyState.NOT_INSTALLED)
                 continue
             }
             if (!isPluginInstalled(name)) {
-                action(name, CheckedDepend.NOT_INSTALLED)
+                action(name, DependencyState.NOT_INSTALLED)
                 continue
             }
-            action(name, if (Bukkit.getPluginManager().getPlugin(name)!!.checkVersions(versions))
-                CheckedDepend.INSTALLED else CheckedDepend.WRONG_VERSION)
+            action(name, Bukkit.getPluginManager().getPlugin(name)!!.checkVersions(versions))
         }
         registerListener?.let {
             Bukkit.getPluginManager().registerEvents(DependencyListener(pluginToVersions, action), it)
         }
     }
 
-    internal fun Plugin.checkVersions(versions: String): Boolean {
+    internal fun Plugin.checkVersions(versions: String): DependencyState {
         val version = this.pluginMeta.version.uppercase()
         val status = ArrayList<Boolean>()
         versions.split('\\').forEach {
@@ -68,6 +67,6 @@ object DependencyManager {
                 else -> status.add(version == ver)
             } }
         }
-        return status.any { it }
+        return if (status.any { it }) DependencyState.INSTALLED else DependencyState.WRONG_VERSION
     }
 }
