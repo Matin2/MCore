@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.0.0"
     id("io.github.goooler.shadow") version "8.1.7"
     id("maven-publish")
 }
@@ -10,19 +10,17 @@ version = "1.2.8"
 repositories {
     mavenCentral()
     gradlePluginPortal()
+    flatDir { dirs("libs") }
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.codemc.io/repository/maven-public/")
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        name = "sonatype-oss-snapshots"
-    }
     maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     implementation("de.tr7zw:item-nbt-api:2.12.4")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.4.1")
+    implementation("dev.jorel.commandapi:CommandAPI:9.5.0")
+//    implementation("dev.jorel:commandapi-bukkit-shade:9.5.0")
     implementation("com.github.retrooper.packetevents:spigot:2.3.0")
 
     api(kotlin("stdlib"))
