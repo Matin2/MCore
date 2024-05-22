@@ -18,15 +18,8 @@ class PacketListener : PacketListenerAbstract(PacketListenerPriority.NORMAL) {
 
     override fun onPacketReceive(event: PacketReceiveEvent) {
         when (event.packetType) {
-            PacketType.Play.Client.CLIENT_SETTINGS -> {
-                val hand = WrapperPlayClientSettings(event).mainHand
-                val player = Bukkit.getServer().getPlayer(event.user.uuid) ?: return
-                player.saveClientHand(hand)
-            }
-            PacketType.Configuration.Client.CLIENT_SETTINGS -> {
-                val hand = WrapperConfigClientSettings(event).hand
-                onJoin(event.user.uuid, hand)
-            }
+            PacketType.Play.Client.CLIENT_SETTINGS -> Bukkit.getServer().getPlayer(event.user.uuid)?.saveClientHand(WrapperPlayClientSettings(event).mainHand) ?: return
+            PacketType.Configuration.Client.CLIENT_SETTINGS -> onJoin(event.user.uuid, WrapperConfigClientSettings(event).hand)
         }
     }
 
