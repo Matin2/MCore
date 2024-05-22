@@ -13,7 +13,6 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class Core: JavaPlugin() {
     companion object {
-
         @JvmStatic
         lateinit var plugin: Core
         @JvmStatic
@@ -68,7 +67,5 @@ class Core: JavaPlugin() {
                 .config.getInt("world-settings." + it.name + ".entity-tracking-range.players", defaultRange)
         }
     }
-
-
 
 }
