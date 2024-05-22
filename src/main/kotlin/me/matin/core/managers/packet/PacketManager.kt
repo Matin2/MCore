@@ -7,13 +7,14 @@ import com.github.retrooper.packetevents.protocol.player.HumanoidArm
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEquipment
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
-import de.tr7zw.changeme.nbtapi.NBTEntity
 import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import me.matin.core.Core
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
 @Suppress("unused")
@@ -70,5 +71,10 @@ object PacketManager {
     }
 
     @JvmStatic
-    fun getClientHand(player: Player): HumanoidArm = if (NBTEntity(player).getBoolean("left_handed")) HumanoidArm.LEFT else HumanoidArm.RIGHT
+    fun getClientHand(player: Player): HumanoidArm {
+        val key = NamespacedKey("mcore", "left_handed")
+        val container = player.persistentDataContainer
+        val leftHanded = if (container.has(key)) player.persistentDataContainer.get(key, PersistentDataType.BOOLEAN)!! else false
+        return if (leftHanded) HumanoidArm.LEFT else HumanoidArm.RIGHT
+    }
 }

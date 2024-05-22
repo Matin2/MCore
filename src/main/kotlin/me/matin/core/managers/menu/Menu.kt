@@ -6,6 +6,7 @@ import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.jetbrains.annotations.Range
 import kotlin.math.max
 import kotlin.math.min
 
@@ -17,7 +18,7 @@ abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder
     abstract val title: Component
 
     abstract val type: MenuType
-    open var rows: Int = 3
+    open var rows: @Range(from = 1, to = 6) Int = 3
 
     open val cancelClickIgnoredSlots: ArrayList<Int> = ArrayList()
     open val freezeBottomInv: Boolean = false

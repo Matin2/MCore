@@ -1,7 +1,6 @@
 package me.matin.core
 
 import com.github.retrooper.packetevents.PacketEvents
-import com.github.retrooper.packetevents.event.PacketListenerPriority
 import de.tr7zw.changeme.nbtapi.NBTContainer
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
@@ -14,16 +13,20 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class Core: JavaPlugin() {
     companion object {
+
+        @JvmStatic
+        lateinit var plugin: Core
         @JvmStatic
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
     }
 
     override fun onEnable() {
+        plugin = this
+        CommandAPI.onEnable()
         PacketEvents.getAPI().let {
             it.init()
-            it.eventManager.registerListener(PacketListener(), PacketListenerPriority.LOW)
+            it.eventManager.registerListener(PacketListener())
         }
-        CommandAPI.onEnable()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager(), this)
         logger.info("Plugin enabled.")
@@ -65,5 +68,7 @@ class Core: JavaPlugin() {
                 .config.getInt("world-settings." + it.name + ".entity-tracking-range.players", defaultRange)
         }
     }
+
+
 
 }
