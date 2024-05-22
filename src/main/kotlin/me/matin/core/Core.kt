@@ -1,7 +1,6 @@
 package me.matin.core
 
 import com.github.retrooper.packetevents.PacketEvents
-import com.github.retrooper.packetevents.event.PacketListenerPriority
 import de.tr7zw.changeme.nbtapi.NBTContainer
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
@@ -19,13 +18,14 @@ class Core: JavaPlugin() {
     }
 
     override fun onEnable() {
+        CommandAPI.onEnable()
         PacketEvents.getAPI().let {
             it.init()
-            it.eventManager.registerListener(PacketListener(), PacketListenerPriority.LOW)
+            it.eventManager.registerListener(PacketListener())
         }
-        CommandAPI.onEnable()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager(), this)
+        server.pluginManager.registerEvents(PacketListener(), this)
         logger.info("Plugin enabled.")
     }
 
