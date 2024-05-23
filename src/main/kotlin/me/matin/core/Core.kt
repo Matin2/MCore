@@ -6,7 +6,6 @@ import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.matin.core.managers.menu.MenuManager
-import me.matin.core.managers.packet.PacketListener
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
@@ -22,10 +21,7 @@ class Core: JavaPlugin() {
     override fun onEnable() {
         plugin = this
         CommandAPI.onEnable()
-        PacketEvents.getAPI().let {
-            it.init()
-            it.eventManager.registerListener(PacketListener())
-        }
+        PacketEvents.getAPI().init()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager(), this)
         logger.info("Plugin enabled.")
