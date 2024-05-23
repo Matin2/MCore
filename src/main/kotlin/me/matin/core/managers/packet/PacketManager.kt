@@ -44,18 +44,14 @@ object PacketManager {
                 meta.setCustomModelData(model)
                 it.setItemMeta(meta)
             }
-            changeSlotItem(player, it)
+            player.inventory.setItem(40, it)
         }
         playTotem(player)
-        changeSlotItem(player, oldItem)
+        player.inventory.setItem(40, oldItem)
     }
 
     private fun playTotem(player: Player) = WrapperPlayServerEntityStatus(player.entityId, 35).let {
         PacketEvents.getAPI().playerManager.sendPacket(player, it)
-    }
-
-    private fun changeSlotItem(player: Player, item: ItemStack) {
-        player.inventory.setItem(40, item)
     }
 
 //    @JvmStatic
