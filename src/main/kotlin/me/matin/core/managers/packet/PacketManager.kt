@@ -1,21 +1,13 @@
 package me.matin.core.managers.packet
 
 import com.github.retrooper.packetevents.PacketEvents
-import com.github.retrooper.packetevents.protocol.player.Equipment
-import com.github.retrooper.packetevents.protocol.player.EquipmentSlot
-import com.github.retrooper.packetevents.protocol.player.HumanoidArm
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEquipment
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
-import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import me.matin.core.Core
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
-import java.util.*
 
 @Suppress("unused")
 object PacketManager {
@@ -44,37 +36,33 @@ object PacketManager {
     }
 
     @JvmStatic
-    fun showTotem(player: Player, model: Optional<Int>) {
-        if (!model.isPresent) playTotem(player).also { return }
+    fun showTotem(player: Player, model: Int?) {
+        if (model == null) playTotem(player).also { return }
         val oldItem = player.inventory.itemInOffHand
         ItemStack(Material.TOTEM_OF_UNDYING).let {
             it.itemMeta.let { meta ->
-                meta.setCustomModelData(model.get())
+                meta.setCustomModelData(model)
                 it.setItemMeta(meta)
             }
-            changeItem(player, it, EquipmentSlot.OFF_HAND)
+            changeSlotItem(player, it)
         }
         playTotem(player)
-        changeItem(player, oldItem, EquipmentSlot.OFF_HAND)
+        changeSlotItem(player, oldItem)
     }
 
     private fun playTotem(player: Player) = WrapperPlayServerEntityStatus(player.entityId, 35).let {
         PacketEvents.getAPI().playerManager.sendPacket(player, it)
     }
 
-    @JvmStatic
-    fun changeItem(player: Player, item: ItemStack, slot: EquipmentSlot) {
-        val packetItem = SpigotConversionUtil.fromBukkitItemStack(item)
-        val equipment = Equipment(slot, packetItem)
-        val packet = WrapperPlayServerEntityEquipment(player.entityId, listOf(equipment))
-        PacketEvents.getAPI().playerManager.sendPacket(player, packet)
+    private fun changeSlotItem(player: Player, item: ItemStack) {
+        player.inventory.setItem(40, item)
     }
 
-    @JvmStatic
-    fun getClientHand(player: Player): HumanoidArm {
-        val key = NamespacedKey("mcore", "left_handed")
-        val container = player.persistentDataContainer
-        val leftHanded = if (container.has(key)) player.persistentDataContainer.get(key, PersistentDataType.BOOLEAN)!! else false
-        return if (leftHanded) HumanoidArm.LEFT else HumanoidArm.RIGHT
-    }
+//    @JvmStatic
+//    fun changeItem(player: Player, item: ItemStack, slot: Int) {
+//        val packetItem = SpigotConversionUtil.fromBukkitItemStack(item)
+//        val s = minOf(maxOf(slot, 0), 40)
+//        val packet = WrapperPlayServerSetSlot(-2, 0, s, packetItem)
+//        PacketEvents.getAPI().playerManager.sendPacket(player, packet)
+//    }
 }
