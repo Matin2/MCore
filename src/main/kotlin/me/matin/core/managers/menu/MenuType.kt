@@ -23,5 +23,14 @@ enum class MenuType(val type: InventoryType?, val rows: Int?) {
     MERCHANT(InventoryType.MERCHANT, null),
     SMITHING(InventoryType.SMITHING, null),
     STONECUTTER(InventoryType.STONECUTTER, null),
-    WORKBENCH(InventoryType.WORKBENCH, null),
+    WORKBENCH(InventoryType.WORKBENCH, null);
+
+    fun getRow(rows: Int): MenuType {
+        val r = minOf(maxOf(rows, 0), 6)
+        return entries.first { it.rows == r }
+    }
+
+    fun getInventoryType(type: InventoryType): MenuType? {
+        return entries.firstOrNull() { it.type == type }
+    }
 }
