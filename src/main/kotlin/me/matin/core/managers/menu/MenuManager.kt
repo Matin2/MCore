@@ -1,6 +1,7 @@
 package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
+import me.matin.core.managers.menu.MenuType.entries
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -8,6 +9,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
+import org.bukkit.event.inventory.InventoryType
 
 @Suppress("unused")
 class MenuManager: Listener {
@@ -47,6 +49,17 @@ class MenuManager: Listener {
                 return playerMenuUtil
             }
             return playerMenuUtilMap[player]!!
+        }
+
+        @JvmStatic
+        fun getRowsType(rows: Int): MenuType {
+            val r = minOf(maxOf(rows, 0), 6)
+            return entries.first { it.rows == r }
+        }
+
+        @JvmStatic
+        fun getInventoryType(type: InventoryType): MenuType? {
+            return entries.firstOrNull() { it.type == type }
         }
 
         @JvmStatic
