@@ -15,7 +15,7 @@ class DependencyListener: Listener {
     private var versionAction: ((String, DependencyState) -> Unit)? = null
     private var noVersionAction: ((String, Boolean) -> Unit)? = null
     private val action: (String, DependencyState) -> Unit = { name, state ->
-        versionAction?.let { it(name, state) } ?: noVersionAction?.let { it(name, state.value) }
+        versionAction?.also { it(name, state) } ?: noVersionAction?.also { it(name, state.value) }
     }
 
     constructor(pluginToVersions: Map<String, String>, action: (name: String, state: DependencyState) -> Unit) {
@@ -43,9 +43,8 @@ class DependencyListener: Listener {
 
     @EventHandler
     fun onPluginEnable(event: PluginEnableEvent) {
-        if (!isDepend(event.plugin.name)) return
-        val name = event.plugin.name
-        pluginToVersions?.let {
+        val name = event.plugin.name.takeIf { isDepend(it) } ?: return
+        pluginToVersions?.also {
             action(name, event.plugin.checkVersions(pluginToVersions!![name]!!))
         } ?: action(name, DependencyState.INSTALLED)
     }

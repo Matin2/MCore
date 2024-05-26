@@ -17,7 +17,7 @@ object PacketManager {
         val animationType =
             if (mainHand) WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM
             else WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_OFF_HAND
-        WrapperPlayServerEntityAnimation(player.entityId, animationType).let { packet ->
+        WrapperPlayServerEntityAnimation(player.entityId, animationType).also { packet ->
             getNearbyPlayers(player).forEach { PacketEvents.getAPI().playerManager.sendPacket(it, packet) }
         }
     }
@@ -27,11 +27,9 @@ object PacketManager {
         val players: ArrayList<Player> = arrayListOf(player)
         val range = Core.corePlayerTrackingRange.getOrDefault(player.location.world, 64).let { it * it }
         val location = player.location
-        Bukkit.getOnlinePlayers().forEach {
-            val loc = it.location
-            if (loc.world == location.world && loc.distanceSquared(location) <= range)
-                players.add(it)
-        }
+        Bukkit.getOnlinePlayers().filterNotNull().filter {
+            it.world == location.world && it.location.distanceSquared(location) <= range
+        }.forEach { players.add(it) }
         return players
     }
 
@@ -39,8 +37,8 @@ object PacketManager {
     fun showTotem(player: Player, model: Int?) {
         if (model == null) playTotem(player).also { return }
         val oldItem = player.inventory.itemInOffHand
-        ItemStack(Material.TOTEM_OF_UNDYING).let {
-            it.itemMeta.let { meta ->
+        ItemStack(Material.TOTEM_OF_UNDYING).also {
+            it.itemMeta.also { meta ->
                 meta.setCustomModelData(model)
                 it.setItemMeta(meta)
             }

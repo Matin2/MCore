@@ -27,7 +27,7 @@ object DependencyManager {
         plugins.forEach {
             action(it, isPluginInstalled(it))
         }
-        registerListener?.let {
+        registerListener?.also {
             Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), it)
         }
     }
@@ -46,7 +46,7 @@ object DependencyManager {
             }
             action(name, Bukkit.getPluginManager().getPlugin(name)!!.checkVersions(versions))
         }
-        registerListener?.let {
+        registerListener?.also {
             Bukkit.getPluginManager().registerEvents(DependencyListener(pluginToVersions, action), it)
         }
     }
@@ -55,17 +55,18 @@ object DependencyManager {
         val version = this.pluginMeta.version.uppercase()
         val status = ArrayList<Boolean>()
         versions.split('\\').forEach {
-            val ver = it.uppercase()
-            with (ver) { when {
-                startsWith('*') -> status.add(version.contains(ver.removePrefix("*")))
-                startsWith('>') -> status.add(version.startsWith(ver.removePrefix(">")))
-                startsWith('<') -> status.add(version.endsWith(ver.removePrefix("<")))
-                startsWith("!*") -> status.add(!version.contains(ver.removePrefix("!*")))
-                startsWith("!>") -> status.add(version.startsWith(ver.removePrefix("!>")))
-                startsWith("!<") -> status.add(version.endsWith(ver.removePrefix("!<")))
-                startsWith('!') -> status.add(version != ver.removePrefix("!"))
-                else -> status.add(version == ver)
-            } }
+            it.uppercase().apply {
+                when {
+                    startsWith('*') -> status.add(version.contains(removePrefix("*")))
+                    startsWith('>') -> status.add(version.startsWith(removePrefix(">")))
+                    startsWith('<') -> status.add(version.endsWith(removePrefix("<")))
+                    startsWith("!*") -> status.add(!version.contains(removePrefix("!*")))
+                    startsWith("!>") -> status.add(version.startsWith(removePrefix("!>")))
+                    startsWith("!<") -> status.add(version.endsWith(removePrefix("!<")))
+                    startsWith('!') -> status.add(version != removePrefix("!"))
+                    else -> status.add(version == this)
+                }
+            }
         }
         return if (status.any { it }) DependencyState.INSTALLED else DependencyState.WRONG_VERSION
     }

@@ -29,7 +29,7 @@ class Core: JavaPlugin() {
 
     override fun onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
-        PacketEvents.getAPI().let {
+        PacketEvents.getAPI()?.also {
             it.settings
                 .reEncodeByDefault(false)
                 .checkForUpdates(false)
@@ -60,7 +60,7 @@ class Core: JavaPlugin() {
             Bukkit.getServer().spigot().config.getInt("world-settings.default.entity-tracking-range.players", 64)
         Bukkit.getServer().worlds.forEach {
             playerTrackingRange[it] = Bukkit.getServer().spigot()
-                .config.getInt("world-settings." + it.name + ".entity-tracking-range.players", defaultRange)
+                .config.getInt("world-settings.${it.name}.entity-tracking-range.players", defaultRange)
         }
     }
 

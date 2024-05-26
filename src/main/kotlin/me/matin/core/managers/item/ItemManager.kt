@@ -32,8 +32,7 @@ object ItemManager {
     }
 
     private fun modifyAmount(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
-        val item = player.inventory.getItem(slot) ?: return
-        if (item.type == Material.AIR) return
+        val item = player.inventory.getItem(slot)?.takeUnless { it.type == Material.AIR } ?: return
         val newAmount = when (modification) {
             ItemModificationType.SET -> amount
             ItemModificationType.ADD -> item.amount + amount
@@ -44,8 +43,7 @@ object ItemManager {
     }
 
     private fun modifyDurability(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
-        val item = player.inventory.getItem(slot) ?: return
-        if (item.type == Material.AIR || item.itemMeta.isUnbreakable) return
+        val item = player.inventory.getItem(slot)?.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable } ?: return
         val damageable = item.itemMeta as? Damageable ?: return
         val damage = when (modification) {
             ItemModificationType.SET -> item.type.maxDurability - amount
