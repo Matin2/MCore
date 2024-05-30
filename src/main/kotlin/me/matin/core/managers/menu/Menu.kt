@@ -6,9 +6,6 @@ import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
-import org.jetbrains.annotations.Range
-import kotlin.math.max
-import kotlin.math.min
 
 @Suppress("unused")
 abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder {
@@ -31,8 +28,7 @@ abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder
         type.type?.also {
             inventory = Bukkit.createInventory(this, it, title)
         } ?: {
-            val rows = min(max(type.rows!!,1) ,6)
-            inventory = Bukkit.createInventory(this, rows * 9, title)
+            inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
         setMenuItems()
         playerMenuUtil.player.openInventory(inventory)

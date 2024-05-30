@@ -53,7 +53,7 @@ class MenuManager: Listener {
 
         @JvmStatic
         fun getRowsType(rows: Int): MenuType {
-            val r = minOf(maxOf(rows, 0), 6)
+            val r = minOf(maxOf(rows, 1), 6)
             return entries.first { it.rows == r }
         }
 
