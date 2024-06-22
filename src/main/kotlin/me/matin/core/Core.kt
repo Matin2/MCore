@@ -33,7 +33,6 @@ class Core: JavaPlugin() {
             it.settings
                 .reEncodeByDefault(false)
                 .checkForUpdates(false)
-                .bStats(false)
             it.load()
         }
         CommandAPI.onLoad(CommandAPIBukkitConfig(this)
