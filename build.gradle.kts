@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
     id("io.github.goooler.shadow") version "8.1.7"
     id("maven-publish")
 }
@@ -17,15 +18,15 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    implementation("de.tr7zw:item-nbt-api:2.12.4")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.4.2")
-    implementation("com.github.retrooper.packetevents:spigot:2.3.0")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    implementation("de.tr7zw:item-nbt-api:2.13.1")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.5.1")
+    implementation("com.github.retrooper:packetevents-spigot:2.3.1-SNAPSHOT")
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    implementation("org.reflections:reflections:0.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 }
 
 tasks.shadowJar {
@@ -35,11 +36,8 @@ tasks.shadowJar {
     relocate("assets", "$dir.packetevents.assets")
     relocate("com.github.retrooper.packetevents", "$dir.packetevents.api")
     relocate("io.github.retrooper.packetevents", "$dir.packetevents.impl")
-    relocate("javassist", "$dir.reflections.javassist")
-    relocate("javax", "$dir.reflections.javax")
-    relocate("org.reflections", "$dir.reflections")
-    relocate("kotlinx.coroutines", "$dir.coroutines")
-    relocate("_COROUTINE", "$dir.coroutines.coroutine")
+    relocate("kotlinx", "$dir.kotlinx")
+    relocate("_COROUTINE", "$dir.coroutine")
     dependencies {
         exclude(dependency("org.jetbrains:annotations"))
         exclude(dependency("com.google.code.gson:gson"))
