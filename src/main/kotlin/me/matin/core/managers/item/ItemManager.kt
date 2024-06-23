@@ -34,8 +34,8 @@ object ItemManager {
         location.world.dropItemNaturally(location, item)
     }
 
-    operator fun get(player: Player, slots: String): ArrayList<Int> {
-        val result = ArrayList<Int>()
+    operator fun get(player: Player, slots: String): Set<Int> {
+        val result= emptySet<Int>() as MutableSet<Int>
         slots.split(',').filter { it.isNotBlank() }.forEach {
             when (it) {
                 "mainhand" -> result.add(player.inventory.heldItemSlot)

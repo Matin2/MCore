@@ -68,19 +68,19 @@ enum class ModifyItem {
 
     operator fun get(player: Player, slots: Set<Int>): Item = Item(this, player, slots)
 
-    operator fun set(player: Player, slot: Int, amount: Int) {
+    operator fun set(player: Player, slot: Int, modifyType: ItemModifyType = ItemModifyType.SET, amount: Int) {
         when (this) {
-            AMOUNT -> modifyAmount(ItemModifyType.SET, amount, player, slot)
-            DURABILITY -> modifyDurability(ItemModifyType.SET, amount, player, slot)
+            AMOUNT -> modifyAmount(modifyType, amount, player, slot)
+            DURABILITY -> modifyDurability(modifyType, amount, player, slot)
         }
     }
 
-    operator fun set(player: Player, slots: Set<Int>, amount: Int) {
+    operator fun set(player: Player, slots: Set<Int>, modifyType: ItemModifyType = ItemModifyType.SET, amount: Int) {
         for (slot in slots) {
             if (slot !in 0..40) continue
             when (this) {
-                AMOUNT -> modifyAmount(ItemModifyType.SET, amount, player, slot)
-                DURABILITY -> modifyDurability(ItemModifyType.SET, amount, player, slot)
+                AMOUNT -> modifyAmount(modifyType, amount, player, slot)
+                DURABILITY -> modifyDurability(modifyType, amount, player, slot)
             }
         }
     }
