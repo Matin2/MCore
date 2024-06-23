@@ -6,54 +6,9 @@ import org.bukkit.World
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.Damageable
-import kotlin.math.min
 
 @Suppress("unused")
 object ItemManager {
-
-    @JvmStatic
-    fun modify(type: ItemModifyType, modificationType: ItemModificationType, modificationAmount: Int, player: Player, slots: ArrayList<Int>) {
-        for (slot in slots) {
-            if (slot !in 0..40) continue
-            when (type) {
-                ItemModifyType.AMOUNT -> modifyAmount(modificationType, modificationAmount, player, slot)
-                ItemModifyType.DURABILITY -> modifyDurability(modificationType, modificationAmount, player, slot)
-            }
-        }
-    }
-
-    @JvmStatic
-    fun modify(type: ItemModifyType, modificationType: ItemModificationType, modificationAmount: Int, player: Player, slot: Int) {
-        when (type) {
-            ItemModifyType.AMOUNT -> modifyAmount(modificationType, modificationAmount, player, slot)
-            ItemModifyType.DURABILITY -> modifyDurability(modificationType, modificationAmount, player, slot)
-        }
-    }
-
-    private fun modifyAmount(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
-        val item = player.inventory.getItem(slot)?.takeUnless { it.type == Material.AIR } ?: return
-        val newAmount = when (modification) {
-            ItemModificationType.SET -> amount
-            ItemModificationType.ADD -> item.amount + amount
-            ItemModificationType.TAKE -> item.amount - amount
-        }
-        if (newAmount == 0) return
-        item.amount = min(newAmount, item.maxStackSize)
-    }
-
-    private fun modifyDurability(modification: ItemModificationType, amount: Int, player: Player, slot: Int) {
-        val item = player.inventory.getItem(slot)?.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable } ?: return
-        val damageable = item.itemMeta as? Damageable ?: return
-        val damage = when (modification) {
-            ItemModificationType.SET -> item.type.maxDurability - amount
-            ItemModificationType.ADD -> damageable.damage - amount
-            ItemModificationType.TAKE -> damageable.damage + amount
-        }
-        if (damage == 0) return
-        damageable.damage = damage
-        item.setItemMeta(damageable)
-    }
 
     @JvmStatic
     fun drop(item: ItemStack, x: Int, y: Int, z: Int, world: World, blockFace: BlockFace) {
@@ -79,8 +34,7 @@ object ItemManager {
         location.world.dropItemNaturally(location, item)
     }
 
-    @JvmStatic
-    fun getSlots(player: Player, slots: String): ArrayList<Int> {
+    operator fun get(player: Player, slots: String): ArrayList<Int> {
         val result = ArrayList<Int>()
         slots.split(',').filter { it.isNotBlank() }.forEach {
             when (it) {
