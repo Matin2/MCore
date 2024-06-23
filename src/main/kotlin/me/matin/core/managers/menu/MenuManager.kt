@@ -39,26 +39,14 @@ class MenuManager: Listener {
 
     companion object {
 
-        private var playerMenuUtilMap: HashMap<Player, PlayerMenuUtil> = HashMap()
-
         @JvmStatic
-        fun getPlayerMenuUtil(player: Player): PlayerMenuUtil {
-            if (player !in playerMenuUtilMap) {
-                val playerMenuUtil = PlayerMenuUtil(player)
-                playerMenuUtilMap[player] = playerMenuUtil
-                return playerMenuUtil
-            }
-            return playerMenuUtilMap[player]!!
-        }
-
-        @JvmStatic
-        fun getRowsType(rows: Int): MenuType {
+        operator fun get(rows: Int): MenuType {
             val r = minOf(maxOf(rows, 1), 6)
             return entries.first { it.rows == r }
         }
 
         @JvmStatic
-        fun getInventoryType(type: InventoryType): MenuType? {
+        operator fun get(type: InventoryType): MenuType? {
             return entries.firstOrNull() { it.type == type }
         }
 

@@ -12,6 +12,10 @@ object DependencyManager {
         return plugin != null && plugin.isEnabled
     }
 
+    operator fun get(pluginName: String): Boolean {
+        return isPluginInstalled(pluginName)
+    }
+
     @JvmStatic
     fun arePluginsInstalled(pluginNames: Array<String>): Boolean {
         val statues = ArrayList<Boolean>()
@@ -22,6 +26,10 @@ object DependencyManager {
         return statues.all { it }
     }
 
+    operator fun get(pluginNames: Array<String>): Boolean {
+        return arePluginsInstalled(pluginNames)
+    }
+
     @JvmStatic
     fun checkDepends(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, installed: Boolean) -> Unit) {
         plugins.forEach {
@@ -30,6 +38,10 @@ object DependencyManager {
         registerListener?.also {
             Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), it)
         }
+    }
+
+    operator fun invoke(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, installed: Boolean) -> Unit) {
+        checkDepends(plugins, registerListener, action)
     }
 
     @JvmStatic
@@ -49,6 +61,10 @@ object DependencyManager {
         registerListener?.also {
             Bukkit.getPluginManager().registerEvents(DependencyListener(pluginToVersions, action), it)
         }
+    }
+
+    operator fun invoke(pluginToVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: DependencyState) -> Unit) {
+        checkDepends(pluginToVersions, registerListener, action)
     }
 
     internal fun Plugin.checkVersions(versions: String): DependencyState {

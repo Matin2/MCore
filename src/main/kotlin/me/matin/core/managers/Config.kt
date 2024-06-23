@@ -19,6 +19,8 @@ class Config(plugin: Plugin, config: String) {
     private val configFile = File("${plugin.dataFolder.path}/${conf}")
     lateinit var config: FileConfiguration
 
+    operator fun invoke(): FileConfiguration = config
+
     @Throws(IOException::class)
     fun init() {
         if (!configFile.parentFile.exists()) configFile.parentFile.mkdirs()
