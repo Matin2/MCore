@@ -20,7 +20,6 @@ enum class ModifyItem {
             }, item.maxStackSize)
         } ?: return
     }
-
     private fun modifyDurability(item: ItemStack, modification: ItemModifyType, value: Int) {
         item.itemMeta = (item.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable }?.itemMeta as? Damageable)?.apply {
             damage = when (modification) {
@@ -31,28 +30,39 @@ enum class ModifyItem {
         } ?: return
     }
 
-    class Item internal constructor(internal val item: ItemStack, internal val type: ModifyItem)
+    class Item internal constructor(private val item: ItemStack?, private val type: ModifyItem) {
+        operator fun divAssign(amount: Int) {
+            val item = this.item ?: return
+            val modifyType = amount.takeUnless { it == 0 }?.let { if (it > 0) ItemModifyType.ADD else ItemModifyType.TAKE } ?: return
+            when (type) {
+                AMOUNT -> AMOUNT.modifyAmount(item, modifyType, amount)
+                DURABILITY -> DURABILITY.modifyDurability(item, modifyType, amount)
+            }
+        }
+    }
+    class Items internal constructor(private val items: List<ItemStack>, private val type: ModifyItem) {
+        operator fun divAssign(amount: Int) {
+            items.ifEmpty { return }
+            val modifyType = amount.takeUnless { it == 0 }?.let { if (it > 0) ItemModifyType.ADD else ItemModifyType.TAKE } ?: return
+            items.forEach {
+                when (type) {
+                    AMOUNT -> AMOUNT.modifyAmount(it, modifyType, amount)
+                    DURABILITY -> DURABILITY.modifyDurability(it, modifyType, amount)
+                }
+            }
+        }
+    }
 
     operator fun get(item: ItemStack): Item = Item(item, this)
-    operator fun get(player: Player, slot: Int): Item? {
-        return Item(player.inventory.getItem(slot) ?: return null, this)
+    operator fun get(player: Player, slot: Int): Item {
+        return Item(player.inventory.getItem(slot), this)
     }
-    operator fun get(player: Player, slots: Set<Int>): List<Item>? {
-        return slots.filter { it in 0..40 }.map {
-            Item(player.inventory.getItem(it) ?: return null, this)
-        }
-    }
-
-    operator fun Item?.divAssign(amount: Int) {
-        this ?: return
-        val modifyType = amount.takeUnless { it == 0 }?.let { if (it > 0) ItemModifyType.ADD else ItemModifyType.TAKE } ?: return
-        when (type) {
-            AMOUNT -> modifyAmount(this.item, modifyType, amount)
-            DURABILITY -> modifyDurability(this.item, modifyType, amount)
-        }
-    }
-    operator fun List<Item>?.divAssign(amount: Int) {
-        this?.forEach { it /= amount } ?: return
+    operator fun get(items: List<ItemStack>): Items = Items(items, this)
+    operator fun get(player: Player, slots: Set<Int>): Items {
+        val items = slots.filter {
+            it in 0..40 && player.inventory.getItem(it) != null
+        }.map { player.inventory.getItem(it)!! }
+        return Items(items, this)
     }
 
     operator fun set(item: ItemStack, modifyType: ItemModifyType = ItemModifyType.SET, amount: Int) {
