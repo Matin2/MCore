@@ -10,6 +10,19 @@ object DependencyManager {
     operator fun get(pluginName: String): Plugin? = Bukkit.getPluginManager().getPlugin(pluginName)?.takeIf { it.isEnabled }
 
     @JvmStatic
+    operator fun set(plugin: Plugin, enable: Boolean) {
+        when {
+            enable && !plugin.isEnabled -> Bukkit.getPluginManager().enablePlugin(plugin)
+            !enable && plugin.isEnabled -> Bukkit.getPluginManager().disablePlugin(plugin)
+        }
+    }
+
+    @JvmStatic
+    operator fun set(pluginName: String, enable: Boolean) {
+        return set(get(pluginName) ?: return, enable)
+    }
+
+    @JvmStatic
     fun isPluginInstalled(pluginName: String): Boolean = get(pluginName) != null
 
     @JvmStatic
