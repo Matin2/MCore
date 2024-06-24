@@ -7,83 +7,51 @@ import org.bukkit.plugin.Plugin
 object DependencyManager {
 
     @JvmStatic
-    fun isPluginInstalled(pluginName: String): Boolean {
-        val plugin = Bukkit.getPluginManager().getPlugin(pluginName)
-        return plugin != null && plugin.isEnabled
-    }
-
-    operator fun get(pluginName: String): Boolean {
-        return isPluginInstalled(pluginName)
-    }
+    operator fun get(pluginName: String): Plugin? = Bukkit.getPluginManager().getPlugin(pluginName)?.takeIf { it.isEnabled }
 
     @JvmStatic
-    fun arePluginsInstalled(pluginNames: Array<String>): Boolean {
-        val statues = ArrayList<Boolean>()
-        pluginNames.forEach {
-            val plugin = Bukkit.getPluginManager().getPlugin(it)
-            statues.add(plugin != null && plugin.isEnabled)
-        }
-        return statues.all { it }
-    }
+    fun isPluginInstalled(pluginName: String): Boolean = get(pluginName) != null
 
-    operator fun get(pluginNames: Array<String>): Boolean {
-        return arePluginsInstalled(pluginNames)
-    }
+    @JvmStatic
+    fun arePluginsInstalled(pluginNames: Array<String>): Boolean = pluginNames.map { get(it) != null }.all { it }
 
     @JvmStatic
     fun checkDepends(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, installed: Boolean) -> Unit) {
         plugins.forEach {
             action(it, isPluginInstalled(it))
         }
-        registerListener?.also {
-            Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), it)
-        }
-    }
-
-    operator fun invoke(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, installed: Boolean) -> Unit) {
-        checkDepends(plugins, registerListener, action)
+        Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), registerListener ?: return)
     }
 
     @JvmStatic
-    fun checkDepends(pluginToVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: DependencyState) -> Unit) {
-        for (name in pluginToVersions.keys) {
-            val versions = pluginToVersions[name]!!
-            if (versions.isBlank()) {
-                action(name, if (isPluginInstalled(name)) DependencyState.INSTALLED else DependencyState.NOT_INSTALLED)
-                continue
-            }
-            if (!isPluginInstalled(name)) {
+    fun checkDepends(pluginsVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: DependencyState) -> Unit) {
+        pluginsVersions.forEach { (name, versions) ->
+            val plugin = get(name)
+            plugin ?: run {
                 action(name, DependencyState.NOT_INSTALLED)
-                continue
+                return@forEach
             }
-            action(name, Bukkit.getPluginManager().getPlugin(name)!!.checkVersions(versions))
+            action(name, versions.takeIf { it.isNotBlank() }?.let { plugin.checkVersions(it) } ?: DependencyState.INSTALLED)
         }
-        registerListener?.also {
-            Bukkit.getPluginManager().registerEvents(DependencyListener(pluginToVersions, action), it)
-        }
-    }
-
-    operator fun invoke(pluginToVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: DependencyState) -> Unit) {
-        checkDepends(pluginToVersions, registerListener, action)
+        Bukkit.getPluginManager().registerEvents(DependencyListener(pluginsVersions, action), registerListener ?: return)
     }
 
     internal fun Plugin.checkVersions(versions: String): DependencyState {
         val version = this.pluginMeta.version.uppercase()
-        val status = ArrayList<Boolean>()
-        versions.split('\\').forEach {
-            it.uppercase().apply {
+        val state = versions.split('\\').map {
+            it.uppercase().run {
                 when {
-                    startsWith('*') -> status.add(version.contains(removePrefix("*")))
-                    startsWith('>') -> status.add(version.startsWith(removePrefix(">")))
-                    startsWith('<') -> status.add(version.endsWith(removePrefix("<")))
-                    startsWith("!*") -> status.add(!version.contains(removePrefix("!*")))
-                    startsWith("!>") -> status.add(version.startsWith(removePrefix("!>")))
-                    startsWith("!<") -> status.add(version.endsWith(removePrefix("!<")))
-                    startsWith('!') -> status.add(version != removePrefix("!"))
-                    else -> status.add(version == this)
+                    startsWith('*') -> version.contains(removePrefix("*"))
+                    startsWith('>') -> version.startsWith(removePrefix(">"))
+                    startsWith('<') -> version.endsWith(removePrefix("<"))
+                    startsWith("!*") -> !version.contains(removePrefix("!*"))
+                    startsWith("!>") -> version.startsWith(removePrefix("!>"))
+                    startsWith("!<") -> version.endsWith(removePrefix("!<"))
+                    startsWith('!') -> version != removePrefix("!")
+                    else -> version == this
                 }
             }
-        }
-        return if (status.any { it }) DependencyState.INSTALLED else DependencyState.WRONG_VERSION
+        }.any { it }
+        return if (state) DependencyState.INSTALLED else DependencyState.WRONG_VERSION
     }
 }

@@ -34,19 +34,18 @@ object ItemManager {
         location.world.dropItemNaturally(location, item)
     }
 
-    operator fun get(player: Player, slots: String): Set<Int> {
-        val result= emptySet<Int>() as MutableSet<Int>
-        slots.split(',').filter { it.isNotBlank() }.forEach {
+    @JvmStatic
+    fun getSlots(player: Player, slots: String): Set<Int> {
+        return slots.split(',').filter { it.isNotBlank() }.map {
             when (it) {
-                "mainhand" -> result.add(player.inventory.heldItemSlot)
-                "offhand" -> result.add(40)
-                "helmet" -> result.add(36)
-                "chestplate" -> result.add(37)
-                "leggings" -> result.add(38)
-                "boots" -> result.add(39)
-                else -> it.toIntOrNull()?.let { slot -> result.add(slot) }
+                "mainhand" -> player.inventory.heldItemSlot
+                "offhand" -> 40
+                "helmet" -> 36
+                "chestplate" -> 37
+                "leggings" -> 38
+                "boots" -> 39
+                else -> it.toIntOrNull() ?: return emptySet()
             }
-        }
-        return result
+        }.toSet()
     }
 }
