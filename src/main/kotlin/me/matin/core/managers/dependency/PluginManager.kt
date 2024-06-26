@@ -27,7 +27,7 @@ object PluginManager {
         dependencies.forEach {
             action(it, isInstalled(it))
         }
-        if (monitor) monitorState(dependencies, action)
+        if (monitor) monitorState(dependencies) { name, installed -> action(name, installed) }
     }
 
     @JvmStatic
@@ -40,14 +40,14 @@ object PluginManager {
             }
             action(name, versions.takeIf { it.isNotBlank() }?.let { plugin.checkVersions(it) } ?: DependencyState.INSTALLED)
         }
-        if (monitor) monitorState(dependenciesWithVersion, action)
+        if (monitor) monitorState(dependenciesWithVersion) { name, state -> action(name, state) }
     }
 
     @JvmStatic
-    fun monitorState(dependencies: Set<String>, action: (name: String, installed: Boolean) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependencies, action))
+    fun monitorState(dependencies: Set<String>, action: Plugin.(name: String, installed: Boolean) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependencies, action))
 
     @JvmStatic
-    fun monitorState(dependenciesWithVersion: Map<String, String>, action: (name: String, state: DependencyState) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependenciesWithVersion, action))
+    fun monitorState(dependenciesWithVersion: Map<String, String>, action: Plugin.(name: String, state: DependencyState) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependenciesWithVersion, action))
 
     internal fun Plugin.checkVersions(versions: String): DependencyState {
         val version = this.pluginMeta.version.uppercase()

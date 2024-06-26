@@ -1,5 +1,6 @@
 package me.matin.core.managers.dependency
 
+import me.matin.core.Core
 import me.matin.core.managers.dependency.PluginManager.checkVersions
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -16,9 +17,9 @@ object DependencyListener: Listener {
         monitoredPlugins.forEach { (dependencies, action) ->
             val dependency = event.plugin.takeIf { it.name in dependencies.keys } ?: return
             when (event) {
-                is PluginDisableEvent -> action(dependency.name, DependencyState.NOT_INSTALLED)
+                is PluginDisableEvent -> Core.plugin.action(dependency.name, DependencyState.NOT_INSTALLED)
                 is PluginEnableEvent -> dependencies.also {
-                    action(dependency.name, dependency.checkVersions(dependencies[dependency.name]!!))
+                    Core.plugin.action(dependency.name, dependency.checkVersions(dependencies[dependency.name]!!))
                 }
             }
 
