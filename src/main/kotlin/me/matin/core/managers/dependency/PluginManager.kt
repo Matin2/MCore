@@ -23,7 +23,7 @@ object PluginManager {
     fun areInstalled(pluginNames: Array<String>): Boolean = pluginNames.map { get(it) != null }.all { it }
 
     @JvmStatic
-    fun checkState(dependencies: Set<String>, monitor: Boolean, action: (name: String, installed: Boolean) -> Unit) {
+    fun checkState(dependencies: Set<String>, monitor: Boolean = false, action: (name: String, installed: Boolean) -> Unit) {
         dependencies.forEach {
             action(it, isInstalled(it))
         }
