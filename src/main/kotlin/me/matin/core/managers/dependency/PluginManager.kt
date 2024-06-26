@@ -4,41 +4,35 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 
 @Suppress("UnstableApiUsage", "unused")
-object DependencyManager {
+object PluginManager {
 
     @JvmStatic
     operator fun get(pluginName: String): Plugin? = Bukkit.getPluginManager().getPlugin(pluginName)?.takeIf { it.isEnabled }
 
-    @JvmStatic
-    operator fun set(plugin: Plugin, enable: Boolean) {
+    var Plugin.enabled: Boolean get() { return this.isEnabled } set(enable) {
         when {
-            enable && !plugin.isEnabled -> Bukkit.getPluginManager().enablePlugin(plugin)
-            !enable && plugin.isEnabled -> Bukkit.getPluginManager().disablePlugin(plugin)
+            enable && !this.isEnabled -> Bukkit.getPluginManager().enablePlugin(this)
+            !enable && this.isEnabled -> Bukkit.getPluginManager().disablePlugin(this)
         }
     }
 
     @JvmStatic
-    operator fun set(pluginName: String, enable: Boolean) {
-        return set(get(pluginName) ?: return, enable)
-    }
+    fun isInstalled(pluginName: String): Boolean = get(pluginName) != null
 
     @JvmStatic
-    fun isPluginInstalled(pluginName: String): Boolean = get(pluginName) != null
+    fun areInstalled(pluginNames: Array<String>): Boolean = pluginNames.map { get(it) != null }.all { it }
 
     @JvmStatic
-    fun arePluginsInstalled(pluginNames: Array<String>): Boolean = pluginNames.map { get(it) != null }.all { it }
-
-    @JvmStatic
-    fun checkDepends(plugins: Set<String>, registerListener: Plugin? = null, action: (name: String, installed: Boolean) -> Unit) {
-        plugins.forEach {
-            action(it, isPluginInstalled(it))
+    fun checkState(dependencies: Set<String>, monitor: Boolean, action: (name: String, installed: Boolean) -> Unit) {
+        dependencies.forEach {
+            action(it, isInstalled(it))
         }
-        Bukkit.getPluginManager().registerEvents(DependencyListener(plugins, action), registerListener ?: return)
+        if (monitor) monitorState(dependencies, action)
     }
 
     @JvmStatic
-    fun checkDepends(pluginsVersions: Map<String, String>, registerListener: Plugin? = null, action: (name: String, state: DependencyState) -> Unit) {
-        pluginsVersions.forEach { (name, versions) ->
+    fun checkState(dependenciesWithVersion: Map<String, String>, monitor: Boolean = false, action: (name: String, state: DependencyState) -> Unit) {
+        dependenciesWithVersion.forEach { (name, versions) ->
             val plugin = get(name)
             plugin ?: run {
                 action(name, DependencyState.NOT_INSTALLED)
@@ -46,8 +40,14 @@ object DependencyManager {
             }
             action(name, versions.takeIf { it.isNotBlank() }?.let { plugin.checkVersions(it) } ?: DependencyState.INSTALLED)
         }
-        Bukkit.getPluginManager().registerEvents(DependencyListener(pluginsVersions, action), registerListener ?: return)
+        if (monitor) monitorState(dependenciesWithVersion, action)
     }
+
+    @JvmStatic
+    fun monitorState(dependencies: Set<String>, action: (name: String, installed: Boolean) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependencies, action))
+
+    @JvmStatic
+    fun monitorState(dependenciesWithVersion: Map<String, String>, action: (name: String, state: DependencyState) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependenciesWithVersion, action))
 
     internal fun Plugin.checkVersions(versions: String): DependencyState {
         val version = this.pluginMeta.version.uppercase()

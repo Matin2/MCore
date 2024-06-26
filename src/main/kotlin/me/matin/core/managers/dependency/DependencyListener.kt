@@ -1,51 +1,33 @@
 package me.matin.core.managers.dependency
 
-import me.matin.core.managers.dependency.DependencyManager.checkVersions
+import me.matin.core.managers.dependency.PluginManager.checkVersions
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
+import org.bukkit.event.server.PluginEvent
 
 @Suppress("unused")
-class DependencyListener: Listener {
+object DependencyListener: Listener {
 
-    private var pluginToVersions: Map<String, String>? = null
-    private var plugins: Set<String>? = null
+    val monitoredPlugins = emptySet<MonitoredPlugin>() as MutableSet
 
-    private var versionAction: ((String, DependencyState) -> Unit)? = null
-    private var noVersionAction: ((String, Boolean) -> Unit)? = null
-    private val action: (String, DependencyState) -> Unit = { name, state ->
-        versionAction?.also { it(name, state) } ?: noVersionAction?.also { it(name, state.value) }
-    }
+    private fun monitor(event: PluginEvent) {
+        monitoredPlugins.forEach { (dependencies, action) ->
+            val dependency = event.plugin.takeIf { it.name in dependencies.keys } ?: return
+            when (event) {
+                is PluginDisableEvent -> action(dependency.name, DependencyState.NOT_INSTALLED)
+                is PluginEnableEvent -> dependencies.also {
+                    action(dependency.name, dependency.checkVersions(dependencies[dependency.name]!!))
+                }
+            }
 
-    constructor(pluginToVersions: Map<String, String>, action: (name: String, state: DependencyState) -> Unit) {
-        this.pluginToVersions = pluginToVersions
-        this.versionAction = action
-    }
-    constructor(plugins: Set<String>, action: (name: String, enabled: Boolean) -> Unit) {
-        this.plugins = plugins
-        this.noVersionAction = action
-    }
-
-    private fun isDepend(name: String): Boolean {
-        plugins?.let {
-            return it.contains(name)
-        } ?: pluginToVersions?.keys?.let {
-            return it.contains(name)
-        } ?: return false
+        }
     }
 
     @EventHandler
-    fun onPluginDisable(event: PluginDisableEvent) {
-        if (!isDepend(event.plugin.name)) return
-        action(event.plugin.name, DependencyState.NOT_INSTALLED)
-    }
+    fun onPluginDisable(event: PluginDisableEvent) = monitor(event)
 
     @EventHandler
-    fun onPluginEnable(event: PluginEnableEvent) {
-        val name = event.plugin.name.takeIf { isDepend(it) } ?: return
-        pluginToVersions?.also {
-            action(name, event.plugin.checkVersions(pluginToVersions!![name]!!))
-        } ?: action(name, DependencyState.INSTALLED)
-    }
+    fun onPluginEnable(event: PluginEnableEvent) = monitor(event)
 }
