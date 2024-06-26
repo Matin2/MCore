@@ -1,7 +1,6 @@
 package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
-import me.matin.core.managers.menu.MenuType.entries
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -38,15 +37,10 @@ object MenuManager: Listener {
     }
 
     @JvmStatic
-    operator fun get(rows: Int): MenuType {
-        val r = minOf(maxOf(rows, 1), 6)
-        return entries.first { it.rows == r }
-    }
+    fun getType(rows: Int): MenuType = MenuType.entries.first { it.rows == minOf(maxOf(rows, 1), 6) }
 
     @JvmStatic
-    operator fun get(type: InventoryType): MenuType? {
-        return entries.firstOrNull { it.type == type }
-    }
+    fun getType(type: InventoryType): MenuType = MenuType.entries.firstOrNull { it.type == type } ?: MenuType.THREE
 
     fun checkCursor(player: Player) {
         val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return

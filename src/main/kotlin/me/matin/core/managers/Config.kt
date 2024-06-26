@@ -10,10 +10,9 @@ import java.io.IOException
 class Config(plugin: Plugin, config: String) {
 
     private var conf: String = config
-        get() {
-            if (field.startsWith('/'))field.trimStart('/')
-            if (!field.endsWith(".yml")) return "$field.yml"
-            return field
+        get() = field.run {
+            trimStart('/')
+             if (!endsWith(".yml")) "$this.yml" else this
         }
 
     private val configFile = File("${plugin.dataFolder.path}/${conf}")
