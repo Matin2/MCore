@@ -12,10 +12,10 @@ import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryType
 
 @Suppress("unused")
-class MenuManager: Listener {
+object MenuManager: Listener {
 
     @EventHandler
-    private fun onInventoryDrag(e: InventoryDragEvent) {
+    fun onInventoryDrag(e: InventoryDragEvent) {
         val topInv = e.whoClicked.openInventory.topInventory.takeIf { it.holder is Menu } ?: return
         e.rawSlots.forEach {
             if (it in 0..<topInv.size) e.isCancelled = true
@@ -23,7 +23,7 @@ class MenuManager: Listener {
     }
 
     @EventHandler
-    private fun onInventoryClick(e: InventoryClickEvent) {
+    fun onInventoryClick(e: InventoryClickEvent) {
         e.currentItem ?: return
         (e.whoClicked.openInventory.topInventory.holder as? Menu)?.apply {
             cancelClick(e)
@@ -32,31 +32,27 @@ class MenuManager: Listener {
     }
 
     @EventHandler
-    private fun onInventoryClose(e: InventoryCloseEvent) {
+    fun onInventoryClose(e: InventoryCloseEvent) {
         val player = e.player as? Player ?: return
         checkCursor(player)
     }
 
-    companion object {
+    @JvmStatic
+    operator fun get(rows: Int): MenuType {
+        val r = minOf(maxOf(rows, 1), 6)
+        return entries.first { it.rows == r }
+    }
 
-        @JvmStatic
-        operator fun get(rows: Int): MenuType {
-            val r = minOf(maxOf(rows, 1), 6)
-            return entries.first { it.rows == r }
-        }
+    @JvmStatic
+    operator fun get(type: InventoryType): MenuType? {
+        return entries.firstOrNull { it.type == type }
+    }
 
-        @JvmStatic
-        operator fun get(type: InventoryType): MenuType? {
-            return entries.firstOrNull() { it.type == type }
-        }
-
-        @JvmStatic
-        fun checkCursor(player: Player) {
-            val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return
-            val holder = player.openInventory.topInventory.holder as? Menu ?: return
-            holder.takeIf { it.antiCursorItemLoss } ?: return
-            player.inventory.addItem(cursor).takeUnless { it.isEmpty() }
-                ?: ItemManager.drop(cursor, player.location , BlockFace.UP)
-        }
+    fun checkCursor(player: Player) {
+        val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return
+        val holder = player.openInventory.topInventory.holder as? Menu ?: return
+        holder.takeIf { it.antiCursorItemLoss } ?: return
+        player.inventory.addItem(cursor).takeUnless { it.isEmpty() }
+            ?: ItemManager.drop(cursor, player.location , BlockFace.UP)
     }
 }
