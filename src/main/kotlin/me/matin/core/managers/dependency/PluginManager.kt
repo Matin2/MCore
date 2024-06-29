@@ -23,35 +23,40 @@ object PluginManager {
     fun areInstalled(pluginNames: Array<String>): Boolean = pluginNames.map { get(it) != null }.all { it }
 
     @JvmStatic
-    fun checkState(dependencies: Set<String>, monitor: Boolean = false, action: (name: String, installed: Boolean) -> Unit) {
-        dependencies.forEach {
-            action(it, isInstalled(it))
-        }
-        if (monitor) monitorState(dependencies) { name, installed -> action(name, installed) }
+    fun checkState(dependencies: Set<String>, action: (installed: Set<String>, missing: Set<String>) -> Unit) {
+        val installed = dependencies.filter { isInstalled(it) }.toSet()
+        action(installed, dependencies - installed)
     }
 
     @JvmStatic
-    fun checkState(dependenciesWithVersion: Map<String, String>, monitor: Boolean = false, action: (name: String, state: DependencyState) -> Unit) {
+    fun checkState(dependenciesWithVersion: Map<String, String>, action: (installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit) {
+        val installed = mutableSetOf<String>()
+        val wrongVersion = mutableSetOf<String>()
         dependenciesWithVersion.forEach { (name, versions) ->
-            val plugin = get(name)
-            plugin ?: run {
-                action(name, DependencyState.NOT_INSTALLED)
-                return@forEach
+            get(name)?.run {
+                val isCorrectVersion = versions.takeIf { it.isNotBlank() }?.let { inVersions(it) } ?: true
+                if (isCorrectVersion) installed.add(name) else wrongVersion.add(name)
             }
-            action(name, versions.takeIf { it.isNotBlank() }?.let { plugin.checkVersions(it) } ?: DependencyState.INSTALLED)
         }
-        if (monitor) monitorState(dependenciesWithVersion) { name, state -> action(name, state) }
+        action(installed, (dependenciesWithVersion.keys - installed) - wrongVersion, wrongVersion)
     }
 
     @JvmStatic
-    fun monitorState(dependencies: Set<String>, action: Plugin.(name: String, installed: Boolean) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependencies, action))
+    fun monitorState(dependencies: Set<String>, action: Plugin.(installed: Set<String>, missing: Set<String>) -> Unit) {
+        val dependenciesWithVersion = dependencies.zip(Array(dependencies.size) { "" }).toMap()
+        DependencyListener.monitoredPlugins[dependenciesWithVersion] = {installed, missing, _ ->
+            this.action(installed, missing)
+        }
+    }
 
     @JvmStatic
-    fun monitorState(dependenciesWithVersion: Map<String, String>, action: Plugin.(name: String, state: DependencyState) -> Unit) = DependencyListener.monitoredPlugins.add(MonitoredPlugin(dependenciesWithVersion, action))
+    fun monitorState(dependenciesWithVersion: Map<String, String>, action: Plugin.(installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit)  {
+        DependencyListener.monitoredPlugins[dependenciesWithVersion] = action
+    }
 
-    internal fun Plugin.checkVersions(versions: String): DependencyState {
+    private fun Plugin.inVersions(versions: String): Boolean {
         val version = this.pluginMeta.version.uppercase()
-        val state = versions.split('\\').map {
+        return versions.split('\\').map {
             it.uppercase().run {
                 when {
                     startsWith('*') -> version.contains(removePrefix("*"))
@@ -65,6 +70,5 @@ object PluginManager {
                 }
             }
         }.any { it }
-        return if (state) DependencyState.INSTALLED else DependencyState.WRONG_VERSION
     }
 }
