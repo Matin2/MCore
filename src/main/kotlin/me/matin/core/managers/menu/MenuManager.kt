@@ -47,6 +47,6 @@ object MenuManager: Listener {
         val holder = player.openInventory.topInventory.holder as? Menu ?: return
         holder.takeIf { it.antiCursorItemLoss } ?: return
         player.inventory.addItem(cursor).takeUnless { it.isEmpty() }
-            ?: ItemManager.drop(cursor, player.location , BlockFace.UP)
+            ?: ItemManager.drop(cursor, player.location, BlockFace.UP)
     }
 }

@@ -10,7 +10,8 @@ import org.bukkit.plugin.Plugin
 @Suppress("unused")
 object DependencyListener: Listener {
 
-    val monitoredPlugins: MutableMap<Map<String, String>, Plugin.(Set<String>, Set<String>, Set<String>) -> Unit> = mutableMapOf()
+    val monitoredPlugins: MutableMap<Map<String, String>, Plugin.(Set<String>, Set<String>, Set<String>) -> Unit> =
+        mutableMapOf()
 
     private fun monitor() {
         monitoredPlugins.forEach { (dependencies, action) ->

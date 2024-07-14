@@ -51,7 +51,6 @@ object PacketManager {
     private fun playTotem(player: Player) = WrapperPlayServerEntityStatus(player.entityId, 35).let {
         PacketEvents.getAPI().playerManager.sendPacket(player, it)
     }
-
 //    @JvmStatic
 //    fun changeItem(player: Player, item: ItemStack, slot: Int) {
 //        val packetItem = SpigotConversionUtil.fromBukkitItemStack(item)

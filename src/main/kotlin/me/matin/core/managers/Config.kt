@@ -12,9 +12,8 @@ class Config(plugin: Plugin, config: String) {
     private var conf: String = config
         get() = field.run {
             trimStart('/')
-             if (!endsWith(".yml")) "$this.yml" else this
+            if (!endsWith(".yml")) "$this.yml" else this
         }
-
     private val configFile = File("${plugin.dataFolder.path}/${conf}")
     lateinit var config: FileConfiguration
 

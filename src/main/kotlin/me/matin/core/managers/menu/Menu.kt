@@ -11,14 +11,10 @@ import org.bukkit.inventory.InventoryHolder
 abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder {
 
     private lateinit var inventory: Inventory
-
     abstract val title: Component
-
     abstract val type: MenuType
-
     open val cancelClickIgnoredSlots: ArrayList<Int> = ArrayList()
     open val freezeBottomInv: Boolean = false
-
     open val antiCursorItemLoss: Boolean = true
 
     abstract fun handleMenu(event: InventoryClickEvent)

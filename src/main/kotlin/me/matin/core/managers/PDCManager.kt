@@ -12,7 +12,6 @@ object PDCManager {
 
     val PersistentDataHolder.PDC: PersistentDataContainer
         get() = this.persistentDataContainer
-
     val PersistentDataViewHolder.PDC: PersistentDataContainerView
         get() = this.persistentDataContainer
 
@@ -22,12 +21,20 @@ object PDCManager {
 
     operator fun PersistentDataContainer.unaryMinus(): PersistentDataContainerView = this
 
-    operator fun <P, C: Any> PersistentDataContainerView.get(key: String, type: PersistentDataType<P, C>, def: C? = null): C? {
+    operator fun <P, C: Any> PersistentDataContainerView.get(
+        key: String,
+        type: PersistentDataType<P, C>,
+        def: C? = null
+    ): C? {
         def ?: return this.get(NamespacedKey.fromString(key) ?: return null, type)
         return this.getOrDefault(NamespacedKey.fromString(key) ?: return null, type, def)
     }
 
-    operator fun <P, C: Any> PersistentDataContainerView.get(key: NamespacedKey, type: PersistentDataType<P, C>, def: C? = null): C? {
+    operator fun <P, C: Any> PersistentDataContainerView.get(
+        key: NamespacedKey,
+        type: PersistentDataType<P, C>,
+        def: C? = null
+    ): C? {
         def ?: return this.get(key, type)
         return this.getOrDefault(key, type, def)
     }
