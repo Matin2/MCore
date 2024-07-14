@@ -7,14 +7,19 @@ import org.bukkit.plugin.Plugin
 object PluginManager {
 
     @JvmStatic
-    operator fun get(pluginName: String): Plugin? = Bukkit.getPluginManager().getPlugin(pluginName)?.takeIf { it.isEnabled }
+    operator fun get(pluginName: String): Plugin? =
+        Bukkit.getPluginManager().getPlugin(pluginName)?.takeIf { it.isEnabled }
 
-    var Plugin.enabled: Boolean get() { return this.isEnabled } set(enable) {
-        when {
-            enable && !this.isEnabled -> Bukkit.getPluginManager().enablePlugin(this)
-            !enable && this.isEnabled -> Bukkit.getPluginManager().disablePlugin(this)
+    var Plugin.enabled: Boolean
+        get() {
+            return this.isEnabled
         }
-    }
+        set(enable) {
+            when {
+                enable && !this.isEnabled -> Bukkit.getPluginManager().enablePlugin(this)
+                !enable && this.isEnabled -> Bukkit.getPluginManager().disablePlugin(this)
+            }
+        }
 
     @JvmStatic
     fun isInstalled(pluginName: String): Boolean = get(pluginName) != null
@@ -29,7 +34,10 @@ object PluginManager {
     }
 
     @JvmStatic
-    fun checkState(dependenciesWithVersion: Map<String, String>, action: (installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit) {
+    fun checkState(
+        dependenciesWithVersion: Map<String, String>,
+        action: (installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit
+    ) {
         val installed = mutableSetOf<String>()
         val wrongVersion = mutableSetOf<String>()
         dependenciesWithVersion.forEach { (name, versions) ->
@@ -44,13 +52,16 @@ object PluginManager {
     @JvmStatic
     fun monitorState(dependencies: Set<String>, action: Plugin.(installed: Set<String>, missing: Set<String>) -> Unit) {
         val dependenciesWithVersion = dependencies.zip(Array(dependencies.size) { "" }).toMap()
-        DependencyListener.monitoredPlugins[dependenciesWithVersion] = {installed, missing, _ ->
+        DependencyListener.monitoredPlugins[dependenciesWithVersion] = { installed, missing, _ ->
             this.action(installed, missing)
         }
     }
 
     @JvmStatic
-    fun monitorState(dependenciesWithVersion: Map<String, String>, action: Plugin.(installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit)  {
+    fun monitorState(
+        dependenciesWithVersion: Map<String, String>,
+        action: Plugin.(installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit
+    ) {
         DependencyListener.monitoredPlugins[dependenciesWithVersion] = action
     }
 
