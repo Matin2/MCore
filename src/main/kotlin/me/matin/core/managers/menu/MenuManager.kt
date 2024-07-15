@@ -26,7 +26,12 @@ object MenuManager: Listener {
         e.currentItem ?: return
         (e.whoClicked.openInventory.topInventory.holder as? Menu)?.apply {
             cancelClick(e)
-            handleMenu(e)
+            buttons.forEach {
+                for ((_, slot) in it.items) {
+                    if (e.slot != slot) continue
+                    it.clickAction(e)
+                }
+            }
         }
     }
 

@@ -8,25 +8,27 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 
 @Suppress("unused")
-abstract class Menu(private var playerMenuUtil: PlayerMenuUtil): InventoryHolder {
+abstract class Menu(private var playerMenuUtil: MenuUtil): InventoryHolder {
 
     private lateinit var inventory: Inventory
     abstract val title: Component
     abstract val type: MenuType
+    abstract val buttons: List<Button>
     open val cancelClickIgnoredSlots: ArrayList<Int> = ArrayList()
     open val freezeBottomInv: Boolean = false
     open val antiCursorItemLoss: Boolean = true
 
-    abstract fun handleMenu(event: InventoryClickEvent)
-    abstract fun setMenuItems()
-
     fun open() {
         type.type?.also {
             inventory = Bukkit.createInventory(this, it, title)
-        } ?: {
+        } ?: run {
             inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
-        setMenuItems()
+        buttons.forEach {
+            it.items.forEach { (item, slot) ->
+                inventory.setItem(slot, item)
+            }
+        }
         playerMenuUtil.player.openInventory(inventory)
     }
 
