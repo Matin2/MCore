@@ -17,7 +17,7 @@ import org.bukkit.potion.PotionType
 
 @Suppress("unused")
 data class DisplayItem(
-    var material: Material,
+    var material: Material = Material.AIR,
     var name: Component? = null,
     var lore: List<Component>? = null,
     var model: Int = -1,
