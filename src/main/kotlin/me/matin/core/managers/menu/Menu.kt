@@ -33,9 +33,10 @@ abstract class Menu(private val player: Player): InventoryHolder {
         player.openInventory(inventory)
         opened = true
         for ((intervalDelay, async, action) in tasksToRun) {
-            val task = if (async) Bukkit.getScheduler()
-                .runTaskTimerAsynchronously(Core.plugin, action, intervalDelay.first, intervalDelay.second)
-            else Bukkit.getScheduler().runTaskTimer(Core.plugin, action, intervalDelay.first, intervalDelay.second)
+            val task = Bukkit.getScheduler().run {
+                if (async) runTaskTimerAsynchronously(Core.plugin, action, intervalDelay.first, intervalDelay.second)
+                else runTaskTimer(Core.plugin, action, intervalDelay.first, intervalDelay.second)
+            }
             runningTasks.add(task)
         }
         tasksToRun.removeAll { true }
