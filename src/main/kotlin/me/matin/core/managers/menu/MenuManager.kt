@@ -1,14 +1,12 @@
 package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
+import me.matin.core.managers.menu.items.button.ButtonManager
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.event.inventory.InventoryDragEvent
-import org.bukkit.event.inventory.InventoryType
+import org.bukkit.event.inventory.*
 
 @Suppress("unused")
 object MenuManager: Listener {
@@ -24,21 +22,20 @@ object MenuManager: Listener {
     @EventHandler
     fun onInventoryClick(e: InventoryClickEvent) {
         e.currentItem ?: return
-        (e.whoClicked.openInventory.topInventory.holder as? Menu)?.apply {
-            cancelClick(e)
-            buttons.forEach {
-                for ((_, slot) in it.items) {
-                    if (e.slot != slot) continue
-                    it.clickAction(e)
-                }
-            }
-        }
+        val inv = e.clickedInventory ?: return
+        val bottomInv = e.whoClicked.openInventory.bottomInventory
+        val menu = e.whoClicked.openInventory.topInventory as? Menu ?: return
+        if (inv == bottomInv && (menu.freezeBottomInv || e.action == InventoryAction.MOVE_TO_OTHER_INVENTORY))
+            e.isCancelled = true
+        ButtonManager(menu).manageBehavior(e)
     }
 
     @EventHandler
     fun onInventoryClose(e: InventoryCloseEvent) {
         val player = e.player as? Player ?: return
         checkCursor(player)
+        val menu = player.openInventory.topInventory.holder as? Menu ?: return
+        menu.close(false)
     }
 
     @JvmStatic

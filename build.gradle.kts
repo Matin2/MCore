@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.Matin2"
-version = "1.2.8"
+version = "1.3.0"
 
 repositories {
     mavenCentral()
@@ -25,7 +25,6 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 }
 
@@ -37,7 +36,6 @@ tasks.shadowJar {
     relocate("com.github.retrooper.packetevents", "$dir.packetevents.api")
     relocate("io.github.retrooper.packetevents", "$dir.packetevents.impl")
     relocate("kotlinx", "$dir.kotlinx")
-//    relocate("_COROUTINE", "$dir.coroutine")
     dependencies {
         exclude(dependency("org.jetbrains:annotations"))
         exclude(dependency("com.google.code.gson:gson"))
