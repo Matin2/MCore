@@ -2,6 +2,7 @@ package me.matin.core.managers.menu
 
 import me.matin.core.Core
 import me.matin.core.managers.menu.items.MenuItem
+import me.matin.core.managers.menu.MenuItem as MenuItemAnnotation
 import me.matin.core.managers.menu.items.button.ButtonManager
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
@@ -9,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.scheduler.BukkitTask
+import kotlin.reflect.full.hasAnnotation
 
 @Suppress("unused")
 abstract class Menu(private val player: Player): InventoryHolder {
@@ -16,9 +18,9 @@ abstract class Menu(private val player: Player): InventoryHolder {
     private lateinit var inventory: Inventory
     abstract val title: Component
     abstract val type: MenuType
-    abstract val items: Set<MenuItem>
+    val items = mutableSetOf<MenuItem>()
     open val freezeBottomInv: Boolean = false
-    open val antiCursorItemLoss: Boolean = true
+    open val preventCursorLoss: Boolean = true
     private var opened: Boolean = false
     private val runningTasks = mutableSetOf<BukkitTask>()
     private val tasksToRun: MutableSet<Triple<Pair<Long, Long>, Boolean, () -> Unit>> = mutableSetOf()
@@ -29,6 +31,7 @@ abstract class Menu(private val player: Player): InventoryHolder {
         } ?: run {
             inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
+        processItems()
         ButtonManager(this).manageDisplay()
         player.openInventory(inventory)
         opened = true
@@ -48,6 +51,15 @@ abstract class Menu(private val player: Player): InventoryHolder {
         runningTasks.forEach {
             it.cancel()
             runningTasks.remove(it)
+        }
+    }
+
+    private fun processItems() = this::class.members.forEach { member ->
+        if (member.hasAnnotation<MenuItemAnnotation>()) {
+            if (member.parameters.size == 1) {
+                val result = member.call(this) as? MenuItem ?: return@forEach
+                items.add(result)
+            }
         }
     }
 
