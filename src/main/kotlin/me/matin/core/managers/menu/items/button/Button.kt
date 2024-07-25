@@ -17,6 +17,13 @@ class Button(
     val interactAction: Interacted.() -> Unit
 ): MenuItem, RecipeItem {
 
+    constructor(
+        slot: Int,
+        vararg statesDisplay: DisplayItem,
+        state: Int = 0,
+        interactAction: Interacted.() -> Unit
+    ): this(setOf(slot), *statesDisplay, state = state, interactAction = interactAction)
+
     private var stateChangeAction: Unit? = null
     lateinit var menu: Menu
     val states = statesDisplay.indices
