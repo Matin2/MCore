@@ -18,4 +18,11 @@ class BannerOptions(private vararg val patterns: Pattern) {
     fun setOptions(meta: BannerMeta) {
         meta.patterns = patterns.toList()
     }
+
+    companion object {
+
+        @JvmStatic
+        fun getOptions(meta: BannerMeta): BannerOptions =
+            BannerOptions(*meta.patterns.map { it.color to it.pattern }.toTypedArray())
+    }
 }
