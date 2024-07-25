@@ -24,9 +24,11 @@ object MenuManager: Listener {
         e.currentItem ?: return
         val inv = e.clickedInventory ?: return
         val bottomInv = e.whoClicked.openInventory.bottomInventory
-        val menu = e.whoClicked.openInventory.topInventory as? Menu ?: return
+        val topInv = e.whoClicked.openInventory.topInventory
+        val menu = topInv.holder as? Menu ?: return
         if (inv == bottomInv && (menu.freezeBottomInv || e.action == InventoryAction.MOVE_TO_OTHER_INVENTORY))
             e.isCancelled = true
+        if (inv != topInv) return
         ButtonManager(menu).manageBehavior(e)
     }
 
@@ -47,7 +49,7 @@ object MenuManager: Listener {
     fun checkCursor(player: Player) {
         val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return
         val holder = player.openInventory.topInventory.holder as? Menu ?: return
-        holder.takeIf { it.antiCursorItemLoss } ?: return
+        holder.takeIf { it.preventCursorLoss } ?: return
         player.inventory.addItem(cursor).takeUnless { it.isEmpty() }
             ?: ItemManager.drop(cursor, player.location, BlockFace.UP)
     }
