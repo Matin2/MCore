@@ -1,7 +1,6 @@
 package me.matin.core.managers.menu.items.button
 
 import me.matin.core.managers.menu.Menu
-import me.matin.core.managers.menu.items.SlotType
 import org.bukkit.event.inventory.InventoryClickEvent
 
 class ButtonManager(private val menu: Menu) {
@@ -10,7 +9,6 @@ class ButtonManager(private val menu: Menu) {
         val button = menu.items.filterIsInstance<Button>().firstOrNull { event.slot in it.slots } ?: return
         event.isCancelled = true
         if (ButtonAction.entries.none { it.clickType == event.click }) return
-        if (SlotType.entries.none { it.type == event.slotType }) return
         button.interactAction(button.Interacted(event))
     }
 
