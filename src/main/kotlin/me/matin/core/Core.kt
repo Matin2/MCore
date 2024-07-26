@@ -30,7 +30,7 @@ class Core: JavaPlugin() {
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager, this)
         server.pluginManager.registerEvents(DependencyListener, this)
-    }.let { logger.info("Plugin enabled in ${it.toReadableString(daySuffix = "day" to "days")}.") }
+    }.let { logger.info("Plugin enabled in ${it.toReadableString()}.") }
 
     override fun onLoad() = measureTime {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this))
@@ -47,7 +47,7 @@ class Core: JavaPlugin() {
                 .usePluginNamespace()
                 .initializeNBTAPI(NBTContainer::class.java, ::NBTContainer)
         )
-    }.let { logger.info("Plugin loaded in ${it.toReadableString(daySuffix = "day" to "days")}.") }
+    }.let { logger.info("Plugin loaded in ${it.toReadableString()}.") }
 
     override fun onDisable() = measureTime {
         Bukkit.getOnlinePlayers().forEach {
@@ -55,7 +55,7 @@ class Core: JavaPlugin() {
         }
         CommandAPI.onDisable()
         PacketEvents.getAPI().terminate()
-    }.let { logger.info("Plugin disabled in ${it.toReadableString(daySuffix = "day" to "days")}.") }
+    }.let { logger.info("Plugin disabled in ${it.toReadableString()}.") }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {
         playerTrackingRange.clear()
