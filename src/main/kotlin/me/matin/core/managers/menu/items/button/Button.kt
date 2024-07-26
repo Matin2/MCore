@@ -3,8 +3,6 @@ package me.matin.core.managers.menu.items.button
 import me.matin.core.managers.menu.DisplayItem
 import me.matin.core.managers.menu.Menu
 import me.matin.core.managers.menu.items.MenuItem
-import me.matin.core.managers.menu.items.SlotType
-import me.matin.core.managers.menu.items.recipe.RecipeItem
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
@@ -15,7 +13,7 @@ class Button(
     vararg val statesDisplay: DisplayItem,
     state: Int = 0,
     val interactAction: Interacted.() -> Unit
-): MenuItem, RecipeItem {
+): MenuItem {
 
     constructor(
         slot: Int,
@@ -24,20 +22,21 @@ class Button(
         interactAction: Interacted.() -> Unit
     ): this(setOf(slot), *statesDisplay, state = state, interactAction = interactAction)
 
-    private var stateChangeAction: Unit? = null
+    private var stateChangeAction: (StateChanged.() -> Unit)? = null
     lateinit var menu: Menu
-    val states = statesDisplay.indices
+    val states = statesDisplay.indices.toSet()
     var state: Int = state
         set(value) {
+            val oldState = field
             field = when {
                 value < 0 -> (value % statesDisplay.size) + statesDisplay.size
-                value > states.last -> value % statesDisplay.size
+                value > states.last() -> value % statesDisplay.size
                 else -> value
             }
             slots.forEach {
                 menu.inventory.setItem(it, statesDisplay[field].toItem())
             }
-            if (stateChangeAction != null) stateChangeAction
+            stateChangeAction?.invoke(StateChanged(oldState))
         }
 
     @Suppress("DEPRECATION")
@@ -45,9 +44,6 @@ class Button(
 
         val view get() = event.view
         val slot get() = event.slot
-        val slotType by lazy {
-            SlotType.entries.first { it.type == event.slotType }
-        }
         val action: ButtonAction by lazy {
             if (event.click == ClickType.NUMBER_KEY) ButtonAction.entries.first { it.hotbar == event.hotbarButton }
             else ButtonAction.entries.first { it.clickType == event.click }
@@ -57,7 +53,7 @@ class Button(
             set(value) {
                 event.setCursor(value)
             }
-        val states: IntRange get() = this@Button.states
+        val states get() = this@Button.states
         var state: Int
             get() = this@Button.state
             set(value) {
@@ -65,9 +61,9 @@ class Button(
             }
     }
 
-    inner class StateChanged {
+    inner class StateChanged(val oldState: Int) {
 
-        val states: IntRange get() = this@Button.states
+        val states get() = this@Button.states
         var state: Int
             get() = this@Button.state
             set(value) {
@@ -76,7 +72,7 @@ class Button(
     }
 
     infix fun onStateChange(action: StateChanged.() -> Unit): Button {
-        stateChangeAction = action(StateChanged())
+        stateChangeAction = action
         return this
     }
 }
