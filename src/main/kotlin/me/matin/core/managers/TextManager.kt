@@ -6,7 +6,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import kotlin.math.roundToLong
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 @Suppress("unused")
 object TextManager {
@@ -71,27 +73,7 @@ object TextManager {
     @JvmStatic
     fun Duration.toReadableString(
         separator: String = " ",
-        daySuffix: Pair<String, String> = "day" to "days",
-        hourSuffix: Pair<String, String> = "hour" to "hours",
-        minuteSuffix: Pair<String, String> = "minute" to "minutes",
-        secondSuffix: Pair<String, String> = "second" to "seconds",
-        millisecondSuffix: Pair<String, String> = "millisecond" to "milliseconds"
-    ): String = buildString {
-        this@toReadableString.toComponents { days, hours, minutes, seconds, nanos ->
-            days.takeIf { it > 0 }?.also { time ->
-                val suffix = daySuffix.first.takeIf { time == 1L } ?: daySuffix.second
-                append(time.toString() + suffix + separator)
-            }
-            addTime(hours, hourSuffix.first, hourSuffix.second, separator)
-            addTime(minutes, minuteSuffix.first, minuteSuffix.second, separator)
-            addTime(seconds, secondSuffix.first, secondSuffix.second, separator)
-            addTime(nanos / 1_000_000, millisecondSuffix.first, millisecondSuffix.second, separator)
-        }
-    }.removeSuffix(separator)
-
-    @JvmStatic
-    fun Duration.toReadableString(
-        separator: String = " ",
+        makePlural: Boolean = false,
         daySuffix: String = "d",
         hourSuffix: String = "h",
         minuteSuffix: String = "m",
@@ -99,19 +81,31 @@ object TextManager {
         millisecondSuffix: String = "ms"
     ): String = buildString {
         this@toReadableString.toComponents { days, hours, minutes, seconds, nanos ->
-            days.takeIf { it > 0 }?.let { append(it.toString() + daySuffix + separator) }
-            hours.takeIf { it > 0 }?.let { append(it.toString() + hourSuffix + separator) }
-            minutes.takeIf { it > 0 }?.let { append(it.toString() + minuteSuffix + separator) }
-            seconds.takeIf { it > 0 }?.let { append(it.toString() + secondSuffix + separator) }
-            (nanos / 1_000_000).takeIf { it > 0 }?.let { append(it.toString() + millisecondSuffix + separator) }
+            addTime(days, daySuffix, makePlural, separator)
+            addTime(hours.toLong(), hourSuffix, makePlural, separator)
+            addTime(minutes, minuteSuffix, makePlural, separator)
+            addTime(seconds, secondSuffix, makePlural, separator)
+            addTime(nanos / 1_000_000, millisecondSuffix, makePlural, separator)
+            if (toString().isBlank()) append("0$millisecondSuffix")
         }
     }.removeSuffix(separator)
 
-    private fun StringBuilder.addTime(time: Int, singleSuffix: String, multiSuffix: String, separator: String) =
-        time.takeIf { it > 0 }?.also {
-            val suffix = if (it > 1) multiSuffix else singleSuffix
-            append(it.toString() + suffix + separator)
+    private fun <T: Number> StringBuilder.addTime(time: T, suffix: String, makePlural: Boolean, separator: String) {
+        time.takeIf { it.toInt() > 0 }?.also {
+            if (!makePlural) {
+                append(time.toString() + suffix + separator)
+                return
+            }
+            val newSuffix = if (it.toInt() > 1) "${suffix}s" else suffix
+            append(it.toString() + newSuffix + separator)
         }
+    }
+
+    @JvmStatic
+    fun Duration.toTicks(): Long {
+        val seconds = this.toDouble(DurationUnit.SECONDS)
+        return (seconds * 20).roundToLong()
+    }
 
     @JvmStatic
     fun parse(
@@ -135,7 +129,7 @@ object TextManager {
         selector: Boolean = true,
         score: Boolean = true,
         nbt: Boolean = true,
-        legacy: Char? = '&',
+        legacy: Char? = null,
         vararg extraTags: TagResolver
     ): Component = parse(
         input,
@@ -184,7 +178,7 @@ object TextManager {
         selector: Boolean = true,
         score: Boolean = true,
         nbt: Boolean = true,
-        legacy: Char? = '&',
+        legacy: Char? = null,
     ): Component = parse(
         input,
         color,
