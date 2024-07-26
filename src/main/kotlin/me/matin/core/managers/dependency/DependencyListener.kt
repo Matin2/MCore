@@ -1,6 +1,7 @@
 package me.matin.core.managers.dependency
 
 import me.matin.core.Core
+import me.matin.core.managers.TaskManager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
@@ -13,10 +14,12 @@ object DependencyListener: Listener {
     val monitoredPlugins: MutableMap<Map<String, String>, Plugin.(Set<String>, Set<String>, Set<String>) -> Unit> =
         mutableMapOf()
 
-    private fun monitor() {
+    private fun monitor() = TaskManager.runTask(true) {
         monitoredPlugins.forEach { (dependencies, action) ->
             PluginManager.checkState(dependencies) { installed, missing, wrongVersion ->
-                Core.plugin.action(installed, missing, wrongVersion)
+                TaskManager.runTask {
+                    Core.plugin.action(installed, missing, wrongVersion)
+                }
             }
         }
     }

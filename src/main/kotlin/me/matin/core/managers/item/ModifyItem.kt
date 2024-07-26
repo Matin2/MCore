@@ -1,5 +1,6 @@
 package me.matin.core.managers.item
 
+import me.matin.core.managers.TaskManager
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -12,7 +13,7 @@ enum class ModifyItem {
     AMOUNT,
     DURABILITY;
 
-    private fun modifyAmount(item: ItemStack, modification: ItemModifyType, value: Int) {
+    private fun modifyAmount(item: ItemStack, modification: ItemModifyType, value: Int) = TaskManager.runTask(true) {
         item.takeUnless { it.type == Material.AIR }?.apply {
             amount = min(
                 when (modification) {
@@ -21,19 +22,20 @@ enum class ModifyItem {
                     ItemModifyType.TAKE -> amount - value
                 }, item.maxStackSize
             )
-        } ?: return
+        }
     }
 
-    private fun modifyDurability(item: ItemStack, modification: ItemModifyType, value: Int) {
-        item.itemMeta =
-            (item.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable }?.itemMeta as? Damageable)?.apply {
-                damage = when (modification) {
-                    ItemModifyType.SET -> item.type.maxDurability - value
-                    ItemModifyType.ADD -> damage - value
-                    ItemModifyType.TAKE -> damage + value
+    private fun modifyDurability(item: ItemStack, modification: ItemModifyType, value: Int) =
+        TaskManager.runTask(true) {
+            item.itemMeta =
+                (item.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable }?.itemMeta as? Damageable)?.apply {
+                    damage = when (modification) {
+                        ItemModifyType.SET -> item.type.maxDurability - value
+                        ItemModifyType.ADD -> damage - value
+                        ItemModifyType.TAKE -> damage + value
+                    }
                 }
-            } ?: return
-    }
+        }
 
     class Item internal constructor(private val item: ItemStack?, private val type: ModifyItem) {
 

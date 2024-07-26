@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
 import me.matin.core.Core
+import me.matin.core.managers.TaskManager
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -13,7 +14,7 @@ import org.bukkit.inventory.ItemStack
 object PacketManager {
 
     @JvmStatic
-    fun swingHand(player: Player, mainHand: Boolean) {
+    fun swingHand(player: Player, mainHand: Boolean) = TaskManager.runTask(true) {
         val animationType =
             if (mainHand) WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM
             else WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_OFF_HAND
@@ -22,7 +23,6 @@ object PacketManager {
         }
     }
 
-    @JvmStatic
     private fun getNearbyPlayers(player: Player): Collection<Player> {
         val players: ArrayList<Player> = arrayListOf(player)
         val range = Core.corePlayerTrackingRange.getOrDefault(player.location.world, 64).let { it * it }
@@ -34,18 +34,25 @@ object PacketManager {
     }
 
     @JvmStatic
-    fun showTotem(player: Player, model: Int?) {
-        if (model == null) playTotem(player).also { return }
+    fun showTotem(player: Player, model: Int?) = TaskManager.runTask(true) {
+        if (model == null) playTotem(player).also { return@runTask }
         val oldItem = player.inventory.itemInOffHand
         ItemStack(Material.TOTEM_OF_UNDYING).also {
             it.itemMeta.also { meta ->
                 meta.setCustomModelData(model)
                 it.setItemMeta(meta)
             }
-            player.inventory.setItem(40, it)
+            var isItemSet = false
+            TaskManager.runTask {
+                player.inventory.setItem(40, it)
+                isItemSet = true
+            }
+            while (!isItemSet) Thread.sleep(10)
         }
         playTotem(player)
-        player.inventory.setItem(40, oldItem)
+        TaskManager.runTask {
+            player.inventory.setItem(40, oldItem)
+        }
     }
 
     private fun playTotem(player: Player) = WrapperPlayServerEntityStatus(player.entityId, 35).let {
