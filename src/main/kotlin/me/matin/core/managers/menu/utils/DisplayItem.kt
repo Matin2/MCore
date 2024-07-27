@@ -1,4 +1,4 @@
-package me.matin.core.managers.menu
+package me.matin.core.managers.menu.utils
 
 import de.tr7zw.changeme.nbtapi.NBT
 import de.tr7zw.changeme.nbtapi.NBTContainer

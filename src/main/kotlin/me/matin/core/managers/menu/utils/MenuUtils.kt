@@ -1,4 +1,4 @@
-package me.matin.core.managers.menu
+package me.matin.core.managers.menu.utils
 
 import me.matin.core.managers.TaskManager
 import org.bukkit.scheduler.BukkitTask

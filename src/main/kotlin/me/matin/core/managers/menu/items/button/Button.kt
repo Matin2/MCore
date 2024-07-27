@@ -1,6 +1,6 @@
 package me.matin.core.managers.menu.items.button
 
-import me.matin.core.managers.menu.DisplayItem
+import me.matin.core.managers.menu.utils.DisplayItem
 import me.matin.core.managers.menu.InventoryMenu
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
