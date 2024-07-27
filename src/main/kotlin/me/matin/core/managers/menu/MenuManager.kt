@@ -2,6 +2,8 @@ package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
 import me.matin.core.managers.menu.items.button.ButtonManager
+import me.matin.core.managers.menu.menus.ListMenu
+import me.matin.core.managers.menu.menus.Menu
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

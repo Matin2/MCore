@@ -2,8 +2,8 @@ package me.matin.core.managers.menu.items.button
 
 import me.matin.core.managers.TaskManager
 import me.matin.core.managers.menu.InventoryMenu
-import me.matin.core.managers.menu.ListMenu
-import me.matin.core.managers.menu.Menu
+import me.matin.core.managers.menu.menus.ListMenu
+import me.matin.core.managers.menu.menus.Menu
 import org.bukkit.event.inventory.InventoryClickEvent
 
 class ButtonManager(private val menu: InventoryMenu) {
