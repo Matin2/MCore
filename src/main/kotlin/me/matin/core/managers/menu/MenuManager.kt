@@ -23,7 +23,6 @@ object MenuManager: Listener {
 
     @EventHandler
     fun onInventoryClick(e: InventoryClickEvent) {
-        e.currentItem ?: return
         val inv = e.clickedInventory ?: return
         val bottomInv = e.whoClicked.openInventory.bottomInventory
         val topInv = e.whoClicked.openInventory.topInventory
