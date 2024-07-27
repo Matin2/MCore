@@ -1,6 +1,7 @@
 package me.matin.core.managers.menu
 
 import me.matin.core.managers.TaskManager
+import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonAction
 import me.matin.core.managers.menu.items.button.ButtonManager
