@@ -28,10 +28,10 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     abstract val list: List<T>
     abstract val listDisplay: (T) -> DisplayItem
     abstract val listInteractAction: Interacted.(T) -> Unit
-    abstract val listFiller: Pair<DisplayItem, Interacted.() -> Unit>
+    open val listFiller: Pair<DisplayItem, Interacted.() -> Unit> = DisplayItem() to {}
     private var listMap: Map<Int, List<Pair<Int, Int>>>? = null
-    private var pages: Int = 0
-    var page: Int = page
+    var pages: Int = 0
+    var page: Int = if (page in 0..<pages) page else 0
         set(value) {
             field = when {
                 value < 0 -> (value % pages) + pages
@@ -58,7 +58,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         } ?: run {
             inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
-        pages = list.size / listSlots.size
+        pages = (list.size / listSlots.size) + 1
         makeListMap()
         processItems()
         ButtonManager(this).manageDisplay()
