@@ -1,13 +1,13 @@
 package me.matin.core.managers.menu.menus
 
 import me.matin.core.managers.TaskManager
-import me.matin.core.managers.menu.utils.DisplayItem
 import me.matin.core.managers.menu.InventoryMenu
-import me.matin.core.managers.menu.utils.MenuUtils
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonAction
 import me.matin.core.managers.menu.items.button.ButtonManager
+import me.matin.core.managers.menu.utils.DisplayItem
+import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -27,11 +27,12 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     private var opened: Boolean = false
     private val util = MenuUtils()
     abstract val listSlots: Set<Int>
-    abstract val list: Iterable<T>
+    abstract val list: List<T>
     abstract val listDisplay: (T) -> DisplayItem
     abstract val listInteractAction: Interacted.(T) -> Unit
+    abstract val listFiller: Pair<DisplayItem, Interacted.() -> Unit>
     private val listMap: Map<Int, List<Pair<Int, Int>>> by lazy {
-        list.toList().indices.map {
+        list.indices.map {
             it to listSlots.elementAt(it % listSlots.size)
         }.groupBy {
             it.first / listSlots.size
@@ -47,9 +48,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             }
             TaskManager.runTask(true) {
                 ButtonManager(this).manageDisplay()
-                listMap.getValue(field).forEach {
-                    inventory.setItem(it.second, listDisplay(list.elementAt(it.first)).toItem())
-                }
+                manageListDisplay()
             }
         }
 
@@ -96,17 +95,27 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             }
     }
 
-    private fun manageListDisplay() = listMap.getValue(page).forEach {
-        inventory.setItem(it.second, listDisplay(list.elementAt(it.first)).toItem())
+    private fun manageListDisplay() {
+        val map = listSlots - listMap.getValue(page).map {
+            inventory.setItem(it.second, listDisplay(list[it.first]).toItem())
+            it.second
+        }.toSet()
+        map.forEach { inventory.setItem(it, listFiller.first.toItem()) }
     }
 
     fun manageBehaviour(event: InventoryClickEvent) = TaskManager.runTask(true) {
         if (event.slot !in listSlots) return@runTask
         event.isCancelled = true
         if (ButtonAction.entries.none { it.clickType == event.click }) return@runTask
+        if (event.currentItem?.type == listFiller.first.material) {
+            TaskManager.runTask {
+                listFiller.second(Interacted(event))
+            }
+            return@runTask
+        }
         val (index) = listMap.getValue(page).first { it.second == event.slot }
         TaskManager.runTask {
-            listInteractAction(Interacted(event), list.elementAt(index))
+            listInteractAction(Interacted(event), list[index])
         }
     }
 
