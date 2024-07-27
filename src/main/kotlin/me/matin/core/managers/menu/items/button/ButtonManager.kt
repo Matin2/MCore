@@ -1,6 +1,5 @@
 package me.matin.core.managers.menu.items.button
 
-import me.matin.core.managers.TaskManager
 import me.matin.core.managers.menu.InventoryMenu
 import me.matin.core.managers.menu.menus.ListMenu
 import me.matin.core.managers.menu.menus.Menu
@@ -8,13 +7,11 @@ import org.bukkit.event.inventory.InventoryClickEvent
 
 class ButtonManager(private val menu: InventoryMenu) {
 
-    fun manageBehavior(event: InventoryClickEvent) = TaskManager.runTask(true) {
-        val button = menu.buttons.firstOrNull { event.slot in it.slots } ?: return@runTask
+    fun manageBehavior(event: InventoryClickEvent) {
+        val button = menu.buttons.firstOrNull { event.slot in it.slots } ?: return
         event.isCancelled = true
-        if (ButtonAction.entries.none { it.clickType == event.click }) return@runTask
-        TaskManager.runTask {
-            button.interactAction(button.Interacted(event))
-        }
+        if (ButtonAction.entries.none { it.clickType == event.click }) return
+        button.interactAction(button.Interacted(event))
     }
 
     fun manageDisplay() {
@@ -30,7 +27,7 @@ class ButtonManager(private val menu: InventoryMenu) {
 
             is ListMenu<*> -> {
                 menu.buttonsMap.forEach { (button, pages) ->
-                    if (pages?.contains(menu.page) != true) return@forEach
+                    if (pages != null && menu.page !in pages) return@forEach
                     button.menu = menu
                     button.slots.forEach {
                         menu.inventory.setItem(it, button.statesDisplay[button.state].toItem())
