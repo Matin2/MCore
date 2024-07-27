@@ -25,19 +25,23 @@ object MenuManager: Listener {
         val inv = e.clickedInventory ?: return
         val bottomInv = e.whoClicked.openInventory.bottomInventory
         val topInv = e.whoClicked.openInventory.topInventory
-        val menu = topInv.holder as? Menu ?: return
+        val menu = topInv.holder as? InventoryMenu ?: return
         if (inv == bottomInv && (menu.freezeBottomInv || e.action == InventoryAction.MOVE_TO_OTHER_INVENTORY))
             e.isCancelled = true
         if (inv != topInv) return
         ButtonManager(menu).manageBehavior(e)
+        if (menu is ListMenu<*>) menu.manageBehaviour(e)
     }
 
     @EventHandler
     fun onInventoryClose(e: InventoryCloseEvent) {
         val player = e.player as? Player ?: return
         checkCursor(player)
-        val menu = player.openInventory.topInventory.holder as? Menu ?: return
-        menu.close(false)
+        val menu = player.openInventory.topInventory.holder as? InventoryMenu ?: return
+        when (menu) {
+            is Menu -> menu.close(false)
+            is ListMenu<*> -> menu.close(false)
+        }
     }
 
     @JvmStatic
