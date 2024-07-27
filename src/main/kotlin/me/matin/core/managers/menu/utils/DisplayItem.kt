@@ -1,10 +1,10 @@
 package me.matin.core.managers.menu.utils
 
+import com.destroystokyo.paper.profile.PlayerProfile
 import de.tr7zw.changeme.nbtapi.NBT
 import de.tr7zw.changeme.nbtapi.NBTContainer
 import me.matin.core.managers.item.BannerOptions
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.Material
@@ -26,7 +26,7 @@ data class DisplayItem(
     var rarity: ItemRarity? = null,
     var hideTooltip: Boolean = false,
     var color: Color? = null,
-    var head: String? = null,
+    var head: PlayerProfile? = null,
     var trim: ArmorTrim? = null,
     var banner: BannerOptions? = null,
     var durability: Int = -1,
@@ -84,9 +84,7 @@ data class DisplayItem(
     }
 
     private fun setSkull(meta: ItemMeta) {
-        Bukkit.getServer().getOfflinePlayerIfCached(head ?: return)?.also {
-            (meta as? SkullMeta)?.setOwningPlayer(it)
-        }
+        (meta as? SkullMeta)?.playerProfile = (head ?: return)
     }
 
     companion object {
@@ -134,6 +132,6 @@ data class DisplayItem(
             return if (damage != null) (item.type.maxDurability * damage) / 100 else -1
         }
 
-        private fun getSkull(meta: ItemMeta): String? = (meta as? SkullMeta)?.owningPlayer?.name
+        private fun getSkull(meta: ItemMeta): PlayerProfile? = (meta as? SkullMeta)?.playerProfile
     }
 }
