@@ -1,7 +1,7 @@
 package me.matin.core.managers.menu.items.button
 
 import me.matin.core.managers.menu.DisplayItem
-import me.matin.core.managers.menu.Menu
+import me.matin.core.managers.menu.InventoryMenu
 import me.matin.core.managers.menu.items.MenuItem
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -23,7 +23,7 @@ class Button(
     ): this(setOf(slot), *statesDisplay, state = state, interactAction = interactAction)
 
     private var stateChangeAction: (StateChanged.() -> Unit)? = null
-    lateinit var menu: Menu
+    lateinit var menu: InventoryMenu
     val states = statesDisplay.indices.toSet()
     var state: Int = state
         set(value) {
