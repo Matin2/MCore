@@ -2,7 +2,6 @@ package me.matin.core.managers.menu.items.button
 
 import me.matin.core.managers.menu.DisplayItem
 import me.matin.core.managers.menu.InventoryMenu
-import me.matin.core.managers.menu.items.MenuItem
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
@@ -13,7 +12,7 @@ class Button(
     vararg val statesDisplay: DisplayItem,
     state: Int = 0,
     val interactAction: Interacted.() -> Unit
-): MenuItem {
+) {
 
     constructor(
         slot: Int,
