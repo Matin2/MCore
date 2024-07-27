@@ -17,13 +17,11 @@ import org.bukkit.inventory.ItemStack
 import kotlin.reflect.full.hasAnnotation
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-abstract class ListMenu<T>(private val player: Player, page: Int = 0): InventoryMenu {
+abstract class ListMenu<T>(private val player: Player, page: Int = 0): InventoryMenu() {
 
     private lateinit var inventory: Inventory
     val buttonsMap = mutableMapOf<Button, Set<Int>?>()
     override val buttons get() = buttonsMap.keys
-    override val freezeBottomInv: Boolean = false
-    override val preventCursorLoss: Boolean = true
     private var opened: Boolean = false
     private val util = MenuUtils()
     abstract val listSlots: Set<Int>
@@ -31,26 +29,28 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     abstract val listDisplay: (T) -> DisplayItem
     abstract val listInteractAction: Interacted.(T) -> Unit
     abstract val listFiller: Pair<DisplayItem, Interacted.() -> Unit>
-    private val listMap: Map<Int, List<Pair<Int, Int>>> by lazy {
-        list.indices.map {
+    private var listMap: Map<Int, List<Pair<Int, Int>>>? = null
+    private var pages: Int = 0
+    var page: Int = page
+        set(value) {
+            field = when {
+                value < 0 -> (value % pages) + pages
+                value >= pages -> value % pages
+                else -> value
+            }
+            TaskManager.runTask(true) {
+                ButtonManager(this).manageDisplay()
+                if (listMap != null) manageListDisplay()
+            }
+        }
+
+    private fun makeListMap() {
+        listMap = list.indices.map {
             it to listSlots.elementAt(it % listSlots.size)
         }.groupBy {
             it.first / listSlots.size
         }
     }
-    val pages = listMap.keys
-    var page: Int = page
-        set(value) {
-            field = when {
-                value < 0 -> (value % pages.size) + pages.size
-                value > pages.last() -> value % pages.size
-                else -> value
-            }
-            TaskManager.runTask(true) {
-                ButtonManager(this).manageDisplay()
-                manageListDisplay()
-            }
-        }
 
     fun open() = TaskManager.runTask(true) {
         type.type?.also {
@@ -58,9 +58,11 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         } ?: run {
             inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
+        pages = list.size / listSlots.size
+        makeListMap()
         processItems()
-        manageListDisplay()
         ButtonManager(this).manageDisplay()
+        if (listMap != null) manageListDisplay()
         TaskManager.runTask {
             player.openInventory(inventory)
             opened = true
@@ -96,27 +98,23 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     }
 
     private fun manageListDisplay() {
-        val map = listSlots - listMap.getValue(page).map {
+        val map = listSlots - listMap!!.getValue(page).map {
             inventory.setItem(it.second, listDisplay(list[it.first]).toItem())
             it.second
         }.toSet()
         map.forEach { inventory.setItem(it, listFiller.first.toItem()) }
     }
 
-    fun manageBehaviour(event: InventoryClickEvent) = TaskManager.runTask(true) {
-        if (event.slot !in listSlots) return@runTask
+    fun manageBehaviour(event: InventoryClickEvent) {
+        if (event.slot !in listSlots) return
         event.isCancelled = true
-        if (ButtonAction.entries.none { it.clickType == event.click }) return@runTask
+        if (ButtonAction.entries.none { it.clickType == event.click }) return
         if (event.currentItem?.type == listFiller.first.material) {
-            TaskManager.runTask {
-                listFiller.second(Interacted(event))
-            }
-            return@runTask
+            listFiller.second(Interacted(event))
+            return
         }
-        val (index) = listMap.getValue(page).first { it.second == event.slot }
-        TaskManager.runTask {
-            listInteractAction(Interacted(event), list[index])
-        }
+        val (index) = listMap!!.getValue(page).first { it.second == event.slot }
+        listInteractAction(Interacted(event), list[index])
     }
 
     override fun getInventory(): Inventory {
