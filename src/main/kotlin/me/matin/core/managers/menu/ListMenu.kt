@@ -96,6 +96,16 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         inventory.setItem(it.second, listDisplay(list.elementAt(it.first)).toItem())
     }
 
+    fun manageBehaviour(event: InventoryClickEvent) = TaskManager.runTask(true) {
+        if (event.slot !in listSlots) return@runTask
+        event.isCancelled = true
+        if (ButtonAction.entries.none { it.clickType == event.click }) return@runTask
+        val (index) = listMap.getValue(page).first { it.second == event.slot }
+        TaskManager.runTask {
+            listInteractAction(Interacted(event), list.elementAt(index))
+        }
+    }
+
     override fun getInventory(): Inventory {
         return inventory
     }
@@ -113,18 +123,5 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             set(value) {
                 event.setCursor(value)
             }
-    }
-
-    inner class Manager {
-
-        fun manage(event: InventoryClickEvent) = TaskManager.runTask(true) {
-            if (event.slot !in listSlots) return@runTask
-            event.isCancelled = true
-            if (ButtonAction.entries.none { it.clickType == event.click }) return@runTask
-            val (index) = listMap.getValue(page).first { it.second == event.slot }
-            TaskManager.runTask {
-                listInteractAction(Interacted(event), list.elementAt(index))
-            }
-        }
     }
 }
