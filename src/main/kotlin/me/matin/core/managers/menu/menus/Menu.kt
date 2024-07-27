@@ -2,22 +2,20 @@ package me.matin.core.managers.menu.menus
 
 import me.matin.core.managers.TaskManager
 import me.matin.core.managers.menu.InventoryMenu
-import me.matin.core.managers.menu.utils.MenuUtils
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
+import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import kotlin.reflect.full.hasAnnotation
 
 @Suppress("unused")
-abstract class Menu(private val player: Player): InventoryMenu {
+abstract class Menu(private val player: Player): InventoryMenu() {
 
     private lateinit var inventory: Inventory
     override val buttons = mutableSetOf<Button>()
-    override val freezeBottomInv: Boolean = false
-    override val preventCursorLoss: Boolean = true
     private var opened: Boolean = false
     private val util = MenuUtils()
 
