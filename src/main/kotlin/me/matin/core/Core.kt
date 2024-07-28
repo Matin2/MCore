@@ -5,30 +5,44 @@ import de.tr7zw.changeme.nbtapi.NBTContainer
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
+import me.arcaniax.hdb.api.HeadDatabaseAPI
 import me.matin.core.managers.TextManager.toReadableString
 import me.matin.core.managers.dependency.DependencyListener
-import me.matin.core.managers.item.Head
+import me.matin.core.managers.dependency.PluginManager
 import me.matin.core.managers.menu.MenuManager
+import net.skinsrestorer.api.SkinsRestorer
+import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.time.measureTime
 
 class Core: JavaPlugin() {
+
     companion object {
 
         @JvmStatic
-        lateinit var plugin: Core
+        lateinit var instance: Core
+
+        @JvmStatic
+        var skinsRestorer: SkinsRestorer? = null
+
+        @JvmStatic
+        var headDatabase: HeadDatabaseAPI? = null
+
+        @JvmStatic
+        var headDB = false
 
         @JvmStatic
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
     }
 
     override fun onEnable() = measureTime {
-        plugin = this
+        instance = this
         CommandAPI.onEnable()
         PacketEvents.getAPI().init()
-        Head.checkDepends()
+        checkDepends()
+        monitorDepends()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager, this)
         server.pluginManager.registerEvents(DependencyListener, this)
@@ -61,6 +75,33 @@ class Core: JavaPlugin() {
         CommandAPI.onDisable()
         PacketEvents.getAPI().terminate()
     }.let { logger.info("Plugin disabled in ${it.toReadableString()}.") }
+
+    private fun checkDepends() {
+        val depends = setOf("SkinsRestorer", "HeadDatabase", "HeadAPI")
+        PluginManager.checkState(depends) { installed, _ ->
+            if ("SkinsRestorer" in installed) skinsRestorer = SkinsRestorerProvider.get()
+            if ("HeadDatabase" in installed) headDatabase = HeadDatabaseAPI()
+            if ("HeadAPI" in installed) headDB = true
+        }
+    }
+
+    private fun monitorDepends() {
+        val depends = setOf("SkinsRestorer", "HeadDatabase", "HeadAPI")
+        PluginManager.monitorState(depends) { installed, missing ->
+            when ("SkinsRestorer") {
+                in installed -> skinsRestorer = SkinsRestorerProvider.get()
+                in missing -> skinsRestorer = null
+            }
+            when ("HeadDatabase") {
+                in installed -> headDatabase = HeadDatabaseAPI()
+                in missing -> headDatabase = null
+            }
+            when ("HeadAPI") {
+                in installed -> headDB = true
+                in missing -> headDB = false
+            }
+        }
+    }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {
         playerTrackingRange.clear()
