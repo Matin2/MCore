@@ -1,8 +1,9 @@
 package me.matin.core.managers.item
 
 import com.destroystokyo.paper.profile.PlayerProfile
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import me.matin.core.Core
 import net.skinsrestorer.api.PropertyUtils
 import org.bukkit.Bukkit
@@ -61,20 +62,12 @@ object Head {
         }
     }
 
+    @Throws(IllegalArgumentException::class)
     private fun base64toURL(value: String): String {
         val base = Base64.getDecoder().decode(value).toString(Charset.defaultCharset())
-        val decoded = Json.decodeFromString<Textures>(base)
-        return decoded.textures.SKIN.url
-    }
-
-    @Serializable
-    data class Textures(val textures: Skin) {
-
-        @Suppress("PropertyName")
-        @Serializable
-        data class Skin(val SKIN: SkinUrl)
-
-        @Serializable
-        data class SkinUrl(val url: String)
+        val decoded = Json.decodeFromString<JsonObject>(base)
+        val foundURL = decoded["textures"]?.jsonObject?.get("SKIN")?.jsonObject?.get("url")?.toString()?.trim('"')
+        val url = requireNotNull(foundURL) { "Provided value is not a correct skin base64!" }
+        return url
     }
 }
