@@ -2,11 +2,14 @@ package me.matin.core.managers.menu.menus
 
 import me.matin.core.managers.TaskManager
 import me.matin.core.managers.menu.InventoryMenu
+import me.matin.core.managers.menu.items.MenuItem
+import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
+import kotlin.reflect.full.hasAnnotation
 
 @Suppress("unused")
 abstract class Menu(private val player: Player): InventoryMenu() {
@@ -21,7 +24,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         } ?: let {
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
-        util.processItems(this::class.members, buttons)
+        processItems()
         privateUpdateItems()
         TaskManager.runTask {
             player.openInventory(inventory)
@@ -46,6 +49,22 @@ abstract class Menu(private val player: Player): InventoryMenu() {
     private fun privateUpdateItems() {
         ButtonManager(this).manageDisplay()
     }
+
+    @Suppress("DuplicatedCode")
+    private fun processItems() =
+        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }
+            .forEach { member ->
+                when (val result = member.call(this)) {
+                    is Button -> buttons.add(result)
+                    is Iterable<*> -> {
+                        result.forEach {
+                            when (it) {
+                                is Button -> buttons.add(it)
+                            }
+                        }
+                    }
+                }
+            }
 
     //    fun scheduleTask(
 //        delay: Duration = Duration.ZERO,

@@ -2,6 +2,8 @@ package me.matin.core.managers.menu.menus
 
 import me.matin.core.managers.TaskManager
 import me.matin.core.managers.menu.InventoryMenu
+import me.matin.core.managers.menu.items.MenuItem
+import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonAction
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.utils.DisplayItem
@@ -12,6 +14,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import kotlin.reflect.full.hasAnnotation
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 abstract class ListMenu<T>(private val player: Player, page: Int = 0): InventoryMenu() {
@@ -46,7 +49,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
         makeListMap()
-        util.processItems(this::class.members, buttons)
+        processItems()
         privateUpdateItems(true)
         TaskManager.runTask {
             player.openInventory(inventory)
@@ -73,6 +76,22 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         ButtonManager(this).manageDisplay()
         if (listMap != null) manageListDisplay()
     }
+
+    @Suppress("DuplicatedCode")
+    private fun processItems() =
+        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }
+            .forEach { member ->
+                when (val result = member.call(this)) {
+                    is Button -> buttons.add(result)
+                    is Iterable<*> -> {
+                        result.forEach {
+                            when (it) {
+                                is Button -> buttons.add(it)
+                            }
+                        }
+                    }
+                }
+            }
 
     private fun makeListMap() {
         listMap = list.indices.map {

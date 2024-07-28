@@ -1,11 +1,7 @@
 package me.matin.core.managers.menu.utils
 
 import me.matin.core.managers.TaskManager
-import me.matin.core.managers.menu.items.MenuItem
-import me.matin.core.managers.menu.items.button.Button
 import org.bukkit.scheduler.BukkitTask
-import kotlin.reflect.KCallable
-import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
 
 class MenuUtils {
@@ -13,21 +9,6 @@ class MenuUtils {
     private val runningTasks = mutableSetOf<BukkitTask>()
     private val tasksToRun: MutableList<Triple<Pair<Duration, Duration>, Boolean, () -> Unit>> = mutableListOf()
     private var open = false
-
-    fun processItems(members: Collection<KCallable<*>>, buttons: MutableSet<Button>) =
-        members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }
-            .forEach { member ->
-                when (val result = member.call(this)) {
-                    is Button -> buttons.add(result)
-                    is Iterable<*> -> {
-                        result.forEach {
-                            when (it) {
-                                is Button -> buttons.add(it)
-                            }
-                        }
-                    }
-                }
-            }
 
     fun scheduleOnOpen() {
         open = true
