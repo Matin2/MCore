@@ -18,7 +18,7 @@ object DependencyListener: Listener {
         monitoredPlugins.forEach { (dependencies, action) ->
             PluginManager.checkState(dependencies) { installed, missing, wrongVersion ->
                 TaskManager.runTask {
-                    Core.plugin.action(installed, missing, wrongVersion)
+                    Core.instance.action(installed, missing, wrongVersion)
                 }
             }
         }
