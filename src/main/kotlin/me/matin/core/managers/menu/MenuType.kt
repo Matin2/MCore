@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Range
 @Suppress("unused")
 sealed class MenuType private constructor(val type: InventoryType?, open val rows: Int?) {
 
-    data class CHEST(override val rows: @Range(from = 1, to = 6) Int): MenuType(null, rows)
+    data class NORMAL(override val rows: @Range(from = 1, to = 6) Int): MenuType(null, rows)
     data object ANVIL: MenuType(InventoryType.ANVIL, null)
     data object BREWING: MenuType(InventoryType.BREWING, null)
     data object DISPENSER: MenuType(InventoryType.DISPENSER, null)
@@ -28,7 +28,7 @@ sealed class MenuType private constructor(val type: InventoryType?, open val row
             InventoryType.HOPPER -> HOPPER
             InventoryType.SMITHING -> SMITHING
             InventoryType.WORKBENCH -> WORKBENCH
-            else -> CHEST(3)
+            else -> NORMAL(3)
         }
     }
 }
