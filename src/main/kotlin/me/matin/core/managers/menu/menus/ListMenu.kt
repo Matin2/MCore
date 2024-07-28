@@ -42,8 +42,8 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     fun open() = TaskManager.runTask(true) {
         type.type?.also {
             inventory = Bukkit.createInventory(this, it, title)
-        } ?: run {
-            inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
+        } ?: let {
+            inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
         makeListMap()
         util.processItems(buttons)
