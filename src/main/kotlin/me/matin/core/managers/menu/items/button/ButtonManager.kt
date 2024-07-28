@@ -16,24 +16,18 @@ class ButtonManager(private val menu: InventoryMenu) {
 
     fun manageDisplay() {
         when (menu) {
-            is Menu -> {
-                menu.buttons.forEach { button ->
-                    button.menu = menu
-                    button.slots.forEach {
-                        menu.inventory.setItem(it, button.statesDisplay[button.state].toItem())
-                    }
-                }
-            }
+            is Menu -> menu.buttons.forEach { display(it) }
+            is ListMenu<*> -> menu.buttonsMap.filter { (_, pages) ->
+                pages == null || menu.page !in pages
+            }.forEach { display(it.key) }
+        }
+    }
 
-            is ListMenu<*> -> {
-                menu.buttonsMap.forEach { (button, pages) ->
-                    if (pages != null && menu.page !in pages) return@forEach
-                    button.menu = menu
-                    button.slots.forEach {
-                        menu.inventory.setItem(it, button.statesDisplay[button.state].toItem())
-                    }
-                }
-            }
+    private fun display(button: Button) {
+        if (!button.show) return
+        button.menu = menu
+        button.slots.forEach {
+            menu.inventory.setItem(it, button.statesDisplay[button.state].toItem())
         }
     }
 }
