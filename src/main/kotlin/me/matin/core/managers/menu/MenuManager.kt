@@ -31,7 +31,10 @@ object MenuManager: Listener {
             e.isCancelled = true
         if (inv != topInv) return
         ButtonManager(menu).manageBehavior(e)
-        if (menu is ListMenu<*>) menu.manageBehaviour(e)
+        when (menu) {
+            is Menu -> menu.manageFiller(e)
+            is ListMenu<*> -> menu.manageBehaviour(e)
+        }
     }
 
     @EventHandler

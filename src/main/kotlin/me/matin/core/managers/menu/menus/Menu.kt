@@ -8,6 +8,7 @@ import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
@@ -17,6 +18,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
 
     private lateinit var inventory: Inventory
     private var opened: Boolean = false
+    private lateinit var fillerSlots: Set<Int>
     private val util = MenuUtils()
 
     fun open() = Core.scheduleTask(true) {
@@ -43,12 +45,22 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         }
     }
 
+    fun scheduleTask(
+        async: Boolean = false,
+        delay: Duration = Duration.ZERO,
+        interval: Duration = Duration.ZERO,
+        task: () -> Unit
+    ) = util.scheduleTask(async, delay, interval, task)
+
     fun updateItems() = Core.scheduleTask(true) {
         privateUpdateItems()
     }
 
     private fun privateUpdateItems() {
-        ButtonManager(this).manageDisplay()
+        val fs = (0..<inventory.size).toMutableSet()
+        ButtonManager(this).manageDisplay(fs)
+        fillerSlots = fs
+        filler.manageDisplay(this, fillerSlots)
     }
 
     @Suppress("DuplicatedCode")
@@ -67,12 +79,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
                 }
             }
 
-    fun scheduleTask(
-        async: Boolean = false,
-        delay: Duration = Duration.ZERO,
-        interval: Duration = Duration.ZERO,
-        task: () -> Unit
-    ) = util.scheduleTask(async, delay, interval, task)
+    fun manageFiller(event: InventoryClickEvent) = filler.manageBehavior(fillerSlots, event)
 
     override fun getInventory(): Inventory {
         return inventory

@@ -12,12 +12,13 @@ class ButtonManager(private val menu: InventoryMenu) {
         button.interactAction(button.Interacted(event))
     }
 
-    fun manageDisplay() {
+    fun manageDisplay(fillerSlots: MutableSet<Int>) {
         menu.buttons.forEach { button ->
             if (!button.show) return
             button.menu = menu
             button.slots.forEach {
                 menu.inventory.setItem(it, button.statesDisplay[button.state].toItem())
+                fillerSlots.remove(it)
             }
         }
     }
