@@ -19,7 +19,7 @@ import org.bukkit.potion.PotionType
 data class DisplayItem(
     var material: Material = Material.AIR,
     var name: Component? = null,
-    var lore: List<Component>? = null,
+    var lore: MutableList<Component> = mutableListOf(),
     var model: Int = -1,
     var glow: Boolean = false,
     var amount: Int = 1,
@@ -41,7 +41,7 @@ data class DisplayItem(
         if (rarity != null) meta.setRarity(rarity)
         if (name != null) meta.itemName(name)
         item.amount = minOf(amount, 99)
-        if (!lore.isNullOrEmpty()) meta.lore(lore)
+        if (lore.isNotEmpty()) meta.lore(lore)
         if (model > 0) meta.setCustomModelData(model)
         meta.setEnchantmentGlintOverride(glow)
         meta.isHideTooltip = hideTooltip
@@ -94,7 +94,7 @@ data class DisplayItem(
             val meta =
                 item.itemMeta?.takeIf { item.hasItemMeta() } ?: return DisplayItem(item.type, amount = item.amount)
             val name = meta.displayName() ?: meta.itemName()
-            val lore = meta.lore()?.takeIf { it.isNotEmpty() }
+            val lore: MutableList<Component> = meta.lore().takeIf { meta.hasLore() } ?: mutableListOf()
             val glow = if (meta.hasEnchantmentGlintOverride()) meta.enchantmentGlintOverride else meta.hasEnchants()
             val rarity = meta.rarity.takeIf { meta.hasRarity() }
             val trim = (meta as? ArmorMeta)?.trim
