@@ -12,7 +12,7 @@ class Button(
     vararg val statesDisplay: DisplayItem,
     val show: Boolean = true,
     state: Int = 0,
-    val interactAction: Interacted.() -> Unit
+    val interactAction: Interacted.() -> Unit = {}
 ) {
 
     constructor(
@@ -20,7 +20,7 @@ class Button(
         vararg statesDisplay: DisplayItem,
         show: Boolean = true,
         state: Int = 0,
-        interactAction: Interacted.() -> Unit
+        interactAction: Interacted.() -> Unit = {}
     ): this(setOf(slot), *statesDisplay, show = show, state = state, interactAction = interactAction)
 
     private var stateChangeAction: (StateChanged.() -> Unit)? = null
