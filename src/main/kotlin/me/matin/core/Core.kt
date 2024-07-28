@@ -41,8 +41,9 @@ class Core: JavaPlugin() {
         instance = this
         CommandAPI.onEnable()
         PacketEvents.getAPI().init()
-        checkDepends()
-        monitorDepends()
+        val softDepends = setOf("SkinsRestorer", "HeadDatabase", "HeadDB")
+        checkDepends(softDepends)
+        monitorDepends(softDepends)
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.registerEvents(MenuManager, this)
         server.pluginManager.registerEvents(DependencyListener, this)
@@ -76,18 +77,14 @@ class Core: JavaPlugin() {
         PacketEvents.getAPI().terminate()
     }.let { logger.info("Plugin disabled in ${it.toReadableString()}.") }
 
-    private fun checkDepends() {
-        val depends = setOf("SkinsRestorer", "HeadDatabase", "HeadAPI")
-        PluginManager.checkState(depends) { installed, _ ->
-            if ("SkinsRestorer" in installed) skinsRestorer = SkinsRestorerProvider.get()
-            if ("HeadDatabase" in installed) headDatabase = HeadDatabaseAPI()
-            if ("HeadAPI" in installed) headDB = true
-        }
+    private fun checkDepends(softDepends: Set<String>) = PluginManager.checkState(softDepends) { installed, _ ->
+        if ("SkinsRestorer" in installed) skinsRestorer = SkinsRestorerProvider.get()
+        if ("HeadDatabase" in installed) headDatabase = HeadDatabaseAPI()
+        if ("HeadDB" in installed) headDB = true
     }
 
-    private fun monitorDepends() {
-        val depends = setOf("SkinsRestorer", "HeadDatabase", "HeadAPI")
-        PluginManager.monitorState(depends) { installed, missing ->
+    private fun monitorDepends(softDepends: Set<String>) =
+        PluginManager.monitorState(softDepends.toSet()) { installed, missing ->
             when ("SkinsRestorer") {
                 in installed -> skinsRestorer = SkinsRestorerProvider.get()
                 in missing -> skinsRestorer = null
@@ -96,12 +93,11 @@ class Core: JavaPlugin() {
                 in installed -> headDatabase = HeadDatabaseAPI()
                 in missing -> headDatabase = null
             }
-            when ("HeadAPI") {
+            when ("HeadDB") {
                 in installed -> headDB = true
                 in missing -> headDB = false
             }
         }
-    }
 
     private fun setPlayerTrackingRange(playerTrackingRange: MutableMap<World, Int>) {
         playerTrackingRange.clear()
