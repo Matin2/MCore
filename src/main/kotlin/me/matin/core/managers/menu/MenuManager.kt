@@ -46,11 +46,6 @@ object MenuManager: Listener {
     }
 
     @JvmStatic
-    fun getType(rows: Int): MenuType = MenuType.entries.first { it.rows == minOf(maxOf(rows, 1), 6) }
-
-    @JvmStatic
-    fun getType(type: InventoryType): MenuType = MenuType.entries.firstOrNull { it.type == type } ?: MenuType.THREE
-
     fun checkCursor(player: Player) {
         val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return
         val holder = player.openInventory.topInventory.holder as? Menu ?: return
