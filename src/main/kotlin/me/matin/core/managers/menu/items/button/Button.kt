@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack
 class Button(
     val slots: Set<Int>,
     vararg val statesDisplay: DisplayItem,
-    val show: Boolean,
+    val show: Boolean = true,
     state: Int = 0,
     val interactAction: Interacted.() -> Unit
 ) {
@@ -18,7 +18,7 @@ class Button(
     constructor(
         slot: Int,
         vararg statesDisplay: DisplayItem,
-        show: Boolean,
+        show: Boolean = true,
         state: Int = 0,
         interactAction: Interacted.() -> Unit
     ): this(setOf(slot), *statesDisplay, show = show, state = state, interactAction = interactAction)
