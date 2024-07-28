@@ -6,6 +6,7 @@ import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.arcaniax.hdb.api.HeadDatabaseAPI
+import me.matin.core.managers.TaskManager
 import me.matin.core.managers.TextManager.toReadableString
 import me.matin.core.managers.dependency.DependencyListener
 import me.matin.core.managers.dependency.PluginManager
@@ -15,6 +16,7 @@ import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
+import kotlin.time.Duration
 import kotlin.time.measureTime
 
 class Core: JavaPlugin() {
@@ -35,6 +37,14 @@ class Core: JavaPlugin() {
 
         @JvmStatic
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
+
+        @JvmStatic
+        fun scheduleTask(
+            async: Boolean = false,
+            delay: Duration = Duration.ZERO,
+            interval: Duration = Duration.ZERO,
+            task: () -> Unit
+        ) = TaskManager(instance).invoke(async, delay, interval, task)
     }
 
     override fun onEnable() = measureTime {

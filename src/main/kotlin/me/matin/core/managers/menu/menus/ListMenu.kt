@@ -1,6 +1,6 @@
 package me.matin.core.managers.menu.menus
 
-import me.matin.core.managers.TaskManager
+import me.matin.core.Core
 import me.matin.core.managers.menu.InventoryMenu
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import kotlin.reflect.full.hasAnnotation
+import kotlin.time.Duration
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 abstract class ListMenu<T>(private val player: Player, page: Int = 0): InventoryMenu() {
@@ -37,12 +38,12 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
                 value >= pages -> value % pages
                 else -> value
             }
-            TaskManager.runTask(true) {
+            Core.scheduleTask(true) {
                 privateUpdateItems(false)
             }
         }
 
-    fun open() = TaskManager.runTask(true) {
+    fun open() = Core.scheduleTask(true) {
         type.type?.also {
             inventory = Bukkit.createInventory(this, it, title)
         } ?: let {
@@ -51,7 +52,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         makeListMap()
         processItems()
         privateUpdateItems(true)
-        TaskManager.runTask {
+        Core.scheduleTask {
             player.openInventory(inventory)
             opened = true
         }
@@ -62,12 +63,12 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     fun close(closeInventory: Boolean = true) {
         if (closeInventory) player.closeInventory()
         opened = false
-        TaskManager.runTask(true) {
+        Core.scheduleTask(true) {
             util.removeTasks()
         }
     }
 
-    fun updateItems() = TaskManager.runTask(true) {
+    fun updateItems() = Core.scheduleTask(true) {
         privateUpdateItems(true)
     }
 
@@ -92,6 +93,13 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
                     }
                 }
             }
+
+    fun scheduleTask(
+        async: Boolean = false,
+        delay: Duration = Duration.ZERO,
+        interval: Duration = Duration.ZERO,
+        task: () -> Unit
+    ) = util.scheduleTask(async, delay, interval, task)
 
     private fun makeListMap() {
         listMap = list.indices.map {

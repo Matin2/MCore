@@ -1,6 +1,6 @@
 package me.matin.core.managers.menu.menus
 
-import me.matin.core.managers.TaskManager
+import me.matin.core.Core
 import me.matin.core.managers.menu.InventoryMenu
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
@@ -10,6 +10,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import kotlin.reflect.full.hasAnnotation
+import kotlin.time.Duration
 
 @Suppress("unused")
 abstract class Menu(private val player: Player): InventoryMenu() {
@@ -18,7 +19,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
     private var opened: Boolean = false
     private val util = MenuUtils()
 
-    fun open() = TaskManager.runTask(true) {
+    fun open() = Core.scheduleTask(true) {
         type.type?.also {
             inventory = Bukkit.createInventory(this, it, title)
         } ?: let {
@@ -26,7 +27,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         }
         processItems()
         privateUpdateItems()
-        TaskManager.runTask {
+        Core.scheduleTask {
             player.openInventory(inventory)
             opened = true
         }
@@ -37,12 +38,12 @@ abstract class Menu(private val player: Player): InventoryMenu() {
     fun close(closeInventory: Boolean = true) {
         if (closeInventory) player.closeInventory()
         opened = false
-        TaskManager.runTask(true) {
+        Core.scheduleTask(true) {
             util.removeTasks()
         }
     }
 
-    fun updateItems() = TaskManager.runTask(true) {
+    fun updateItems() = Core.scheduleTask(true) {
         privateUpdateItems()
     }
 
@@ -66,12 +67,13 @@ abstract class Menu(private val player: Player): InventoryMenu() {
                 }
             }
 
-    //    fun scheduleTask(
-//        delay: Duration = Duration.ZERO,
-//        interval: Duration = Duration.ZERO,
-//        async: Boolean = false,
-//        task: () -> Unit
-//    ) = util.scheduleTask(delay, interval, async, task)
+    fun scheduleTask(
+        async: Boolean = false,
+        delay: Duration = Duration.ZERO,
+        interval: Duration = Duration.ZERO,
+        task: () -> Unit
+    ) = util.scheduleTask(async, delay, interval, task)
+
     override fun getInventory(): Inventory {
         return inventory
     }
