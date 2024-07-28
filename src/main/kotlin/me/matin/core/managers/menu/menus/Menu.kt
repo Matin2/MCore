@@ -21,7 +21,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         } ?: let {
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
-        util.processItems(buttons)
+        util.processItems(this::class.members, buttons)
         privateUpdateItems()
         TaskManager.runTask {
             player.openInventory(inventory)
