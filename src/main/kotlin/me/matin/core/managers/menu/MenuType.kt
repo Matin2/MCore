@@ -1,38 +1,34 @@
 package me.matin.core.managers.menu
 
 import org.bukkit.event.inventory.InventoryType
+import org.jetbrains.annotations.Range
 
 @Suppress("unused")
-enum class MenuType(val type: InventoryType?, val rows: Int?) {
+sealed class MenuType private constructor(val type: InventoryType, open val rows: Int?) {
 
-    ONE(null, 1),
-    TWO(null, 2),
-    THREE(null, 3),
-    FOUR(null, 4),
-    FIVE(null, 5),
-    SIX(null, 6),
-    ANVIL(InventoryType.ANVIL, null),
-    BEACON(InventoryType.BEACON, null),
-    BREWING(InventoryType.BREWING, null),
-    CARTOGRAPHY(InventoryType.CARTOGRAPHY, null),
-    DISPENSER(InventoryType.DISPENSER, null),
-    ENCHANTING(InventoryType.ENCHANTING, null),
-    FURNACE(InventoryType.FURNACE, null),
-    GRINDSTONE(InventoryType.GRINDSTONE, null),
-    HOPPER(InventoryType.HOPPER, null),
-    LOOM(InventoryType.LOOM, null),
-    MERCHANT(InventoryType.MERCHANT, null),
-    SMITHING(InventoryType.SMITHING, null),
-    STONECUTTER(InventoryType.STONECUTTER, null),
-    WORKBENCH(InventoryType.WORKBENCH, null);
+    data class CHEST(override val rows: @Range(from = 1, to = 6) Int): MenuType(InventoryType.CHEST, rows)
+    data object ANVIL: MenuType(InventoryType.ANVIL, null)
+    data object BREWING: MenuType(InventoryType.BREWING, null)
+    data object DISPENSER: MenuType(InventoryType.DISPENSER, null)
+    data object FURNACE: MenuType(InventoryType.FURNACE, null)
+    data object GRINDSTONE: MenuType(InventoryType.GRINDSTONE, null)
+    data object HOPPER: MenuType(InventoryType.HOPPER, null)
+    data object SMITHING: MenuType(InventoryType.SMITHING, null)
+    data object WORKBENCH: MenuType(InventoryType.WORKBENCH, null)
 
     companion object {
 
         @JvmStatic
-        infix operator fun get(rows: Int): MenuType = MenuType.entries.first { it.rows == minOf(maxOf(rows, 1), 6) }
-
-        @JvmStatic
-        infix operator fun get(type: InventoryType): MenuType =
-            MenuType.entries.firstOrNull { it.type == type } ?: THREE
+        infix operator fun get(type: InventoryType): MenuType = when (type) {
+            InventoryType.ANVIL -> ANVIL
+            InventoryType.BREWING -> BREWING
+            InventoryType.DISPENSER -> DISPENSER
+            InventoryType.FURNACE -> FURNACE
+            InventoryType.GRINDSTONE -> GRINDSTONE
+            InventoryType.HOPPER -> HOPPER
+            InventoryType.SMITHING -> SMITHING
+            InventoryType.WORKBENCH -> WORKBENCH
+            else -> CHEST(3)
+        }
     }
 }
