@@ -16,8 +16,6 @@ import java.util.*
 @Suppress("unused")
 object Head {
 
-    private val ID = UUID.fromString("7f7278e3-bcdc-45ea-b7ef-49a6922f64b7")!!
-
     operator fun get(player: OfflinePlayer): PlayerProfile {
         Core.skinsRestorer?.apply {
             val skin = playerStorage.getSkinForPlayer(player.uniqueId, player.name).takeIf { it.isPresent }?.get()
@@ -35,7 +33,7 @@ object Head {
     }
 
     private fun createProfile(url: URL): PlayerProfile {
-        val profile = Bukkit.createProfile(ID)
+        val profile = Bukkit.createProfile(UUID.randomUUID())
         val textures = profile.textures
         textures.skin = url
         profile.setTextures(textures)
