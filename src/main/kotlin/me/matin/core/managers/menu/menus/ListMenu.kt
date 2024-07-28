@@ -19,38 +19,30 @@ import kotlin.reflect.full.hasAnnotation
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 abstract class ListMenu<T>(private val player: Player, page: Int = 0): InventoryMenu() {
 
-    private lateinit var inventory: Inventory
     val buttonsMap = mutableMapOf<Button, Set<Int>?>()
     override val buttons get() = buttonsMap.keys
-    private var opened: Boolean = false
-    private val util = MenuUtils()
     abstract val listSlots: Set<Int>
     abstract val list: List<T>
     abstract val listDisplay: (T) -> DisplayItem
     abstract val listInteractAction: Interacted.(T) -> Unit
     open val listFiller: Pair<DisplayItem, Interacted.() -> Unit> = DisplayItem() to {}
+    private lateinit var inventory: Inventory
+    private var opened: Boolean = false
+    private val util = MenuUtils()
     private var listMap: Map<Int, List<Pair<Int, Int>>>? = null
     var pages: Int = 0
     var page: Int = if (page in 0..<pages) page else 0
         set(value) {
+            pages = (list.size / listSlots.size) + 1
             field = when {
                 value < 0 -> (value % pages) + pages
                 value >= pages -> value % pages
                 else -> value
             }
             TaskManager.runTask(true) {
-                ButtonManager(this).manageDisplay()
-                if (listMap != null) manageListDisplay()
+                privateUpdateItems(false)
             }
         }
-
-    private fun makeListMap() {
-        listMap = list.indices.map {
-            it to listSlots.elementAt(it % listSlots.size)
-        }.groupBy {
-            it.first / listSlots.size
-        }
-    }
 
     fun open() = TaskManager.runTask(true) {
         type.type?.also {
@@ -58,11 +50,9 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         } ?: run {
             inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
-        pages = (list.size / listSlots.size) + 1
         makeListMap()
         processItems()
-        ButtonManager(this).manageDisplay()
-        if (listMap != null) manageListDisplay()
+        privateUpdateItems(true)
         TaskManager.runTask {
             player.openInventory(inventory)
             opened = true
@@ -76,6 +66,24 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         opened = false
         TaskManager.runTask(true) {
             util.removeTasks()
+        }
+    }
+
+    fun updateItems() = TaskManager.runTask(true) {
+        privateUpdateItems(true)
+    }
+
+    private fun privateUpdateItems(updatePages: Boolean) {
+        if (updatePages) pages = (list.size / listSlots.size) + 1
+        ButtonManager(this).manageDisplay()
+        if (listMap != null) manageListDisplay()
+    }
+
+    private fun makeListMap() {
+        listMap = list.indices.map {
+            it to listSlots.elementAt(it % listSlots.size)
+        }.groupBy {
+            it.first / listSlots.size
         }
     }
 

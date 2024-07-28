@@ -14,8 +14,8 @@ import kotlin.reflect.full.hasAnnotation
 @Suppress("unused")
 abstract class Menu(private val player: Player): InventoryMenu() {
 
-    private lateinit var inventory: Inventory
     override val buttons = mutableSetOf<Button>()
+    private lateinit var inventory: Inventory
     private var opened: Boolean = false
     private val util = MenuUtils()
 
@@ -26,7 +26,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
             inventory = Bukkit.createInventory(this, type.rows!! * 9, title)
         }
         processItems()
-        ButtonManager(this).manageDisplay()
+        privateUpdateItems()
         TaskManager.runTask {
             player.openInventory(inventory)
             opened = true
@@ -41,6 +41,14 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         TaskManager.runTask(true) {
             util.removeTasks()
         }
+    }
+
+    fun updateItems() = TaskManager.runTask(true) {
+        privateUpdateItems()
+    }
+
+    private fun privateUpdateItems() {
+        ButtonManager(this).manageDisplay()
     }
 
     private fun processItems() {
