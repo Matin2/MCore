@@ -8,7 +8,7 @@ abstract class InventoryMenu: InventoryHolder {
 
     abstract val title: Component
     abstract val type: MenuType
-    abstract val buttons: MutableSet<Button>
+    open val buttons: MutableSet<Button> = mutableSetOf()
     open val freezeBottomInv: Boolean = false
     open val preventCursorLoss: Boolean = true
 }
