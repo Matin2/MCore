@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack
 class Button(
     val slots: Set<Int>,
     vararg val statesDisplay: DisplayItem,
+    val show: Boolean,
     state: Int = 0,
     val interactAction: Interacted.() -> Unit
 ) {
@@ -17,9 +18,10 @@ class Button(
     constructor(
         slot: Int,
         vararg statesDisplay: DisplayItem,
+        show: Boolean,
         state: Int = 0,
         interactAction: Interacted.() -> Unit
-    ): this(setOf(slot), *statesDisplay, state = state, interactAction = interactAction)
+    ): this(setOf(slot), *statesDisplay, show = show, state = state, interactAction = interactAction)
 
     private var stateChangeAction: (StateChanged.() -> Unit)? = null
     lateinit var menu: InventoryMenu
