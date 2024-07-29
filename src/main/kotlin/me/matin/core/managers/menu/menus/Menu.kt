@@ -5,6 +5,7 @@ import me.matin.core.managers.menu.InventoryMenu
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
+import me.matin.core.managers.menu.items.other.Filler
 import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -19,6 +20,8 @@ abstract class Menu(private val player: Player): InventoryMenu() {
     private lateinit var inventory: Inventory
     private var opened: Boolean = false
     private lateinit var fillerSlots: Set<Int>
+    private lateinit var buttonManager: ButtonManager
+    private lateinit var fillerManager: Filler.Manager
     private val util = MenuUtils()
 
     fun open() = Core.scheduleTask(true) {
@@ -27,6 +30,8 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         } ?: let {
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
+        buttonManager = ButtonManager(inventory)
+        fillerManager = Filler.Manager(this, fillerSlots)
         processItems()
         privateUpdateItems()
         Core.scheduleTask {
@@ -37,7 +42,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         util.scheduleOnOpen()
     }
 
-    fun close(closeInventory: Boolean = true) {
+    override fun close(closeInventory: Boolean) {
         if (closeInventory) player.closeInventory()
         opened = false
         Core.scheduleTask(true) {
@@ -46,11 +51,13 @@ abstract class Menu(private val player: Player): InventoryMenu() {
     }
 
     fun scheduleTask(
-        async: Boolean = false,
-        delay: Duration = Duration.ZERO,
-        interval: Duration = Duration.ZERO,
-        task: () -> Unit
+        async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
     ) = util.scheduleTask(async, delay, interval, task)
+
+    override fun manageBehaviour(event: InventoryClickEvent) {
+        buttonManager.manageBehavior(event)
+        fillerManager.manageBehavior(event)
+    }
 
     fun updateItems() = Core.scheduleTask(true) {
         privateUpdateItems()
@@ -58,28 +65,25 @@ abstract class Menu(private val player: Player): InventoryMenu() {
 
     private fun privateUpdateItems() {
         val fs = (0..<inventory.size).toMutableSet()
-        ButtonManager(this).manageDisplay(fs)
+        buttonManager.manageDisplay(fs)
         fillerSlots = fs
-        filler.manageDisplay(this, fillerSlots)
+        fillerManager.manageDisplay()
     }
 
     @Suppress("DuplicatedCode")
     private fun processItems() =
-        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }
-            .forEach { member ->
+        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }.forEach { member ->
                 when (val result = member.call(this)) {
-                    is Button -> buttons.add(result)
+                    is Button -> buttonManager.buttons.add(result)
                     is Iterable<*> -> {
                         result.forEach {
                             when (it) {
-                                is Button -> buttons.add(it)
+                                is Button -> buttonManager.buttons.add(it)
                             }
                         }
                     }
                 }
             }
-
-    fun manageFiller(event: InventoryClickEvent) = filler.manageBehavior(fillerSlots, event)
 
     override fun getInventory(): Inventory {
         return inventory
