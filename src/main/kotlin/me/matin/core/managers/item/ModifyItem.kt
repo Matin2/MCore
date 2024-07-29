@@ -1,6 +1,6 @@
 package me.matin.core.managers.item
 
-import me.matin.core.managers.TaskManager
+import me.matin.core.Core
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -13,7 +13,7 @@ enum class ModifyItem {
     AMOUNT,
     DURABILITY;
 
-    private fun modifyAmount(item: ItemStack, modification: ItemModifyType, value: Int) = TaskManager.runTask(true) {
+    private fun modifyAmount(item: ItemStack, modification: ItemModifyType, value: Int) = Core.scheduleTask(true) {
         item.takeUnless { it.type == Material.AIR }?.apply {
             amount = min(
                 when (modification) {
@@ -26,7 +26,7 @@ enum class ModifyItem {
     }
 
     private fun modifyDurability(item: ItemStack, modification: ItemModifyType, value: Int) =
-        TaskManager.runTask(true) {
+        Core.scheduleTask(true) {
             item.itemMeta =
                 (item.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable }?.itemMeta as? Damageable)?.apply {
                     damage = when (modification) {

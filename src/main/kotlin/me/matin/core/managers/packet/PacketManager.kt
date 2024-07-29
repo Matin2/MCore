@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack
 object PacketManager {
 
     @JvmStatic
-    fun swingHand(player: Player, mainHand: Boolean) = TaskManager.runTask(true) {
+    fun swingHand(player: Player, mainHand: Boolean) = Core.scheduleTask(true) {
         val animationType =
             if (mainHand) WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM
             else WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_OFF_HAND
@@ -34,8 +34,8 @@ object PacketManager {
     }
 
     @JvmStatic
-    fun showTotem(player: Player, model: Int?) = TaskManager.runTask(true) {
-        if (model == null) playTotem(player).also { return@runTask }
+    fun showTotem(player: Player, model: Int?) = Core.scheduleTask(true) {
+        if (model == null) playTotem(player).also { return@scheduleTask }
         val oldItem = player.inventory.itemInOffHand
         ItemStack(Material.TOTEM_OF_UNDYING).also {
             it.itemMeta.also { meta ->
@@ -43,14 +43,14 @@ object PacketManager {
                 it.setItemMeta(meta)
             }
             var isItemSet = false
-            TaskManager.runTask {
+            Core.scheduleTask {
                 player.inventory.setItem(40, it)
                 isItemSet = true
             }
             while (!isItemSet) Thread.sleep(10)
         }
         playTotem(player)
-        TaskManager.runTask {
+        Core.scheduleTask {
             player.inventory.setItem(40, oldItem)
         }
     }
