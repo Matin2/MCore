@@ -7,13 +7,16 @@ import org.bukkit.event.inventory.InventoryClickEvent
 
 class Filler(val display: DisplayItem = DisplayItem(), val interactAction: Interacted.() -> Unit = {}) {
 
-    fun manageBehavior(slots: Set<Int>, event: InventoryClickEvent) {
-        if (event.slot !in slots) return
-        event.isCancelled = true
-        interactAction(Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
-    }
+    class Manager(private val menu: InventoryMenu, private val slots: Set<Int>) {
 
-    fun manageDisplay(menu: InventoryMenu, slots: Set<Int>) = slots.forEach {
-        menu.inventory.setItem(it, display.toItem())
+        fun manageBehavior(event: InventoryClickEvent) {
+            if (event.slot !in slots) return
+            event.isCancelled = true
+            menu.filler.interactAction(Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
+        }
+
+        fun manageDisplay() = slots.forEach {
+            menu.inventory.setItem(it, menu.filler.display.toItem())
+        }
     }
 }
