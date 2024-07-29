@@ -16,7 +16,7 @@ class MenuUtils {
             val task = Core.scheduleTask(async, delayInterval.first, delayInterval.second, action)
             runningTasks.add(task)
         }
-        tasksToRun.removeAll { true }
+        tasksToRun.clear()
     }
 
     fun removeTasks() {
@@ -28,10 +28,7 @@ class MenuUtils {
     }
 
     fun scheduleTask(
-        async: Boolean = false,
-        delay: Duration = Duration.ZERO,
-        interval: Duration = Duration.ZERO,
-        task: () -> Unit
+        async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
     ) {
         if (open) {
             tasksToRun.add(Triple(async, delay to interval, task))
