@@ -8,8 +8,7 @@ class ButtonManager(private val menu: InventoryMenu) {
     fun manageBehavior(event: InventoryClickEvent) {
         val button = menu.buttons.firstOrNull { event.slot in it.slots } ?: return
         event.isCancelled = true
-        if (ButtonAction.entries.none { it.clickType == event.click }) return
-        button.interactAction(button.Interacted(event))
+        button.interactAction(button.Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
     }
 
     fun manageDisplay(fillerSlots: MutableSet<Int>) {

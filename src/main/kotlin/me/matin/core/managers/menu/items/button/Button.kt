@@ -1,10 +1,9 @@
 package me.matin.core.managers.menu.items.button
 
-import me.matin.core.managers.menu.utils.DisplayItem
 import me.matin.core.managers.menu.InventoryMenu
-import org.bukkit.event.inventory.ClickType
+import me.matin.core.managers.menu.utils.DisplayItem
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemStack
+import me.matin.core.managers.menu.items.other.Interacted as Interact
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class Button(
@@ -40,20 +39,8 @@ class Button(
             stateChangeAction?.invoke(StateChanged(oldState))
         }
 
-    @Suppress("DEPRECATION")
-    inner class Interacted(private val event: InventoryClickEvent) {
+    inner class Interacted(event: InventoryClickEvent, action: ButtonAction): Interact(event, action) {
 
-        val view get() = event.view
-        val slot get() = event.slot
-        val action: ButtonAction by lazy {
-            if (event.click == ClickType.NUMBER_KEY) ButtonAction.entries.first { it.hotbar == event.hotbarButton }
-            else ButtonAction.entries.first { it.clickType == event.click }
-        }
-        var cursor: ItemStack
-            get() = event.cursor
-            set(value) {
-                event.setCursor(value)
-            }
         val states get() = this@Button.states
         var state: Int
             get() = this@Button.state

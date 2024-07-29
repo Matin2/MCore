@@ -2,24 +2,85 @@ package me.matin.core.managers.menu.items.button
 
 import org.bukkit.event.inventory.ClickType
 
-enum class ButtonAction(val clickType: ClickType, val hotbar: Int?) {
+@Suppress("unused", "ClassName")
+sealed class ButtonAction {
 
-    LEFT(ClickType.LEFT, null),
-    SHIFT_LEFT(ClickType.SHIFT_LEFT, null),
-    RIGHT(ClickType.RIGHT, null),
-    SHIFT_RIGHT(ClickType.SHIFT_RIGHT, null),
-    MIDDLE(ClickType.MIDDLE, null),
-    NUMBER_KEY_1(ClickType.NUMBER_KEY, 0),
-    NUMBER_KEY_2(ClickType.NUMBER_KEY, 1),
-    NUMBER_KEY_3(ClickType.NUMBER_KEY, 2),
-    NUMBER_KEY_4(ClickType.NUMBER_KEY, 3),
-    NUMBER_KEY_5(ClickType.NUMBER_KEY, 4),
-    NUMBER_KEY_6(ClickType.NUMBER_KEY, 5),
-    NUMBER_KEY_7(ClickType.NUMBER_KEY, 6),
-    NUMBER_KEY_8(ClickType.NUMBER_KEY, 7),
-    NUMBER_KEY_9(ClickType.NUMBER_KEY, 8),
-    DOUBLE_CLICK(ClickType.DOUBLE_CLICK, null),
-    DROP(ClickType.DROP, null),
-    CONTROL_DROP(ClickType.CONTROL_DROP, null),
-    SWAP_OFFHAND(ClickType.SWAP_OFFHAND, null),
+    sealed class CLICK: ButtonAction() {
+
+        sealed class NORMAL: CLICK() {
+
+            data object LEFT: NORMAL()
+            data object RIGHT: NORMAL()
+
+            companion object: NORMAL()
+        }
+
+        sealed class SHIFT: CLICK() {
+
+            data object LEFT: SHIFT()
+            data object RIGHT: SHIFT()
+
+            companion object: SHIFT()
+        }
+
+        data object MIDDLE: CLICK()
+
+        data object DOUBLE: CLICK()
+
+        companion object: CLICK()
+    }
+
+    sealed class NUMBER_KEY: ButtonAction() {
+
+        data object KEY_1: NUMBER_KEY()
+        data object KEY_2: NUMBER_KEY()
+        data object KEY_3: NUMBER_KEY()
+        data object KEY_4: NUMBER_KEY()
+        data object KEY_5: NUMBER_KEY()
+        data object KEY_6: NUMBER_KEY()
+        data object KEY_7: NUMBER_KEY()
+        data object KEY_8: NUMBER_KEY()
+        data object KEY_9: NUMBER_KEY()
+
+        companion object: NUMBER_KEY()
+    }
+
+    data object SWAP_OFFHAND: ButtonAction()
+
+    sealed class DROP: ButtonAction() {
+
+        data object NORMAL: DROP()
+        data object CONTROL: DROP()
+
+        companion object: DROP()
+    }
+
+    companion object {
+
+        operator fun get(click: ClickType, hotbar: Int?): ButtonAction? = when (click) {
+            ClickType.LEFT -> CLICK.NORMAL.LEFT
+            ClickType.SHIFT_LEFT -> CLICK.SHIFT.LEFT
+            ClickType.RIGHT -> CLICK.NORMAL.RIGHT
+            ClickType.SHIFT_RIGHT -> CLICK.SHIFT.LEFT
+            ClickType.MIDDLE -> CLICK.MIDDLE
+            ClickType.DOUBLE_CLICK -> CLICK.DOUBLE
+            ClickType.DROP -> DROP.NORMAL
+            ClickType.CONTROL_DROP -> DROP.CONTROL
+            ClickType.SWAP_OFFHAND -> SWAP_OFFHAND
+            ClickType.NUMBER_KEY -> when (hotbar) {
+                0 -> NUMBER_KEY.KEY_1
+                1 -> NUMBER_KEY.KEY_2
+                2 -> NUMBER_KEY.KEY_3
+                3 -> NUMBER_KEY.KEY_4
+                4 -> NUMBER_KEY.KEY_5
+                5 -> NUMBER_KEY.KEY_6
+                6 -> NUMBER_KEY.KEY_7
+                7 -> NUMBER_KEY.KEY_8
+                8 -> NUMBER_KEY.KEY_9
+                else -> null
+            }
+
+            else -> null
+        }
+    }
 }
