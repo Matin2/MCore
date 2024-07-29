@@ -2,13 +2,13 @@ package me.matin.core.managers.menu.menus
 
 import me.matin.core.Core
 import me.matin.core.managers.menu.InventoryMenu
-import me.matin.core.managers.menu.items.Filler
-import me.matin.core.managers.menu.items.Interacted
-import me.matin.core.managers.menu.items.ListItem
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonAction
 import me.matin.core.managers.menu.items.button.ButtonManager
+import me.matin.core.managers.menu.items.other.Filler
+import me.matin.core.managers.menu.items.other.Interacted
+import me.matin.core.managers.menu.items.other.MenuList
 import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -20,7 +20,7 @@ import kotlin.time.Duration
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 abstract class ListMenu<T>(private val player: Player, page: Int = 0): InventoryMenu() {
 
-    abstract val item: ListItem<T>
+    abstract val list: MenuList<T>
     open val listFiller: Filler = Filler()
     private lateinit var inventory: Inventory
     private var opened: Boolean = false
@@ -30,7 +30,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     var pages: Int = 0
     var page: Int = if (page in 0..<pages) page else 0
         set(value) {
-            pages = (item.list.size / item.slots.size) + 1
+            pages = (list.list.size / list.slots.size) + 1
             field = when {
                 value < 0 -> (value % pages) + pages
                 value >= pages -> value % pages
@@ -67,10 +67,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     }
 
     fun scheduleTask(
-        async: Boolean = false,
-        delay: Duration = Duration.ZERO,
-        interval: Duration = Duration.ZERO,
-        task: () -> Unit
+        async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
     ) = util.scheduleTask(async, delay, interval, task)
 
     fun updateItems() = Core.scheduleTask(true) {
@@ -78,7 +75,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     }
 
     private fun privateUpdateItems(updatePages: Boolean) {
-        if (updatePages) pages = (item.list.size / item.slots.size) + 1
+        if (updatePages) pages = (list.list.size / list.slots.size) + 1
         val fs = (0..<inventory.size).toMutableSet()
         ButtonManager(this).manageDisplay(fs)
         fillerSlots = fs
@@ -88,8 +85,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
 
     @Suppress("DuplicatedCode")
     private fun processItems() =
-        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }
-            .forEach { member ->
+        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }.forEach { member ->
                 when (val result = member.call(this)) {
                     is Button -> buttons.add(result)
                     is Iterable<*> -> {
@@ -103,7 +99,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             }
 
     private fun makeListMap() {
-        listMap = item.run {
+        listMap = list.run {
             list.indices.map {
                 it to slots.elementAt(it % slots.size)
             }.groupBy {
@@ -113,7 +109,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     }
 
     private fun manageListDisplay() {
-        val map = item.run {
+        val map = list.run {
             slots - listMap!!.getValue(page).map {
                 inventory.setItem(it.second, display(list[it.first]).toItem())
                 it.second
@@ -124,15 +120,15 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
 
     fun manageBehaviour(event: InventoryClickEvent) {
         filler.manageBehavior(fillerSlots, event)
-        if (event.slot !in item.slots) return
+        if (event.slot !in list.slots) return
         event.isCancelled = true
-        if (ButtonAction.entries.none { it.clickType == event.click }) return
-        if (event.currentItem?.type == filler.display.material) {
-            filler.interactAction(Interacted(event))
+        val action = ButtonAction[event.click, event.hotbarButton] ?: return
+        if (event.currentItem?.type == listFiller.display.material) {
+            listFiller.interactAction(Interacted(event, action))
             return
         }
         val (index) = listMap!!.getValue(page).first { it.second == event.slot }
-        item.interactAction(Interacted(event), item.list[index])
+        list.interactAction(Interacted(event, action), list.list[index])
     }
 
     override fun getInventory(): Inventory {
