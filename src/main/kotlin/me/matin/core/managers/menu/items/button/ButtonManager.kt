@@ -1,22 +1,24 @@
 package me.matin.core.managers.menu.items.button
 
-import me.matin.core.managers.menu.InventoryMenu
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 
-class ButtonManager(private val menu: InventoryMenu) {
+class ButtonManager(private val inventory: Inventory) {
+
+    val buttons = mutableSetOf<Button>()
 
     fun manageBehavior(event: InventoryClickEvent) {
-        val button = menu.buttons.firstOrNull { event.slot in it.slots } ?: return
+        val button = buttons.firstOrNull { event.slot in it.slots && it.show } ?: return
         event.isCancelled = true
         button.interactAction(button.Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
     }
 
     fun manageDisplay(fillerSlots: MutableSet<Int>) {
-        menu.buttons.forEach { button ->
+        buttons.forEach { button ->
             if (!button.show) return
-            button.menu = menu
+            button.inventory = inventory
             button.slots.forEach {
-                menu.inventory.setItem(it, button.statesDisplay[button.state].toItem())
+                inventory.setItem(it, button.statesDisplay[button.state].toItem())
                 fillerSlots.remove(it)
             }
         }
