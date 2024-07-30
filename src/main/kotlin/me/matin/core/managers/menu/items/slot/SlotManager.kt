@@ -10,7 +10,7 @@ class SlotManager(private val inventory: Inventory) {
 
     val slots = mutableSetOf<Slot>()
 
-    fun manageBehaviour(event: InventoryInteractEvent) = when (event) {
+    fun manageBehavior(event: InventoryInteractEvent) = when (event) {
         is InventoryDragEvent -> manageDrag(event)
         is InventoryClickEvent -> when {
             event.clickedInventory == event.whoClicked.openInventory.topInventory -> manageClick(event)
