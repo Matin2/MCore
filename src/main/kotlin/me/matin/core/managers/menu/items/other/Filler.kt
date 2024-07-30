@@ -4,19 +4,20 @@ import me.matin.core.managers.menu.InventoryMenu
 import me.matin.core.managers.menu.items.button.ButtonAction
 import me.matin.core.managers.menu.utils.DisplayItem
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 
 class Filler(val display: DisplayItem = DisplayItem(), val interactAction: Interacted.() -> Unit = {}) {
 
-    class Manager(private val menu: InventoryMenu, private val slots: Set<Int>) {
+    class Manager {
 
-        fun manageBehavior(event: InventoryClickEvent) {
+        fun manageBehavior(event: InventoryClickEvent, filler: Filler, slots: Set<Int>) {
             if (event.slot !in slots) return
             event.isCancelled = true
-            menu.filler.interactAction(Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
+            filler.interactAction(Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
         }
 
-        fun manageDisplay() = slots.forEach {
-            menu.inventory.setItem(it, menu.filler.display.toItem())
+        fun manageDisplay(inventory: Inventory, filler: Filler, slots: Set<Int>) = slots.forEach {
+            inventory.setItem(it, filler.display.toItem())
         }
     }
 }

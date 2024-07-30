@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.inventory.Inventory
 
 @Suppress("MemberVisibilityCanBePrivate")
-class SlotManager(private val inventory: Inventory) {
+class SlotManager {
 
     val slots = mutableSetOf<Slot>()
 
@@ -119,10 +119,12 @@ class SlotManager(private val inventory: Inventory) {
             val placedAmount = event.oldCursor.amount - (event.cursor?.amount ?: 0)
             placedAmount / event.rawSlots.size
         }
-        val topSlots = event.rawSlots.filterNotNull().filter { it < inventory.size }
+        val topInv = event.whoClicked.openInventory.topInventory
+        val topSlots = event.rawSlots.filterNotNull().filter { it < topInv.size }
         val item = event.oldCursor.apply { amount = itemAmount }
         val customSlots = slots.filter { it.slot in topSlots && it.itemPredicate(item) && it.show }
-        val /* Amount of */ notAllowedSlots = getNotAllowedSlots(topSlots.toSet(), customSlots.map { it.slot }.toSet())
+        val /* Amount of */ notAllowedSlots =
+            getNotAllowedSlots(topInv, topSlots.toSet(), customSlots.map { it.slot }.toSet())
         event.cursor = event.oldCursor.apply { amount = (event.rawSlots.size - notAllowedSlots) * itemAmount }
         val action: SlotAction = when {
             event.cursor == null -> SlotAction.PLACE.ALL
@@ -132,7 +134,7 @@ class SlotManager(private val inventory: Inventory) {
         customSlots.forEach { it.interactAction(it.Interacted(event, action)) }
     }
 
-    private fun getNotAllowedSlots(topSlots: Set<Int>, allowedSlots: Set<Int>): Int {
+    private fun getNotAllowedSlots(inventory: Inventory, topSlots: Set<Int>, allowedSlots: Set<Int>): Int {
         val notAllowedSlots = topSlots - allowedSlots
         notAllowedSlots.forEach {
             inventory.setItem(it, null)
@@ -140,7 +142,7 @@ class SlotManager(private val inventory: Inventory) {
         return notAllowedSlots.size
     }
 
-    fun manageDisplay(fillerSlots: MutableSet<Int>, useDefaultItem: Boolean) {
+    fun manageDisplay(inventory: Inventory, fillerSlots: MutableSet<Int>, useDefaultItem: Boolean) {
         slots.forEach { slot ->
             if (!slot.show) {
                 slot.item?.also { slot.itemDeleteAction?.invoke(it, ItemDeleteReason.SLOT_WAS_HIDDEN) }

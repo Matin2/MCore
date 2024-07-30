@@ -14,9 +14,9 @@ class MenuList<T>(
     val interactAction: Interacted.(T) -> Unit = {}
 ) {
 
-    class Manager<T>(private val menu: ListMenu<T>, private val map: ListMap) {
+    class Manager<T> {
 
-        fun manageDisplay() {
+        fun manageDisplay(menu: ListMenu<T>, map: ListMap) {
             val map1 = menu.list.run {
                 slots - map.getValue(menu.page).map {
                     menu.inventory.setItem(it.second, display(list[it.first]).toItem())
@@ -26,7 +26,7 @@ class MenuList<T>(
             map1.forEach { menu.inventory.setItem(it, menu.listFiller.display.toItem()) }
         }
 
-        fun manageBehaviour(event: InventoryClickEvent) {
+        fun manageBehaviour(event: InventoryClickEvent, menu: ListMenu<T>, map: ListMap) {
             if (event.slot !in menu.list.slots) return
             event.isCancelled = true
             val action = ButtonAction[event.click, event.hotbarButton] ?: return
