@@ -22,9 +22,9 @@ abstract class Menu(private val player: Player): InventoryMenu() {
 
     private lateinit var inventory: Inventory
     private lateinit var fillerSlots: Set<Int>
-    private lateinit var buttonManager: ButtonManager
-    private lateinit var slotManager: SlotManager
-    private lateinit var fillerManager: Filler.Manager
+    private val buttonManager: ButtonManager = ButtonManager()
+    private val slotManager: SlotManager = SlotManager()
+    private val fillerManager: Filler.Manager = Filler.Manager()
     private val util = MenuUtils()
 
     fun open() = Core.scheduleTask(true) {
@@ -33,9 +33,6 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         } ?: let {
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
-        buttonManager = ButtonManager(inventory)
-        slotManager = SlotManager(inventory)
-        fillerManager = Filler.Manager(this, fillerSlots)
         processItems()
         privateUpdateItems(true)
         Core.scheduleTask {
@@ -56,7 +53,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         slotManager.manageBehavior(event)
         if (event !is InventoryClickEvent) return
         buttonManager.manageBehavior(event)
-        fillerManager.manageBehavior(event)
+        fillerManager.manageBehavior(event, filler, fillerSlots)
     }
 
     fun updateItems() = Core.scheduleTask(true) {
@@ -65,10 +62,10 @@ abstract class Menu(private val player: Player): InventoryMenu() {
 
     private fun privateUpdateItems(useDefaultItem: Boolean) {
         val fs = (0..<inventory.size).toMutableSet()
-        buttonManager.manageDisplay(fs)
-        slotManager.manageDisplay(fs, useDefaultItem)
+        buttonManager.manageDisplay(inventory, fs)
+        slotManager.manageDisplay(inventory, fs, useDefaultItem)
         fillerSlots = fs
-        fillerManager.manageDisplay()
+        fillerManager.manageDisplay(inventory, filler, fillerSlots)
     }
 
     @Suppress("DuplicatedCode")

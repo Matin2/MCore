@@ -27,10 +27,10 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     private lateinit var inventory: Inventory
     private var listMap: ListMap? = null
     private lateinit var fillerSlots: Set<Int>
-    private lateinit var buttonManager: ButtonManager
-    private lateinit var slotManager: SlotManager
-    private lateinit var fillerManager: Filler.Manager
-    private lateinit var listManager: MenuList.Manager<T>
+    private val buttonManager: ButtonManager = ButtonManager()
+    private val slotManager: SlotManager = SlotManager()
+    private val fillerManager: Filler.Manager = Filler.Manager()
+    private var listManager = MenuList.Manager<T>()
     private val util = MenuUtils()
     var pages: Int = 0
     var page: Int = if (page in 0..<pages) page else 0
@@ -53,10 +53,6 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
         makeListMap()
-        buttonManager = ButtonManager(inventory)
-        slotManager = SlotManager(inventory)
-        listManager = MenuList.Manager(this, listMap!!)
-        fillerManager = Filler.Manager(this, fillerSlots)
         processItems()
         privateUpdateItems(true, useDefaultItem = true)
         Core.scheduleTask {
@@ -77,8 +73,8 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         slotManager.manageBehavior(event)
         if (event !is InventoryClickEvent) return
         buttonManager.manageBehavior(event)
-        fillerManager.manageBehavior(event)
-        listManager.manageBehaviour(event)
+        fillerManager.manageBehavior(event, filler, fillerSlots)
+        listManager.manageBehaviour(event, this, listMap ?: return)
     }
 
     fun updateItems() = Core.scheduleTask(true) {
@@ -88,11 +84,11 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     private fun privateUpdateItems(updatePages: Boolean, useDefaultItem: Boolean) {
         if (updatePages) pages = (list.list.size / list.slots.size) + 1
         val fs = (0..<inventory.size).toMutableSet()
-        buttonManager.manageDisplay(fs)
-        slotManager.manageDisplay(fs, useDefaultItem)
+        buttonManager.manageDisplay(inventory, fs)
+        slotManager.manageDisplay(inventory, fs, useDefaultItem)
         fillerSlots = fs
-        fillerManager.manageDisplay()
-        if (listMap != null) listManager.manageDisplay()
+        fillerManager.manageDisplay(inventory, filler, fillerSlots)
+        listManager.manageDisplay(this, listMap ?: return)
     }
 
     @Suppress("DuplicatedCode")
