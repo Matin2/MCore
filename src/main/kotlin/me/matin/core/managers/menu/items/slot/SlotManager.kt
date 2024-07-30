@@ -1,12 +1,12 @@
 package me.matin.core.managers.menu.items.slot
 
 import me.matin.core.Core
-import me.matin.core.managers.menu.menus.Menu
 import org.bukkit.Material
 import org.bukkit.event.inventory.*
+import org.bukkit.inventory.Inventory
 
 @Suppress("MemberVisibilityCanBePrivate")
-class SlotManager(private val menu: Menu) {
+class SlotManager(private val inventory: Inventory) {
 
     val slots = mutableSetOf<Slot>()
 
@@ -112,10 +112,13 @@ class SlotManager(private val menu: Menu) {
 
     private fun manageDrag(event: InventoryDragEvent) {}
 
-    fun manageDisplay(defaultItem: Boolean) = slots.forEach {
-        it.inventory = menu.inventory
-        val item = if (defaultItem && it.defaultItem != null) it.defaultItem else it.display.toItem()
-        menu.inventory.setItem(it.slot, item)
-        slots.add(it)
+    fun manageDisplay(fillerSlots: MutableSet<Int>, useDefaultItem: Boolean) {
+        slots.forEach {
+            if (!it.show) return
+            it.inventory = inventory
+            val item = if (useDefaultItem && it.defaultItem != null) it.defaultItem else it.display.toItem()
+            inventory.setItem(it.slot, item)
+            fillerSlots.remove(it.slot)
+        }
     }
 }
