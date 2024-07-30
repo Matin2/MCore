@@ -3,6 +3,7 @@ package me.matin.core.managers.menu.items.other
 import me.matin.core.managers.menu.items.button.ButtonAction
 import me.matin.core.managers.menu.menus.ListMenu
 import me.matin.core.managers.menu.utils.DisplayItem
+import me.matin.core.managers.menu.utils.Interacted
 import org.bukkit.event.inventory.InventoryClickEvent
 
 typealias ListMap = Map<Int, List<Pair<Int, Int>>>

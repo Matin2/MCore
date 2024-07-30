@@ -1,4 +1,4 @@
-package me.matin.core.managers.menu.items.other
+package me.matin.core.managers.menu.utils
 
 import me.matin.core.managers.menu.items.button.ButtonAction
 import org.bukkit.event.inventory.InventoryClickEvent

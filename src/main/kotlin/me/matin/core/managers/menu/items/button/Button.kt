@@ -3,7 +3,7 @@ package me.matin.core.managers.menu.items.button
 import me.matin.core.managers.menu.utils.DisplayItem
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
-import me.matin.core.managers.menu.items.other.Interacted as Interact
+import me.matin.core.managers.menu.utils.Interacted as Interact
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class Button(
