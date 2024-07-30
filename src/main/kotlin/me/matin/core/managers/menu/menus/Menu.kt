@@ -46,13 +46,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         util.scheduleOnOpen()
     }
 
-    override fun close(closeInventory: Boolean) {
-        util.open = false
-        if (closeInventory) player.closeInventory()
-        Core.scheduleTask(true) {
-            util.removeTasks()
-        }
-    }
+    override fun close(closeInventory: Boolean) = util.close(closeInventory, player)
 
     fun scheduleTask(
         async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
