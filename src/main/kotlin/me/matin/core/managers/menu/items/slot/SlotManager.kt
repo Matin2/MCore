@@ -116,12 +116,15 @@ class SlotManager(private val inventory: Inventory) {
     private fun manageDrag(event: InventoryDragEvent) {}
 
     fun manageDisplay(fillerSlots: MutableSet<Int>, useDefaultItem: Boolean) {
-        slots.forEach {
-            if (!it.show) return
-            it.inventory = inventory
-            val item = if (useDefaultItem && it.defaultItem != null) it.defaultItem else it.display.toItem()
-            inventory.setItem(it.slot, item)
-            fillerSlots.remove(it.slot)
+        slots.forEach { slot ->
+            if (!slot.show) {
+                slot.item?.also { slot.deletedItemAction?.invoke(it, ItemDeleteReason.SLOT_WAS_HIDDEN) }
+                return
+            }
+            slot.inventory = inventory
+            val item = if (useDefaultItem && slot.defaultItem != null) slot.defaultItem else slot.display.toItem()
+            inventory.setItem(slot.slot, item)
+            fillerSlots.remove(slot.slot)
         }
     }
 }
