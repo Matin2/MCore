@@ -44,7 +44,7 @@ class Slot(
     inner class Interacted(private val event: InventoryInteractEvent, val action: SlotAction) {
 
         @OptIn(ExperimentalContracts::class)
-        fun isDrag(event: InventoryInteractEvent): Boolean {
+        private fun isDrag(event: InventoryInteractEvent): Boolean {
             contract {
                 returns(true) implies (event is InventoryDragEvent)
                 returns(false) implies (event is InventoryClickEvent)
