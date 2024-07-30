@@ -21,7 +21,7 @@ class SlotManager(private val inventory: Inventory) {
     }
 
     private fun manageClick(event: InventoryClickEvent) {
-        val slot = slots.firstOrNull { it.slot == event.slot } ?: return
+        val slot = slots.firstOrNull { it.slot == event.slot && it.show } ?: return
         val manager = object: ManageClick {
             override val event: InventoryClickEvent = event
             override val slot: Slot = slot
@@ -101,7 +101,7 @@ class SlotManager(private val inventory: Inventory) {
         event.isCancelled = true
         val item = event.currentItem?.takeUnless { it.type == Material.AIR || it.amount == 0 } ?: return
         Core.scheduleTask(true) {
-            slots.sortedBy { it.slot }.firstOrNull { slot -> slot.itemPredicate(item) }?.also {
+            slots.sortedBy { it.slot }.firstOrNull { slot -> slot.itemPredicate(item) && slot.show }?.also {
                 it.item = event.currentItem
                 Core.scheduleTask {
                     it.interactAction(it.Interacted(event, SlotAction.MOVE_TO_OTHER_INVENTORY))
