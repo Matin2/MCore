@@ -1,6 +1,7 @@
 package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
+import me.matin.core.managers.menu.menus.ListMenu
 import me.matin.core.managers.menu.menus.Menu
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
@@ -28,7 +29,10 @@ object MenuManager: Listener {
         val topInv = e.whoClicked.openInventory.topInventory
         val menu = topInv.holder as? InventoryMenu ?: return
         if (inv == bottomInv && menu.freezeBottomInv) e.isCancelled = true
-        menu.manageBehavior(e)
+        when (menu) {
+            is Menu -> menu.manageBehavior(e)
+            is ListMenu<*> -> menu.manageBehavior(e)
+        }
     }
 
     @EventHandler
@@ -36,7 +40,10 @@ object MenuManager: Listener {
         val player = e.player as? Player ?: return
         checkCursor(player)
         val menu = player.openInventory.topInventory.holder as? InventoryMenu ?: return
-        menu.close(false)
+        when (menu) {
+            is Menu -> menu.close(false)
+            is ListMenu<*> -> menu.close(false)
+        }
     }
 
     @JvmStatic
