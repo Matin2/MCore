@@ -59,7 +59,7 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
     ) = util.scheduleTask(async, delay, interval, task)
 
-    override fun manageBehaviour(event: InventoryInteractEvent) {
+    override fun manageBehavior(event: InventoryInteractEvent) {
         slotManager.manageBehavior(event)
         if (event !is InventoryClickEvent) return
         buttonManager.manageBehavior(event)

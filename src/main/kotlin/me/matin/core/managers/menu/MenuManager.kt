@@ -28,7 +28,7 @@ object MenuManager: Listener {
         val topInv = e.whoClicked.openInventory.topInventory
         val menu = topInv.holder as? InventoryMenu ?: return
         if (inv == bottomInv && menu.freezeBottomInv) e.isCancelled = true
-        menu.manageBehaviour(e)
+        menu.manageBehavior(e)
     }
 
     @EventHandler

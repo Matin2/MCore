@@ -9,7 +9,7 @@ abstract class InventoryMenu: InventoryHolder {
 
     abstract val title: Component
     abstract val type: MenuType
-    abstract fun manageBehaviour(event: InventoryInteractEvent)
+    abstract fun manageBehavior(event: InventoryInteractEvent)
     abstract fun close(closeInventory: Boolean = true)
     open val filler: Filler = Filler()
     open val freezeBottomInv: Boolean = false
