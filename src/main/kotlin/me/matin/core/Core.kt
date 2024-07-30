@@ -77,9 +77,7 @@ class Core: JavaPlugin() {
     }.let { logger.info("Plugin loaded in ${it.toReadableString()}.") }
 
     override fun onDisable() = measureTime {
-        Bukkit.getScheduler().activeWorkers.filterNotNull().filter { it.owner == this }.forEach {
-            it.thread.interrupt()
-        }
+        Bukkit.getScheduler().cancelTasks(this)
         Bukkit.getOnlinePlayers().forEach {
             MenuManager.checkCursor(it)
         }
