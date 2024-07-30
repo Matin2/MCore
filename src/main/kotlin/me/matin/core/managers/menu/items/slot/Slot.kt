@@ -1,7 +1,10 @@
 package me.matin.core.managers.menu.items.slot
 
 import me.matin.core.managers.menu.utils.DisplayItem
-import org.bukkit.event.inventory.*
+import org.bukkit.Material
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryDragEvent
+import org.bukkit.event.inventory.InventoryInteractEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import kotlin.contracts.ExperimentalContracts
@@ -38,11 +41,7 @@ class Slot(
         }
 
     @Suppress("DEPRECATION", "MemberVisibilityCanBePrivate")
-    inner class Interacted(
-        private val event: InventoryInteractEvent,
-        val action: SlotAction,
-        dragCursor: ItemStack? = null
-    ) {
+    inner class Interacted(private val event: InventoryInteractEvent, val action: SlotAction) {
 
         @OptIn(ExperimentalContracts::class)
         fun isDrag(event: InventoryInteractEvent): Boolean {
@@ -59,7 +58,7 @@ class Slot(
             set(value) {
                 this@Slot.item = value
             }
-        var cursor: ItemStack = if (isDrag(event)) dragCursor!! else event.cursor
+        var cursor: ItemStack = if (isDrag(event)) (event.cursor ?: ItemStack(Material.AIR)) else event.cursor
             set(value) {
                 if (isDrag(event)) event.cursor = value else event.setCursor(value)
             }
