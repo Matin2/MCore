@@ -56,8 +56,11 @@ class SlotManager(private val inventory: Inventory) {
         }
 
         fun manageSlotAction(): SlotAction? {
-            val action =
-                SlotAction[event.action, event.hotbarButton, event.click == ClickType.SWAP_OFFHAND] ?: return null
+            val action = SlotAction[event.action, event.hotbarButton, event.click == ClickType.SWAP_OFFHAND]
+            action ?: run {
+                event.isCancelled = true
+                return null
+            }
             when (action) {
                 SlotAction.PLACE -> if (managePlace()) return null
                 SlotAction.PICKUP, SlotAction.DROP, SlotAction.MOVE_TO_OTHER_INVENTORY -> if (managePickup()) return null
