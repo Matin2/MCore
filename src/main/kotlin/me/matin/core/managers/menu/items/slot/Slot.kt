@@ -58,7 +58,8 @@ class Slot(
             set(value) {
                 this@Slot.item = value
             }
-        var cursor: ItemStack = if (isDrag(event)) (event.cursor ?: ItemStack(Material.AIR)) else event.cursor
+        var cursor: ItemStack? =
+            if (isDrag(event)) event.cursor else event.cursor.takeUnless { it.type == Material.AIR }
             set(value) {
                 if (isDrag(event)) event.cursor = value else event.setCursor(value)
             }
