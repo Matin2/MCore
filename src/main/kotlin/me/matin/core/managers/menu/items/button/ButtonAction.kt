@@ -30,19 +30,19 @@ sealed class ButtonAction {
         companion object: CLICK()
     }
 
-    sealed class NUMBER_KEY(vararg val key: Int): ButtonAction() {
+    sealed class NUMBER_KEY: ButtonAction() {
 
-        data object KEY_1: NUMBER_KEY(1)
-        data object KEY_2: NUMBER_KEY(2)
-        data object KEY_3: NUMBER_KEY(3)
-        data object KEY_4: NUMBER_KEY(4)
-        data object KEY_5: NUMBER_KEY(5)
-        data object KEY_6: NUMBER_KEY(6)
-        data object KEY_7: NUMBER_KEY(7)
-        data object KEY_8: NUMBER_KEY(8)
-        data object KEY_9: NUMBER_KEY(9)
+        data object KEY_1: NUMBER_KEY()
+        data object KEY_2: NUMBER_KEY()
+        data object KEY_3: NUMBER_KEY()
+        data object KEY_4: NUMBER_KEY()
+        data object KEY_5: NUMBER_KEY()
+        data object KEY_6: NUMBER_KEY()
+        data object KEY_7: NUMBER_KEY()
+        data object KEY_8: NUMBER_KEY()
+        data object KEY_9: NUMBER_KEY()
 
-        companion object: NUMBER_KEY(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        companion object: NUMBER_KEY()
     }
 
     data object SWAP_OFFHAND: ButtonAction()
