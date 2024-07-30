@@ -6,7 +6,6 @@ import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
@@ -28,9 +27,7 @@ object MenuManager: Listener {
         val bottomInv = e.whoClicked.openInventory.bottomInventory
         val topInv = e.whoClicked.openInventory.topInventory
         val menu = topInv.holder as? InventoryMenu ?: return
-        if (inv == bottomInv && (menu.freezeBottomInv || e.action == InventoryAction.MOVE_TO_OTHER_INVENTORY)) e.isCancelled =
-            true
-        if (inv != topInv) return
+        if (inv == bottomInv && menu.freezeBottomInv) e.isCancelled = true
         menu.manageBehaviour(e)
     }
 
