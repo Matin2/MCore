@@ -65,3 +65,5 @@ class Slot(
             }
     }
 }
+
+enum class ItemDeleteReason { MENU_CLOSED, SLOT_WAS_HIDDEN }
