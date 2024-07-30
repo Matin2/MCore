@@ -15,7 +15,7 @@ class Slot(
     val show: Boolean = true,
     val allowTake: Boolean = true,
     val itemPredicate: (ItemStack) -> Boolean = { true },
-    val deletedItemAction: ((item: ItemStack, reason: ItemDeleteReason) -> Unit)? = null,
+    val itemDeleteAction: ((item: ItemStack, reason: ItemDeleteReason) -> Unit)? = null,
     val interactAction: Interacted.() -> Unit = {}
 ) {
 

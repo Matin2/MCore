@@ -17,7 +17,7 @@ class MenuUtils {
         open = false
         slotManager.slots.forEach { slot ->
             slot.item?.also {
-                slot.deletedItemAction?.invoke(it, ItemDeleteReason.MENU_CLOSED)
+                slot.itemDeleteAction?.invoke(it, ItemDeleteReason.MENU_CLOSED)
             }
         }
         if (closeInventory) player.closeInventory()

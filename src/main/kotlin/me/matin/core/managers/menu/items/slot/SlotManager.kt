@@ -118,7 +118,7 @@ class SlotManager(private val inventory: Inventory) {
     fun manageDisplay(fillerSlots: MutableSet<Int>, useDefaultItem: Boolean) {
         slots.forEach { slot ->
             if (!slot.show) {
-                slot.item?.also { slot.deletedItemAction?.invoke(it, ItemDeleteReason.SLOT_WAS_HIDDEN) }
+                slot.item?.also { slot.itemDeleteAction?.invoke(it, ItemDeleteReason.SLOT_WAS_HIDDEN) }
                 return
             }
             slot.inventory = inventory
