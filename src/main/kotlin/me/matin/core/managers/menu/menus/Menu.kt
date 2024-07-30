@@ -21,7 +21,6 @@ import kotlin.time.Duration
 abstract class Menu(private val player: Player): InventoryMenu() {
 
     private lateinit var inventory: Inventory
-    private var opened: Boolean = false
     private lateinit var fillerSlots: Set<Int>
     private lateinit var buttonManager: ButtonManager
     private lateinit var slotManager: SlotManager
@@ -41,15 +40,15 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         privateUpdateItems(true)
         Core.scheduleTask {
             player.openInventory(inventory)
-            opened = true
+            util.open = true
         }
-        while (!opened) Thread.sleep(10)
+        while (!util.open) Thread.sleep(10)
         util.scheduleOnOpen()
     }
 
     override fun close(closeInventory: Boolean) {
+        util.open = false
         if (closeInventory) player.closeInventory()
-        opened = false
         Core.scheduleTask(true) {
             util.removeTasks()
         }

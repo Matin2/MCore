@@ -8,10 +8,9 @@ class MenuUtils {
 
     private val runningTasks = mutableSetOf<BukkitTask>()
     private val tasksToRun: MutableList<Triple<Boolean, Pair<Duration, Duration>, () -> Unit>> = mutableListOf()
-    private var open = false
+    var open = false
 
     fun scheduleOnOpen() {
-        open = true
         for ((async, delayInterval, action) in tasksToRun) {
             val task = Core.scheduleTask(async, delayInterval.first, delayInterval.second, action)
             runningTasks.add(task)
@@ -20,7 +19,6 @@ class MenuUtils {
     }
 
     fun removeTasks() {
-        open = false
         runningTasks.forEach {
             it.cancel()
             runningTasks.remove(it)

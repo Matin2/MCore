@@ -25,7 +25,6 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     abstract val list: MenuList<T>
     open val listFiller: Filler = Filler()
     private lateinit var inventory: Inventory
-    private var opened: Boolean = false
     private var listMap: ListMap? = null
     private lateinit var fillerSlots: Set<Int>
     private lateinit var buttonManager: ButtonManager
@@ -62,15 +61,15 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         privateUpdateItems(true, useDefaultItem = true)
         Core.scheduleTask {
             player.openInventory(inventory)
-            opened = true
+            util.open = true
         }
-        while (!opened) Thread.sleep(10)
+        while (!util.open) Thread.sleep(10)
         util.scheduleOnOpen()
     }
 
     override fun close(closeInventory: Boolean) {
+        util.open = false
         if (closeInventory) player.closeInventory()
-        opened = false
         Core.scheduleTask(true) {
             util.removeTasks()
         }
