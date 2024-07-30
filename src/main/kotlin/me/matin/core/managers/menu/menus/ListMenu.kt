@@ -78,7 +78,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     override fun manageBehaviour(event: InventoryClickEvent) {
         buttonManager.manageBehavior(event)
         fillerManager.manageBehavior(event)
-        listManager.manageBehaviour(event)
+        listManager.manageBehavior(event)
     }
 
     fun updateItems() = Core.scheduleTask(true) {

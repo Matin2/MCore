@@ -26,7 +26,7 @@ class MenuList<T>(
             map1.forEach { menu.inventory.setItem(it, menu.listFiller.display.toItem()) }
         }
 
-        fun manageBehaviour(event: InventoryClickEvent) {
+        fun manageBehavior(event: InventoryClickEvent) {
             if (event.slot !in menu.list.slots) return
             event.isCancelled = true
             val action = ButtonAction[event.click, event.hotbarButton] ?: return
