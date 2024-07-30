@@ -16,9 +16,10 @@ object MenuManager: Listener {
 
     @EventHandler
     fun onInventoryDrag(e: InventoryDragEvent) {
-        val topInv = e.whoClicked.openInventory.topInventory.takeIf { it.holder is Menu } ?: return
-        e.rawSlots.forEach {
-            if (it in 0..<topInv.size) e.isCancelled = true
+        val menu = e.whoClicked.openInventory.topInventory.takeIf { it.holder is InventoryMenu } ?: return
+        when (menu) {
+            is Menu -> menu.manageBehavior(e)
+            is ListMenu<*> -> menu.manageBehavior(e)
         }
     }
 
