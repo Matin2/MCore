@@ -8,10 +8,13 @@ import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.items.other.Filler
 import me.matin.core.managers.menu.items.other.ListMap
 import me.matin.core.managers.menu.items.other.MenuList
+import me.matin.core.managers.menu.items.slot.Slot
+import me.matin.core.managers.menu.items.slot.SlotManager
 import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryInteractEvent
 import org.bukkit.inventory.Inventory
 import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
@@ -22,12 +25,12 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
     abstract val list: MenuList<T>
     open val listFiller: Filler = Filler()
     private lateinit var inventory: Inventory
-    private var opened: Boolean = false
     private var listMap: ListMap? = null
     private lateinit var fillerSlots: Set<Int>
-    private lateinit var buttonManager: ButtonManager
-    private lateinit var fillerManager: Filler.Manager
-    private lateinit var listManager: MenuList.Manager<T>
+    private val buttonManager: ButtonManager = ButtonManager()
+    private val slotManager: SlotManager = SlotManager()
+    private val fillerManager: Filler.Manager = Filler.Manager()
+    private var listManager = MenuList.Manager<T>()
     private val util = MenuUtils()
     var pages: Int = 0
     var page: Int = if (page in 0..<pages) page else 0
@@ -39,7 +42,7 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
                 else -> value
             }
             Core.scheduleTask(true) {
-                privateUpdateItems(false)
+                privateUpdateItems(false, useDefaultItem = false)
             }
         }
 
@@ -50,48 +53,42 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
         makeListMap()
-        buttonManager = ButtonManager(inventory)
-        listManager = MenuList.Manager(this, listMap!!)
-        fillerManager = Filler.Manager(this, fillerSlots)
         processItems()
-        privateUpdateItems(true)
+        privateUpdateItems(true, useDefaultItem = true)
         Core.scheduleTask {
             player.openInventory(inventory)
-            opened = true
+            util.open = true
         }
-        while (!opened) Thread.sleep(10)
+        while (!util.open) Thread.sleep(10)
         util.scheduleOnOpen()
     }
 
-    override fun close(closeInventory: Boolean) {
-        if (closeInventory) player.closeInventory()
-        opened = false
-        Core.scheduleTask(true) {
-            util.removeTasks()
-        }
-    }
+    fun close(closeInventory: Boolean = true) = util.close(closeInventory, slotManager, player)
 
     fun scheduleTask(
         async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
     ) = util.scheduleTask(async, delay, interval, task)
 
-    override fun manageBehaviour(event: InventoryClickEvent) {
+    fun manageBehavior(event: InventoryInteractEvent) {
+        slotManager.manageBehavior(event)
+        if (event !is InventoryClickEvent) return
         buttonManager.manageBehavior(event)
-        fillerManager.manageBehavior(event)
-        listManager.manageBehavior(event)
+        fillerManager.manageBehavior(event, filler, fillerSlots)
+        listManager.manageBehaviour(event, this, listMap ?: return)
     }
 
     fun updateItems() = Core.scheduleTask(true) {
-        privateUpdateItems(true)
+        privateUpdateItems(true, useDefaultItem = false)
     }
 
-    private fun privateUpdateItems(updatePages: Boolean) {
+    private fun privateUpdateItems(updatePages: Boolean, useDefaultItem: Boolean) {
         if (updatePages) pages = (list.list.size / list.slots.size) + 1
         val fs = (0..<inventory.size).toMutableSet()
-        buttonManager.manageDisplay(fs)
+        buttonManager.manageDisplay(inventory, fs)
+        slotManager.manageDisplay(inventory, fs, useDefaultItem)
         fillerSlots = fs
-        fillerManager.manageDisplay()
-        if (listMap != null) listManager.manageDisplay()
+        fillerManager.manageDisplay(inventory, filler, fillerSlots)
+        listManager.manageDisplay(this, listMap ?: return)
     }
 
     @Suppress("DuplicatedCode")
@@ -99,10 +96,12 @@ abstract class ListMenu<T>(private val player: Player, page: Int = 0): Inventory
         this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }.forEach { member ->
             when (val result = member.call(this)) {
                 is Button -> buttonManager.buttons.add(result)
+                is Slot -> slotManager.slots.add(result)
                 is Iterable<*> -> {
                     result.forEach {
                         when (it) {
                             is Button -> buttonManager.buttons.add(it)
+                            is Slot -> slotManager.slots.add(it)
                         }
                     }
                 }

@@ -3,7 +3,7 @@ package me.matin.core.managers.menu.items.button
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 
-class ButtonManager(private val inventory: Inventory) {
+class ButtonManager {
 
     val buttons = mutableSetOf<Button>()
 
@@ -13,7 +13,7 @@ class ButtonManager(private val inventory: Inventory) {
         button.interactAction(button.Interacted(event, ButtonAction[event.click, event.hotbarButton] ?: return))
     }
 
-    fun manageDisplay(fillerSlots: MutableSet<Int>) {
+    fun manageDisplay(inventory: Inventory, fillerSlots: MutableSet<Int>) {
         buttons.forEach { button ->
             if (!button.show) return
             button.inventory = inventory

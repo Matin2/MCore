@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.*
 import org.bukkit.inventory.meta.trim.ArmorTrim
 import org.bukkit.potion.PotionType
+import org.jetbrains.annotations.Range
 
 @Suppress("unused")
 data class DisplayItem(
@@ -22,7 +23,7 @@ data class DisplayItem(
     var lore: MutableList<Component> = mutableListOf(),
     var model: Int = -1,
     var glow: Boolean = false,
-    var amount: Int = 1,
+    var amount: @Range(from = 1, to = 99) Int = 1,
     var rarity: ItemRarity? = null,
     var hideTooltip: Boolean = false,
     var color: Color? = null,
@@ -34,13 +35,13 @@ data class DisplayItem(
 ) {
 
     fun toItem(): ItemStack {
-        if (material == Material.AIR || amount < 1) return ItemStack(Material.AIR)
+        if (material == Material.AIR) return ItemStack(Material.AIR)
         val item = ItemStack(material)
         val meta = item.itemMeta!!
         meta.setMaxStackSize(99)
         if (rarity != null) meta.setRarity(rarity)
         if (name != null) meta.itemName(name)
-        item.amount = minOf(amount, 99)
+        item.amount = maxOf(minOf(amount, 99), 1)
         if (lore.isNotEmpty()) meta.lore(lore)
         if (model > 0) meta.setCustomModelData(model)
         meta.setEnchantmentGlintOverride(glow)

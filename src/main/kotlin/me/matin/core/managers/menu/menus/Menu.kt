@@ -6,10 +6,13 @@ import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.items.other.Filler
+import me.matin.core.managers.menu.items.slot.Slot
+import me.matin.core.managers.menu.items.slot.SlotManager
 import me.matin.core.managers.menu.utils.MenuUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryInteractEvent
 import org.bukkit.inventory.Inventory
 import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
@@ -18,10 +21,10 @@ import kotlin.time.Duration
 abstract class Menu(private val player: Player): InventoryMenu() {
 
     private lateinit var inventory: Inventory
-    private var opened: Boolean = false
     private lateinit var fillerSlots: Set<Int>
-    private lateinit var buttonManager: ButtonManager
-    private lateinit var fillerManager: Filler.Manager
+    private val buttonManager: ButtonManager = ButtonManager()
+    private val slotManager: SlotManager = SlotManager()
+    private val fillerManager: Filler.Manager = Filler.Manager()
     private val util = MenuUtils()
 
     fun open() = Core.scheduleTask(true) {
@@ -30,60 +33,57 @@ abstract class Menu(private val player: Player): InventoryMenu() {
         } ?: let {
             inventory = Bukkit.createInventory(this, maxOf(minOf(type.rows!!, 6), 1) * 9, title)
         }
-        buttonManager = ButtonManager(inventory)
-        fillerManager = Filler.Manager(this, fillerSlots)
         processItems()
-        privateUpdateItems()
+        privateUpdateItems(true)
         Core.scheduleTask {
             player.openInventory(inventory)
-            opened = true
+            util.open = true
         }
-        while (!opened) Thread.sleep(10)
+        while (!util.open) Thread.sleep(10)
         util.scheduleOnOpen()
     }
 
-    override fun close(closeInventory: Boolean) {
-        if (closeInventory) player.closeInventory()
-        opened = false
-        Core.scheduleTask(true) {
-            util.removeTasks()
-        }
-    }
+    fun close(closeInventory: Boolean = true) = util.close(closeInventory, slotManager, player)
 
     fun scheduleTask(
         async: Boolean = false, delay: Duration = Duration.ZERO, interval: Duration = Duration.ZERO, task: () -> Unit
     ) = util.scheduleTask(async, delay, interval, task)
 
-    override fun manageBehaviour(event: InventoryClickEvent) {
+    fun manageBehavior(event: InventoryInteractEvent) {
+        slotManager.manageBehavior(event)
+        if (event !is InventoryClickEvent) return
         buttonManager.manageBehavior(event)
-        fillerManager.manageBehavior(event)
+        fillerManager.manageBehavior(event, filler, fillerSlots)
     }
 
     fun updateItems() = Core.scheduleTask(true) {
-        privateUpdateItems()
+        privateUpdateItems(false)
     }
 
-    private fun privateUpdateItems() {
+    private fun privateUpdateItems(useDefaultItem: Boolean) {
         val fs = (0..<inventory.size).toMutableSet()
-        buttonManager.manageDisplay(fs)
+        buttonManager.manageDisplay(inventory, fs)
+        slotManager.manageDisplay(inventory, fs, useDefaultItem)
         fillerSlots = fs
-        fillerManager.manageDisplay()
+        fillerManager.manageDisplay(inventory, filler, fillerSlots)
     }
 
     @Suppress("DuplicatedCode")
     private fun processItems() =
         this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }.forEach { member ->
-                when (val result = member.call(this)) {
-                    is Button -> buttonManager.buttons.add(result)
-                    is Iterable<*> -> {
-                        result.forEach {
-                            when (it) {
-                                is Button -> buttonManager.buttons.add(it)
-                            }
+            when (val result = member.call(this)) {
+                is Button -> buttonManager.buttons.add(result)
+                is Slot -> slotManager.slots.add(result)
+                is Iterable<*> -> {
+                    result.forEach {
+                        when (it) {
+                            is Button -> buttonManager.buttons.add(it)
+                            is Slot -> slotManager.slots.add(it)
                         }
                     }
                 }
             }
+        }
 
     override fun getInventory(): Inventory {
         return inventory

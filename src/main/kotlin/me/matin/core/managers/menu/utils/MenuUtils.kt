@@ -1,6 +1,9 @@
 package me.matin.core.managers.menu.utils
 
 import me.matin.core.Core
+import me.matin.core.managers.menu.items.slot.ItemDeleteReason
+import me.matin.core.managers.menu.items.slot.SlotManager
+import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitTask
 import kotlin.time.Duration
 
@@ -8,10 +11,24 @@ class MenuUtils {
 
     private val runningTasks = mutableSetOf<BukkitTask>()
     private val tasksToRun: MutableList<Triple<Boolean, Pair<Duration, Duration>, () -> Unit>> = mutableListOf()
-    private var open = false
+    var open = false
+
+    fun close(closeInventory: Boolean, slotManager: SlotManager, player: Player) {
+        open = false
+        slotManager.slots.forEach { slot ->
+            slot.item?.also {
+                slot.itemDeleteAction?.invoke(it, ItemDeleteReason.MENU_CLOSED) ?: run {
+                    player.inventory.addItem(it)
+                }
+            }
+        }
+        if (closeInventory) player.closeInventory()
+        Core.scheduleTask(true) {
+            removeTasks()
+        }
+    }
 
     fun scheduleOnOpen() {
-        open = true
         for ((async, delayInterval, action) in tasksToRun) {
             val task = Core.scheduleTask(async, delayInterval.first, delayInterval.second, action)
             runningTasks.add(task)
@@ -19,8 +36,7 @@ class MenuUtils {
         tasksToRun.clear()
     }
 
-    fun removeTasks() {
-        open = false
+    private fun removeTasks() {
         runningTasks.forEach {
             it.cancel()
             runningTasks.remove(it)
