@@ -14,7 +14,7 @@ import kotlin.contracts.contract
 class Slot(
     val slot: Int,
     val display: DisplayItem,
-    val defaultItem: ItemStack? = null,
+    defaultItem: ItemStack? = null,
     val show: Boolean = true,
     val allowTake: Boolean = true,
     val itemPredicate: (ItemStack) -> Boolean = { true },
@@ -23,21 +23,14 @@ class Slot(
 ) {
 
     lateinit var inventory: Inventory
-    var oldItem: ItemStack? = null
-    var item: ItemStack?
-        get() {
-            return inventory.getItem(slot) ?: run {
-                inventory.setItem(slot, display.toItem())
-                null
-            }
-        }
+    internal var mutableOldItem: ItemStack? = null
+    val oldItem: ItemStack? get() = mutableOldItem
+    var item: ItemStack? = defaultItem
         set(value) {
-            oldItem = item
-            if (value != null) {
-                inventory.setItem(slot, value)
-                return
-            }
-            inventory.setItem(slot, display.toItem())
+            mutableOldItem = field
+            field = value
+            val changeItem = value?.takeUnless { it.type == Material.AIR || it.amount == 0 } ?: display.toItem()
+            inventory.setItem(slot, changeItem)
         }
 
     @Suppress("DEPRECATION", "MemberVisibilityCanBePrivate")
@@ -58,8 +51,7 @@ class Slot(
             set(value) {
                 this@Slot.item = value
             }
-        var cursor: ItemStack? =
-            if (isDrag(event)) getCursor(event.cursor) else getCursor(event.cursor)
+        var cursor: ItemStack? = if (isDrag(event)) getCursor(event.cursor) else getCursor(event.cursor)
             set(value) {
                 val newValue = value ?: ItemStack(Material.AIR)
                 if (isDrag(event)) event.cursor = newValue else event.setCursor(newValue)
