@@ -4,6 +4,7 @@ import me.matin.core.Core
 import org.bukkit.Material
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
 
 @Suppress("MemberVisibilityCanBePrivate")
 class SlotManager {
@@ -23,13 +24,14 @@ class SlotManager {
     }
 
     private fun manageClick(event: InventoryClickEvent) {
-        val slot = slots.firstOrNull { it.slot == event.slot && it.show } ?: return
+        val slot = slots.firstOrNull { it.show && it.slot == event.slot } ?: return
         val manager = object: ManageClick {
             override val event: InventoryClickEvent = event
             override val slot: Slot = slot
         }
-        val action = if (slot.display.material == Material.AIR) manager.manageSlotAction()
-        else manager.manageDisplayAction()
+        val action =
+            if (slot.display.material == Material.AIR || event.currentItem != slot.display.toItem()) manager.manageSlotAction()
+            else manager.manageDisplayAction()
         slot.interactAction(slot.Interacted(event, action ?: return))
     }
 
@@ -40,64 +42,74 @@ class SlotManager {
 
         @Suppress("DEPRECATION")
         fun manageDisplayAction(): SlotAction? {
-            if (event.currentItem != slot.display.toItem()) return manageSlotAction()
             return when (event.action) {
+                InventoryAction.HOTBAR_SWAP -> manageHotbarSwap(true, null)
                 InventoryAction.SWAP_WITH_CURSOR -> {
-                    if (!slot.itemPredicate(event.cursor)) return null
-                    event.setCursor(null)
+                    if (!slot.itemPredicate(event.cursor)) return disAllow()
+                    event.setCursor(ItemStack(Material.AIR))
                     SlotAction.PLACE.ALL
                 }
 
-                InventoryAction.HOTBAR_SWAP -> manageHotbarSwap(true)
-                else -> {
-                    event.isCancelled = true
-                    return null
-                }
+                else -> disAllow()
             }
         }
 
         fun manageSlotAction(): SlotAction? {
-            val action = SlotAction[event.action, event.hotbarButton, event.click == ClickType.SWAP_OFFHAND]
-            action ?: run {
-                event.isCancelled = true
-                return null
-            }
+            val action =
+                SlotAction[event.action, event.hotbarButton, event.click == ClickType.SWAP_OFFHAND] ?: return null
+            val oldItem = event.currentItem?.takeUnless { it.amount == 0 || it.type == Material.AIR }
             when (action) {
-                SlotAction.PLACE -> if (managePlace()) return null
-                SlotAction.PICKUP, SlotAction.DROP, SlotAction.MOVE_TO_OTHER_INVENTORY -> if (managePickup()) return null
-                SlotAction.CURSOR_SWAP -> if (managePlace() && managePickup()) return null
-                SlotAction.HOTBAR_SWAP, SlotAction.OFF_HAND_SWAP -> manageHotbarSwap(false)
+                SlotAction.PLACE -> if (!slot.itemPredicate(event.cursor)) return disAllow()
+                SlotAction.PICKUP, SlotAction.DROP, SlotAction.MOVE_TO_OTHER_INVENTORY -> if (!slot.allowTake) return disAllow()
+                SlotAction.CURSOR_SWAP -> if (!slot.itemPredicate(event.cursor) && !slot.allowTake) return disAllow()
+                SlotAction.HOTBAR_SWAP, SlotAction.OFF_HAND_SWAP -> manageHotbarSwap(false, oldItem)
                 else -> {}
             }
             return action
         }
 
-        private fun managePlace(): Boolean {
-            event.currentItem!!.takeIf { slot.itemPredicate(it) } ?: run {
-                event.isCancelled = true
-                return true
-            }
-            return false
-        }
-
-        private fun managePickup(): Boolean {
-            if (!slot.allowTake) event.isCancelled = true
-            return !slot.allowTake
-        }
-
-        private fun manageHotbarSwap(makeNull: Boolean): SlotAction? {
+        private fun manageHotbarSwap(isOldItemDisplay: Boolean, oldItem: ItemStack?): SlotAction? {
             val swapSlot = if (event.click != ClickType.SWAP_OFFHAND) event.hotbarButton else 40
-            val inv = event.whoClicked.inventory
-            inv.getItem(swapSlot)?.takeUnless { it.amount == 0 || it.type == Material.AIR || !slot.itemPredicate(it) }
-                ?: run {
-                    event.isCancelled = true
-                    return null
-                }
-            if (makeNull) inv.setItem(swapSlot, null)
-            return if (event.click != ClickType.SWAP_OFFHAND) SlotAction.HOTBAR_SWAP.apply {
-                mutableSlot = event.hotbarButton
+            val inv = event.whoClicked.inventory as Inventory
+            val newItem = inv.getItem(swapSlot)?.takeUnless { it.amount == 0 || it.type == Material.AIR }
+            when (HotBarCheck[newItem, oldItem, isOldItemDisplay]) {
+                HotBarCheck.DISPLAY_PICKUP -> slot.allowTake.takeIf { it }?.also {
+                    inv.setItem(swapSlot, ItemStack(Material.AIR))
+                } ?: return disAllow()
+
+                HotBarCheck.DISPLAY_PLACE -> slot.itemPredicate(newItem!!).takeIf { it }?.also {
+                    inv.setItem(swapSlot, ItemStack(Material.AIR))
+                } ?: return disAllow()
+
+                HotBarCheck.PICKUP -> slot.allowTake.takeIf { it } ?: return disAllow()
+                HotBarCheck.PLACE -> slot.itemPredicate(newItem!!).takeIf { it } ?: return disAllow()
+                HotBarCheck.SWAP -> slot.itemPredicate(newItem!!).takeIf { it && slot.allowTake } ?: return disAllow()
+                null -> {}
             }
-            else SlotAction.OFF_HAND_SWAP
+            return event.click.takeIf { it == ClickType.SWAP_OFFHAND }?.run { SlotAction.OFF_HAND_SWAP } ?: run {
+                SlotAction.HOTBAR_SWAP.apply { mutableSlot = event.hotbarButton }
+            }
+        }
+
+        private enum class HotBarCheck { PLACE, PICKUP, SWAP, DISPLAY_PLACE, DISPLAY_PICKUP;
+
+            companion object {
+
+                operator fun get(newItem: ItemStack?, oldItem: ItemStack?, isOldItemDisplay: Boolean): HotBarCheck? =
+                    when {
+                        isOldItemDisplay && newItem != null -> DISPLAY_PLACE
+                        isOldItemDisplay && newItem == null -> DISPLAY_PICKUP
+                        oldItem == null && newItem != null -> PLACE
+                        oldItem != null && newItem == null -> PICKUP
+                        oldItem != null && newItem != null -> SWAP
+                        else -> null
+                    }
+            }
+        }
+
+        private fun disAllow(): SlotAction? {
+            event.isCancelled = true
+            return null
         }
     }
 
