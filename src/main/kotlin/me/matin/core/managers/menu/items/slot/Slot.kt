@@ -59,10 +59,15 @@ class Slot(
                 this@Slot.item = value
             }
         var cursor: ItemStack? =
-            if (isDrag(event)) event.cursor else event.cursor.takeUnless { it.type == Material.AIR }
+            if (isDrag(event)) getCursor(event.cursor) else getCursor(event.cursor)
             set(value) {
-                if (isDrag(event)) event.cursor = value else event.setCursor(value)
+                val newValue = value ?: ItemStack(Material.AIR)
+                if (isDrag(event)) event.cursor = newValue else event.setCursor(newValue)
+                field = newValue
             }
+
+        private fun getCursor(cursor: ItemStack?): ItemStack? =
+            cursor?.takeUnless { it.type == Material.AIR || it.amount == 0 }
     }
 }
 
