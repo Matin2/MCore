@@ -84,6 +84,7 @@ sealed class SlotAction {
             InventoryAction.PICKUP_ONE -> PICKUP.ONE
             InventoryAction.PLACE_ALL -> PLACE.ALL
             InventoryAction.PLACE_ONE -> PLACE.ONE
+            InventoryAction.PLACE_SOME -> PLACE.SOME
             InventoryAction.SWAP_WITH_CURSOR -> CURSOR_SWAP
             InventoryAction.DROP_ALL_SLOT -> DROP.ALL
             InventoryAction.DROP_ONE_SLOT -> DROP.ONE
