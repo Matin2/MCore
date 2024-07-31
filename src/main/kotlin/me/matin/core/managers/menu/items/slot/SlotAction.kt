@@ -8,26 +8,55 @@ sealed class SlotAction {
 
     sealed class PLACE: SlotAction() {
 
-        data object ONE: PLACE()
-        data object SOME: PLACE()
-        data object ALL: PLACE()
+        data object ONE: PLACE() {
+
+            override fun toString(): String = "PLACE_ONE"
+        }
+
+        data object SOME: PLACE() {
+
+            override fun toString(): String = "PLACE_SOME"
+        }
+
+        data object ALL: PLACE() {
+
+            override fun toString(): String = "PLACE_ALL"
+        }
 
         companion object: PLACE()
     }
 
     sealed class PICKUP: SlotAction() {
 
-        data object ONE: PICKUP()
-        data object HALF: PICKUP()
-        data object ALL: PICKUP()
+        data object ONE: PICKUP() {
+
+            override fun toString(): String = "PICKUP_ONE"
+        }
+
+        data object HALF: PICKUP() {
+
+            override fun toString(): String = "PICKUP_HALF"
+        }
+
+        data object ALL: PICKUP() {
+
+            override fun toString(): String = "PICKUP_ALL"
+        }
 
         companion object: PICKUP()
     }
 
     sealed class DROP: SlotAction() {
 
-        data object ONE: PICKUP()
-        data object ALL: PICKUP()
+        data object ONE: PICKUP() {
+
+            override fun toString(): String = "DROP_ONE"
+        }
+
+        data object ALL: PICKUP() {
+
+            override fun toString(): String = "DROP_ALL"
+        }
 
         companion object: PICKUP()
     }
