@@ -24,8 +24,12 @@ object DependencyListener: Listener {
     }
 
     @EventHandler
-    fun onPluginDisable(event: PluginDisableEvent) = monitor()
+    fun onPluginDisable(event: PluginDisableEvent) {
+        monitor()
+    }
 
     @EventHandler
-    fun onPluginEnable(event: PluginEnableEvent) = monitor()
+    fun onPluginEnable(event: PluginEnableEvent) {
+        monitor()
+    }
 }
