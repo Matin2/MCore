@@ -8,7 +8,7 @@ class MenuScheduler {
 
     private val runningTasks = mutableSetOf<BukkitTask>()
     private val tasksToRun: MutableList<Triple<Boolean, Pair<Duration, Duration>, () -> Unit>> = mutableListOf()
-    var open = false
+    private var open = false
 
     fun onOpen() {
         open = true
