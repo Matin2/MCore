@@ -57,14 +57,19 @@ sealed class SlotAction {
 
     sealed class HOTBAR_SWAP: SlotAction() {
 
+        open val slot: @Range(from = 0, to = 8) Int = 0
+
+        data object OFF_HAND: HOTBAR_SWAP() {
+
+            override val slot: Int = 40
+        }
+
         companion object: HOTBAR_SWAP() {
 
             internal var mutableSlot: Int = 0
-            val slot: @Range(from = 0, to = 8) Int get() = mutableSlot
+            override val slot: Int get() = mutableSlot
         }
     }
-
-    data object OFF_HAND_SWAP: HOTBAR_SWAP()
 
     data object CURSOR_SWAP: SlotAction()
 
@@ -84,7 +89,7 @@ sealed class SlotAction {
             InventoryAction.DROP_ONE_SLOT -> DROP.ONE
             InventoryAction.MOVE_TO_OTHER_INVENTORY -> MOVE_TO_OTHER_INVENTORY
             InventoryAction.HOTBAR_SWAP -> when (offhand) {
-                true -> OFF_HAND_SWAP
+                true -> HOTBAR_SWAP.OFF_HAND
                 false -> HOTBAR_SWAP.apply { mutableSlot = hotbar }
             }
 
