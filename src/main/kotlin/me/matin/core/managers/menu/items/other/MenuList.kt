@@ -1,9 +1,10 @@
 package me.matin.core.managers.menu.items.other
 
 import me.matin.core.managers.menu.items.button.ButtonAction
-import me.matin.core.managers.menu.menus.ListMenu
 import me.matin.core.managers.menu.utils.DisplayItem
+import me.matin.core.managers.menu.utils.Interacted
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 
 typealias ListMap = Map<Int, List<Pair<Int, Int>>>
 
@@ -11,33 +12,42 @@ class MenuList<T>(
     val slots: Set<Int>,
     val list: List<T>,
     val display: (T) -> DisplayItem,
+    val filler: Filler = Filler(),
     val interactAction: Interacted.(T) -> Unit = {}
 ) {
 
     class Manager<T> {
 
-        fun manageDisplay(menu: ListMenu<T>, map: ListMap) {
-            val map1 = menu.list.run {
-                slots - map.getValue(menu.page).map {
-                    menu.inventory.setItem(it.second, display(list[it.first]).toItem())
-                    it.second
-                }.toSet()
+        private var listMap: ListMap? = null
+
+        fun makeListMap(list: MenuList<T>) {
+            val slots = list.slots
+            listMap = list.list.indices.map {
+                it to slots.elementAt(it % slots.size)
+            }.groupBy {
+                it.first / slots.size
             }
-            map1.forEach { menu.inventory.setItem(it, menu.listFiller.display.toItem()) }
         }
 
-        fun manageBehaviour(event: InventoryClickEvent, menu: ListMenu<T>, map: ListMap) {
-            if (event.slot !in menu.list.slots) return
+        fun manageDisplay(inventory: Inventory, list: MenuList<T>, page: Int) {
+            val listSlots = listMap?.getValue(page)?.map {
+                inventory.setItem(it.second, list.display(list.list[it.first]).toItem())
+                it.second
+            }?.toSet() ?: return
+            val fillerSlots = list.slots - listSlots
+            fillerSlots.forEach { inventory.setItem(it, list.filler.display.toItem()) }
+        }
+
+        fun manageBehavior(event: InventoryClickEvent, list: MenuList<T>, page: Int) {
+            if (event.slot !in list.slots) return
             event.isCancelled = true
             val action = ButtonAction[event.click, event.hotbarButton] ?: return
-            if (event.currentItem?.type == menu.listFiller.display.material) {
-                menu.listFiller.interactAction(Interacted(event, action))
+            if (event.currentItem?.type == list.filler.display.material) {
+                list.filler.interactAction(Interacted(event, action))
                 return
             }
-            val (index) = map.getValue(menu.page).first { it.second == event.slot }
-            menu.list.apply {
-                interactAction(Interacted(event, action), list[index])
-            }
+            val index = listMap?.getValue(page)?.first { it.second == event.slot }?.first ?: return
+            list.interactAction(Interacted(event, action), list.list[index])
         }
     }
 }
