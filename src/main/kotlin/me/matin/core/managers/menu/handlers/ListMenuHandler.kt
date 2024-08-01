@@ -32,8 +32,8 @@ class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
     }
 
     override fun updateItems(useDefaultItem: Boolean, fillerSlots: MutableSet<Int>) {
-        pages = (menu.list.list.size / menu.list.slots.size) + 1
-        listManager.manageDisplay(inventory, menu.list, page)
+        menu.updatePages()
+        listManager.manageDisplay(inventory, menu.list, menu.page)
         fillerSlots.removeAll(menu.list.slots)
         super.updateItems(useDefaultItem, fillerSlots)
     }
