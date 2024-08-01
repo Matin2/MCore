@@ -17,8 +17,15 @@ sealed class ButtonAction {
 
         sealed class SHIFT: CLICK() {
 
-            data object LEFT: SHIFT()
-            data object RIGHT: SHIFT()
+            data object LEFT: SHIFT() {
+
+                override fun toString(): String = "SHIFT_LEFT"
+            }
+
+            data object RIGHT: SHIFT() {
+
+                override fun toString(): String = "SHIFT_RIGHT"
+            }
 
             companion object: SHIFT()
         }
@@ -49,8 +56,15 @@ sealed class ButtonAction {
 
     sealed class DROP_KEY: ButtonAction() {
 
-        data object NORMAL: DROP_KEY()
-        data object WITH_CTRL_KEY: DROP_KEY()
+        data object NORMAL: DROP_KEY() {
+
+            override fun toString(): String = "DROP"
+        }
+
+        data object WITH_CTRL_KEY: DROP_KEY() {
+
+            override fun toString(): String = "CTRL_DROP"
+        }
 
         companion object: DROP_KEY()
     }
