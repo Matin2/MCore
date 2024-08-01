@@ -11,17 +11,6 @@ class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
 
     private lateinit var fillerSlots: Set<Int>
     private var listManager = MenuList.Manager<T>()
-    var pages: Int = 0
-    var page: Int = menu.page
-        set(value) {
-            pages = (menu.list.list.size / menu.list.slots.size) + 1
-            field = when {
-                value < 0 -> (value % pages) + pages
-                value >= pages -> value % pages
-                else -> value
-            }
-            Core.scheduleTask(true) { privateUpdateItems() }
-        }
 
     override fun open() {
         listManager.makeListMap(menu.list)
@@ -30,7 +19,7 @@ class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
 
     override fun manageBehavior(event: InventoryInteractEvent) {
         super.manageBehavior(event)
-        listManager.manageBehavior(event as? InventoryClickEvent ?: return, menu.list, page)
+        listManager.manageBehavior(event as? InventoryClickEvent ?: return, menu.list, menu.page)
     }
 
     private fun privateUpdateItems() {
