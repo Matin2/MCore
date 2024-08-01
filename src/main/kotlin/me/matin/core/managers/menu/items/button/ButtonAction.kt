@@ -11,8 +11,6 @@ sealed class ButtonAction {
 
             data object LEFT: NORMAL()
             data object RIGHT: NORMAL()
-
-            companion object: NORMAL()
         }
 
         sealed class SHIFT: CLICK() {
@@ -26,15 +24,11 @@ sealed class ButtonAction {
 
                 override fun toString(): String = "SHIFT_RIGHT"
             }
-
-            companion object: SHIFT()
         }
 
         data object MIDDLE: CLICK()
 
         data object DOUBLE: CLICK()
-
-        companion object: CLICK()
     }
 
     sealed class NUMBER_KEY: ButtonAction() {
@@ -48,8 +42,6 @@ sealed class ButtonAction {
         data object KEY_7: NUMBER_KEY()
         data object KEY_8: NUMBER_KEY()
         data object KEY_9: NUMBER_KEY()
-
-        companion object: NUMBER_KEY()
     }
 
     data object SWAP_OFFHAND: ButtonAction()
@@ -65,8 +57,6 @@ sealed class ButtonAction {
 
             override fun toString(): String = "CTRL_DROP"
         }
-
-        companion object: DROP_KEY()
     }
 
     companion object {

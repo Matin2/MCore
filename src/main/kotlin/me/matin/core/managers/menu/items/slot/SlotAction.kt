@@ -22,8 +22,6 @@ sealed class SlotAction {
 
             override fun toString(): String = "PLACE_ALL"
         }
-
-        companion object: PLACE()
     }
 
     sealed class PICKUP: SlotAction() {
@@ -42,8 +40,6 @@ sealed class SlotAction {
 
             override fun toString(): String = "PICKUP_ALL"
         }
-
-        companion object: PICKUP()
     }
 
     sealed class DROP: SlotAction() {
@@ -57,8 +53,6 @@ sealed class SlotAction {
 
             override fun toString(): String = "DROP_ALL"
         }
-
-        companion object: PICKUP()
     }
 
     sealed class HOTBAR_SWAP: SlotAction() {
