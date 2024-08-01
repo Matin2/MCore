@@ -10,7 +10,7 @@ import me.matin.core.managers.TaskManager
 import me.matin.core.managers.TextManager.toReadableString
 import me.matin.core.managers.dependency.DependencyListener
 import me.matin.core.managers.dependency.PluginManager
-import me.matin.core.managers.menu.MenuManager
+import me.matin.core.managers.menu.MenuListener
 import net.skinsrestorer.api.SkinsRestorer
 import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit
@@ -55,7 +55,7 @@ class Core: JavaPlugin() {
         checkDepends(softDepends)
         monitorDepends(softDepends)
         setPlayerTrackingRange(corePlayerTrackingRange)
-        server.pluginManager.registerEvents(MenuManager, this)
+        server.pluginManager.registerEvents(MenuListener, this)
         server.pluginManager.registerEvents(DependencyListener, this)
     }.let { logger.info("Plugin enabled in ${it.toReadableString()}.") }
 
@@ -78,9 +78,7 @@ class Core: JavaPlugin() {
 
     override fun onDisable() = measureTime {
         Bukkit.getScheduler().cancelTasks(this)
-        Bukkit.getOnlinePlayers().forEach {
-            MenuManager.checkCursor(it)
-        }
+        Bukkit.getOnlinePlayers().forEach(MenuListener::checkCursor)
         CommandAPI.onDisable()
         PacketEvents.getAPI().terminate()
     }.let { logger.info("Plugin disabled in ${it.toReadableString()}.") }

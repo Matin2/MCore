@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 
 @Suppress("unused")
-object MenuManager: Listener {
+object MenuListener: Listener {
 
     @EventHandler
     fun onInventoryDrag(e: InventoryDragEvent) {
