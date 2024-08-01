@@ -5,14 +5,15 @@ import me.matin.core.managers.menu.items.other.MenuList
 import kotlin.properties.Delegates
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class ListMenu<T>(page: Int): Menu() {
+abstract class ListMenu<T>(page: Int = 0): Menu() {
 
     abstract val list: MenuList<T>
     override val handler: ListMenuHandler<T> by lazy { ListMenuHandler(this) }
-    val pages get() = handler.pages
+    private var _pages: Int = 0
+    val pages get() = _pages
     var page: Int by Delegates.vetoable(page) { _, _, newValue ->
         if (newValue in 0..<pages) {
-            handler.page = newValue
+            handler.updatePage()
             true
         } else false
     }
