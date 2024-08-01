@@ -4,7 +4,7 @@ import me.matin.core.Core
 import org.bukkit.scheduler.BukkitTask
 import kotlin.time.Duration
 
-class MenuUtils {
+class MenuScheduler {
 
     private val runningTasks = mutableSetOf<BukkitTask>()
     private val tasksToRun: MutableList<Triple<Boolean, Pair<Duration, Duration>, () -> Unit>> = mutableListOf()
