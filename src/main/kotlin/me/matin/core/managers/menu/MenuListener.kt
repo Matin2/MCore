@@ -1,8 +1,7 @@
 package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
-import me.matin.core.managers.menu.menus.ListMenu
-import me.matin.core.managers.menu.menus.Menu
+import me.matin.core.managers.menu.handlers.MenuHandler
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -16,11 +15,9 @@ object MenuManager: Listener {
 
     @EventHandler
     fun onInventoryDrag(e: InventoryDragEvent) {
-        val menu = e.whoClicked.openInventory.topInventory.takeIf { it.holder is InventoryMenu } ?: return
-        when (menu) {
-            is Menu -> menu.manageBehavior(e)
-            is ListMenu<*> -> menu.manageBehavior(e)
-        }
+        val topInv = e.whoClicked.openInventory.topInventory
+        val handler = topInv.holder as? MenuHandler ?: return
+        handler.manageBehavior(e)
     }
 
     @EventHandler
@@ -28,30 +25,24 @@ object MenuManager: Listener {
         val inv = e.clickedInventory ?: return
         val bottomInv = e.whoClicked.openInventory.bottomInventory
         val topInv = e.whoClicked.openInventory.topInventory
-        val menu = topInv.holder as? InventoryMenu ?: return
-        if (inv == bottomInv && menu.freezeBottomInv) e.isCancelled = true
-        when (menu) {
-            is Menu -> menu.manageBehavior(e)
-            is ListMenu<*> -> menu.manageBehavior(e)
-        }
+        val handler = topInv.holder as? MenuHandler ?: return
+        if (inv == bottomInv && handler.menu.freezeBottomInv) e.isCancelled = true
+        handler.manageBehavior(e)
     }
 
     @EventHandler
     fun onInventoryClose(e: InventoryCloseEvent) {
         val player = e.player as? Player ?: return
         checkCursor(player)
-        val menu = player.openInventory.topInventory.holder as? InventoryMenu ?: return
-        when (menu) {
-            is Menu -> menu.close(false)
-            is ListMenu<*> -> menu.close(false)
-        }
+        val handler = player.openInventory.topInventory.holder as? MenuHandler ?: return
+        handler.close(false)
     }
 
     @JvmStatic
     fun checkCursor(player: Player) {
+        val handler = player.openInventory.topInventory.holder as? MenuHandler ?: return
         val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return
-        val holder = player.openInventory.topInventory.holder as? Menu ?: return
-        holder.takeIf { it.preventCursorLoss } ?: return
+        handler.takeIf { it.menu.preventCursorLoss } ?: return
         player.inventory.addItem(cursor).takeUnless { it.isEmpty() } ?: ItemManager.drop(
             cursor, player.location, BlockFace.UP
         )
