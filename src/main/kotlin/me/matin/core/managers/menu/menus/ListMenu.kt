@@ -12,9 +12,14 @@ abstract class ListMenu<T>(page: Int = 0): Menu() {
     private var _pages: Int = 0
     val pages get() = _pages
     var page: Int by Delegates.vetoable(page) { _, _, newValue ->
+        updatePages()
         if (newValue in 0..<pages) {
             handler.updatePage()
             true
         } else false
+    }
+
+    internal fun updatePages() {
+        _pages = (list.list.size / list.slots.size) + 1
     }
 }
