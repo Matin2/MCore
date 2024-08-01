@@ -21,7 +21,7 @@ abstract class Menu {
     open val filler: Filler = Filler()
     open val freezeBottomInv: Boolean = false
     open val preventCursorLoss: Boolean = true
-    open val handler by lazy { MenuHandler(this) }
+    internal open val handler by lazy { MenuHandler(this) }
 
     fun open() {
         Core.scheduleTask(true) {
