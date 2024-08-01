@@ -1,10 +1,7 @@
 package me.matin.core.managers.menu.handlers
 
 import me.matin.core.Core
-import me.matin.core.managers.menu.items.button.ButtonManager
-import me.matin.core.managers.menu.items.other.Filler
 import me.matin.core.managers.menu.items.other.MenuList
-import me.matin.core.managers.menu.items.slot.SlotManager
 import me.matin.core.managers.menu.menus.ListMenu
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryInteractEvent
@@ -13,9 +10,6 @@ import org.bukkit.event.inventory.InventoryInteractEvent
 class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
 
     private lateinit var fillerSlots: Set<Int>
-    private val buttonManager: ButtonManager = ButtonManager()
-    private val slotManager: SlotManager = SlotManager()
-    private val fillerManager: Filler.Manager = Filler.Manager()
     private var listManager = MenuList.Manager<T>()
     var pages: Int = 0
     var page: Int = menu.page
