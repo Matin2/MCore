@@ -1,7 +1,6 @@
 package me.matin.core.managers.menu.handlers
 
 import me.matin.core.Core
-import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.items.other.Filler
@@ -15,7 +14,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryInteractEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
-import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
 
 @Suppress("unused")
@@ -29,7 +27,6 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
 
     open fun open() {
         createInventory()
-        processItems()
         updateItems(true, (0..<inventory.size).toMutableSet())
         var open = false
         Core.scheduleTask {
@@ -83,22 +80,8 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
         }
     }
 
-    private fun processItems() {
-        this::class.members.filter { it.hasAnnotation<MenuItem>() && it.parameters.size == 1 }.forEach { member ->
-            when (val result = member.call(this)) {
-                is Button -> buttonManager.buttons.add(result)
-                is Slot -> slotManager.slots.add(result)
-                is Iterable<*> -> {
-                    result.forEach {
-                        when (it) {
-                            is Button -> buttonManager.buttons.add(it)
-                            is Slot -> slotManager.slots.add(it)
-                        }
-                    }
-                }
-            }
-        }
-    }
+    fun addButton(button: Button) = buttonManager.buttons.add(button)
+    fun addSlot(slot: Slot) = slotManager.slots.add(slot)
 
     override fun getInventory(): Inventory {
         return inventory
