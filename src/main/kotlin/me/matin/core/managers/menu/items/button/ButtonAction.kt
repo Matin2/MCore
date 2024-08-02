@@ -1,89 +1,56 @@
 package me.matin.core.managers.menu.items.button
 
+import me.matin.core.managers.menu.items.button.ButtonAction.CLICK.NORMAL
+import me.matin.core.managers.menu.items.button.ButtonAction.CLICK.SHIFT
 import org.bukkit.event.inventory.ClickType
+import org.jetbrains.annotations.Range
 
 @Suppress("unused", "ClassName")
 sealed class ButtonAction {
 
     sealed class CLICK: ButtonAction() {
 
-        sealed class NORMAL: CLICK() {
+        sealed class NORMAL: CLICK()
 
-            data object LEFT: NORMAL()
-            data object RIGHT: NORMAL()
-        }
-
-        sealed class SHIFT: CLICK() {
-
-            data object LEFT: SHIFT() {
-
-                override fun toString(): String = "SHIFT_LEFT"
-            }
-
-            data object RIGHT: SHIFT() {
-
-                override fun toString(): String = "SHIFT_RIGHT"
-            }
-        }
-
-        data object MIDDLE: CLICK()
-
-        data object DOUBLE: CLICK()
+        sealed class SHIFT: CLICK()
     }
 
-    sealed class NUMBER_KEY: ButtonAction() {
+    sealed class DROP_KEY: ButtonAction()
 
-        data object KEY_1: NUMBER_KEY()
-        data object KEY_2: NUMBER_KEY()
-        data object KEY_3: NUMBER_KEY()
-        data object KEY_4: NUMBER_KEY()
-        data object KEY_5: NUMBER_KEY()
-        data object KEY_6: NUMBER_KEY()
-        data object KEY_7: NUMBER_KEY()
-        data object KEY_8: NUMBER_KEY()
-        data object KEY_9: NUMBER_KEY()
+    data object LEFT_CLICK: NORMAL()
+    data object RIGHT_CLICK: NORMAL()
+
+    data object SHIFT_LEFT_CLICK: SHIFT()
+    data object SHIFT_RIGHT_CLICK: SHIFT()
+
+    data object MIDDLE_CLICK: CLICK()
+    data object DOUBLE_CLICK: CLICK()
+
+    data object NUMBER_KEY: ButtonAction() {
+
+        internal var theKey: Int = 0
+        val key: @Range(from = 1, to = 9) Int get() = theKey
     }
 
     data object SWAP_OFFHAND: ButtonAction()
 
-    sealed class DROP_KEY: ButtonAction() {
+    data object DROP: DROP_KEY()
 
-        data object NORMAL: DROP_KEY() {
-
-            override fun toString(): String = "DROP"
-        }
-
-        data object WITH_CTRL_KEY: DROP_KEY() {
-
-            override fun toString(): String = "CTRL_DROP"
-        }
-    }
+    data object CTRL_DROP: DROP_KEY()
 
     companion object {
 
-        operator fun get(click: ClickType, hotbar: Int?): ButtonAction? = when (click) {
-            ClickType.LEFT -> CLICK.NORMAL.LEFT
-            ClickType.SHIFT_LEFT -> CLICK.SHIFT.LEFT
-            ClickType.RIGHT -> CLICK.NORMAL.RIGHT
-            ClickType.SHIFT_RIGHT -> CLICK.SHIFT.LEFT
-            ClickType.MIDDLE -> CLICK.MIDDLE
-            ClickType.DOUBLE_CLICK -> CLICK.DOUBLE
-            ClickType.DROP -> DROP_KEY.NORMAL
-            ClickType.CONTROL_DROP -> DROP_KEY.WITH_CTRL_KEY
+        operator fun get(click: ClickType, hotbar: Int): ButtonAction? = when (click) {
+            ClickType.LEFT -> LEFT_CLICK
+            ClickType.RIGHT -> RIGHT_CLICK
+            ClickType.SHIFT_LEFT -> SHIFT_LEFT_CLICK
+            ClickType.SHIFT_RIGHT -> SHIFT_RIGHT_CLICK
+            ClickType.MIDDLE -> MIDDLE_CLICK
+            ClickType.DOUBLE_CLICK -> DOUBLE_CLICK
+            ClickType.DROP -> DROP
+            ClickType.CONTROL_DROP -> CTRL_DROP
             ClickType.SWAP_OFFHAND -> SWAP_OFFHAND
-            ClickType.NUMBER_KEY -> when (hotbar) {
-                0 -> NUMBER_KEY.KEY_1
-                1 -> NUMBER_KEY.KEY_2
-                2 -> NUMBER_KEY.KEY_3
-                3 -> NUMBER_KEY.KEY_4
-                4 -> NUMBER_KEY.KEY_5
-                5 -> NUMBER_KEY.KEY_6
-                6 -> NUMBER_KEY.KEY_7
-                7 -> NUMBER_KEY.KEY_8
-                8 -> NUMBER_KEY.KEY_9
-                else -> null
-            }
-
+            ClickType.NUMBER_KEY -> NUMBER_KEY.apply { theKey = (hotbar + 1) }
             else -> null
         }
     }
