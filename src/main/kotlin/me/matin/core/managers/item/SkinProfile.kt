@@ -17,6 +17,10 @@ import java.util.*
 @Suppress("unused")
 object SkinProfile {
 
+    /**
+     * @param player Player witch you want the profile of.
+     * @return [PlayerProfile] of the player with SkinsRestorer support.
+     */
     operator fun get(player: OfflinePlayer): PlayerProfile {
         val skinsRestorer = Core.skinsRestorer ?: return player.playerProfile
         val skin = runCatching {
@@ -25,7 +29,13 @@ object SkinProfile {
         return get(PropertyUtils.getSkinTextureUrl(skin)) ?: player.playerProfile
     }
 
-    operator fun get(value: String, base64: Boolean = false): PlayerProfile {
+    /**
+     * @param value URL or Base64 of the skin witch the profile is created for.
+     * @param base64 (Optional) Whether [value] is Base64 or URL.
+     * @return [PlayerProfile] from the given value or `null` if value is
+     *    invalid.
+     */
+    operator fun get(value: String, base64: Boolean = false): PlayerProfile? {
         val stringURL = if (base64) base64toURL(value) else value
         val url = runCatching { URI(stringURL).toURL() }.getOrNull() ?: return null
         return createProfile(url)
@@ -43,6 +53,10 @@ object SkinProfile {
 
         HeadDatabase, HeadDB;
 
+        /**
+         * @param id Head id witch the profile is created for.
+         * @return [PlayerProfile] from the given head id or `null` if not found.
+         */
         operator fun get(id: Int): PlayerProfile? {
             when (this) {
                 HeadDatabase -> Core.headDatabase?.apply {
