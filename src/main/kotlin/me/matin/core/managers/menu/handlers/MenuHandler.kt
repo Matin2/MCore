@@ -33,7 +33,7 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
             menu.player.openInventory(inventory)
             open = true
         }
-        while (!open) Thread.sleep(10)
+        while (!open) runCatching { Thread.sleep(10) }.onFailure { return }
         scheduler.onOpen()
     }
 
