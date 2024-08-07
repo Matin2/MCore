@@ -13,6 +13,17 @@ import org.bukkit.entity.Player
 import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
 
+/**
+ * Class for creating menus.
+ *
+ * @param title Title of the menu.
+ * @property type Type of the menu.
+ * @property filler (Optional) Filler of the empty slots in the menu.
+ * @property freezeBottomInv (Optional) Whether to freeze the
+ *    bottom(player) inventory or not.
+ * @property preventCursorLoss (Optional) Whether to prevent deletion of
+ *    the item on the cursor or not.
+ */
 @Suppress("unused")
 open class Menu(
     title: Component,
@@ -23,7 +34,11 @@ open class Menu(
 ) {
 
     private lateinit var _player: Player
+
+    /** The player witch the menu has opened for. */
     val player: Player get() = _player
+
+    /** Get or change the title of the menu. */
     var title: Component = title
         set(value) {
             field = value
@@ -31,6 +46,11 @@ open class Menu(
         }
     internal open val handler by lazy { MenuHandler(this) }
 
+    /**
+     * Opens the menu for the selected player.
+     *
+     * @param player Selected player.
+     */
     fun open(player: Player) {
         _player = player
         Core.scheduleTask(true) {
@@ -39,8 +59,17 @@ open class Menu(
         }
     }
 
+    /** Closes the menu. */
     fun close() = handler.close()
 
+    /**
+     * Schedules a task to run while the menu is open.
+     *
+     * @param async Whether to run the task async or not.
+     * @param delay The task will run after this duration has passed.
+     * @param interval The task will be repeated by this interval.
+     * @param task The task to be scheduled.
+     */
     fun scheduleTask(
         async: Boolean = false,
         delay: Duration = Duration.ZERO,
@@ -48,6 +77,7 @@ open class Menu(
         task: () -> Unit
     ) = handler.scheduleTask(async, delay, interval, task)
 
+    /** Updates all the items on the menu in case they have changed. */
     fun updateItems() = handler.updateItems(false, (0..<handler.inventory.size).toMutableSet())
 
     private fun processItems() {
