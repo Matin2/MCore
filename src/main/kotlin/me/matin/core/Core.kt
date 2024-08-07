@@ -11,6 +11,7 @@ import me.matin.core.managers.TextManager.toReadableString
 import me.matin.core.managers.dependency.DependencyListener
 import me.matin.core.managers.dependency.PluginManager
 import me.matin.core.managers.menu.MenuListener
+import me.matin.core.managers.PacketManager
 import net.skinsrestorer.api.SkinsRestorer
 import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit
@@ -39,6 +40,9 @@ class Core: JavaPlugin() {
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
 
         @JvmStatic
+        val packetInvTitle = PacketManager.InventoryTitle()
+
+        @JvmStatic
         fun scheduleTask(
             async: Boolean = false,
             delay: Duration = Duration.ZERO,
@@ -50,7 +54,10 @@ class Core: JavaPlugin() {
     override fun onEnable() = measureTime {
         instance = this
         CommandAPI.onEnable()
-        PacketEvents.getAPI().init()
+        PacketEvents.getAPI().apply {
+            init()
+            eventManager.registerListeners(packetInvTitle)
+        }
         val softDepends = setOf("SkinsRestorer", "HeadDatabase", "HeadDB")
         checkDepends(softDepends)
         monitorDepends(softDepends)
