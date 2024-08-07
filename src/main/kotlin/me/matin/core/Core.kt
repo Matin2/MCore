@@ -62,8 +62,10 @@ class Core: JavaPlugin() {
         checkDepends(softDepends)
         monitorDepends(softDepends)
         setPlayerTrackingRange(corePlayerTrackingRange)
-        server.pluginManager.registerEvents(MenuListener, this)
-        server.pluginManager.registerEvents(DependencyListener, this)
+        server.pluginManager.apply {
+            registerEvents(MenuListener, instance)
+            registerEvents(DependencyListener, instance)
+        }
     }.let { logger.info("Plugin enabled in ${it.toReadableString()}.") }
 
     override fun onLoad() = measureTime {
