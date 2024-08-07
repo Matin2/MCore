@@ -15,7 +15,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 @Suppress("unused")
-object Head {
+object SkinProfile {
 
     operator fun get(player: OfflinePlayer): PlayerProfile {
         Core.skinsRestorer?.apply {
@@ -49,13 +49,13 @@ object Head {
             when (this) {
                 HeadDatabase -> Core.headDatabase?.apply {
                     val base64 = getBase64(id.toString()).takeIf { isHead(id.toString()) } ?: return null
-                    return Head[base64, true]
+                    return SkinProfile[base64, true]
                 }
 
                 HeadDB -> {
                     if (!Core.headDB) return null
                     val base64 = HeadAPI.getHeadById(id).takeIf { it.isPresent }?.get()?.texture ?: return null
-                    return Head[base64, true]
+                    return SkinProfile[base64, true]
                 }
             }
             return null
