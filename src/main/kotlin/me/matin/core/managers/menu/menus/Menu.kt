@@ -1,6 +1,7 @@
 package me.matin.core.managers.menu.menus
 
 import me.matin.core.Core
+import me.matin.core.managers.PacketManager
 import me.matin.core.managers.menu.MenuType
 import me.matin.core.managers.menu.handlers.MenuHandler
 import me.matin.core.managers.menu.items.MenuItem
@@ -13,17 +14,25 @@ import kotlin.reflect.full.hasAnnotation
 import kotlin.time.Duration
 
 @Suppress("unused")
-abstract class Menu {
+open class Menu(
+    title: Component,
+    val type: MenuType,
+    val filler: Filler = Filler(),
+    val freezeBottomInv: Boolean = false,
+    val preventCursorLoss: Boolean = true
+) {
 
-    abstract val player: Player
-    abstract val title: Component
-    abstract val type: MenuType
-    open val filler: Filler = Filler()
-    open val freezeBottomInv: Boolean = false
-    open val preventCursorLoss: Boolean = true
+    private lateinit var _player: Player
+    val player: Player get() = _player
+    var title: Component = title
+        set(value) {
+            field = value
+            PacketManager.changeInvTitle(player, value)
+        }
     internal open val handler by lazy { MenuHandler(this) }
 
-    fun open() {
+    fun open(player: Player) {
+        _player = player
         Core.scheduleTask(true) {
             processItems()
             handler.open()
