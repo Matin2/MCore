@@ -10,6 +10,9 @@ import org.bukkit.inventory.ItemStack
 @Suppress("unused")
 object ItemManager {
 
+    val ItemStack?.isAir get() = this?.takeUnless { it.amount == 0 || it.type == Material.AIR } == null
+    val air get() = ItemStack(Material.AIR)
+
     @JvmStatic
     fun drop(item: ItemStack, x: Int, y: Int, z: Int, world: World, blockFace: BlockFace) {
         if (item.type == Material.AIR || item.amount == 0) return
