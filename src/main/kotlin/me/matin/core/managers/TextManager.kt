@@ -1,5 +1,8 @@
 package me.matin.core.managers
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -100,4 +103,16 @@ object TextManager {
         val seconds = this.toDouble(DurationUnit.SECONDS)
         return (seconds * 20).roundToLong()
     }
+
+    /**
+     * Converts the given string to a [Component]
+     *
+     * @param color (Optional) Color of the component.
+     * @param decorations (Optional) Decorations of the component.
+     * @return The converted component.
+     * @receiver The string to convert.
+     */
+    @JvmStatic
+    fun <T: Any> T.toComponent(color: TextColor? = null, vararg decorations: TextDecoration = arrayOf()): Component =
+        Component.text(this.toString(), color, *decorations)
 }
