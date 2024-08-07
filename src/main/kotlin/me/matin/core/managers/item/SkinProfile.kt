@@ -18,18 +18,16 @@ import java.util.*
 object SkinProfile {
 
     operator fun get(player: OfflinePlayer): PlayerProfile {
-        Core.skinsRestorer?.apply {
-            val skin = playerStorage.getSkinForPlayer(player.uniqueId, player.name).takeIf { it.isPresent }?.get()
-                ?: return player.playerProfile
-            val stringURL = PropertyUtils.getSkinTextureUrl(skin)
-            return get(stringURL)
-        }
-        return player.playerProfile
+        val skinsRestorer = Core.skinsRestorer ?: return player.playerProfile
+        val skin = runCatching {
+            skinsRestorer.playerStorage.getSkinForPlayer(player.uniqueId, player.name).takeIf { it.isPresent }?.get()
+        }.getOrNull() ?: return player.playerProfile
+        return get(PropertyUtils.getSkinTextureUrl(skin)) ?: player.playerProfile
     }
 
     operator fun get(value: String, base64: Boolean = false): PlayerProfile {
         val stringURL = if (base64) base64toURL(value) else value
-        val url = URI(stringURL).toURL()
+        val url = runCatching { URI(stringURL).toURL() }.getOrNull() ?: return null
         return createProfile(url)
     }
 
