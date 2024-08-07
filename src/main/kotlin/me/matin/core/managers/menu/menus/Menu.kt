@@ -17,6 +17,7 @@ import kotlin.time.Duration
  * Class for creating menus.
  *
  * @param title Title of the menu.
+ * @property player Player witch the menu opens for.
  * @property type Type of the menu.
  * @property filler (Optional) Filler of the empty slots in the menu.
  * @property freezeBottomInv (Optional) Whether to freeze the
@@ -26,17 +27,13 @@ import kotlin.time.Duration
  */
 @Suppress("unused")
 open class Menu(
+    open val player: Player,
     title: Component,
     val type: MenuType,
     val filler: Filler = Filler(),
     val freezeBottomInv: Boolean = false,
     val preventCursorLoss: Boolean = true
 ) {
-
-    private lateinit var _player: Player
-
-    /** The player witch the menu has opened for. */
-    val player: Player get() = _player
 
     /** Get or change the title of the menu. */
     var title: Component = title
@@ -46,20 +43,15 @@ open class Menu(
         }
     internal open val handler by lazy { MenuHandler(this) }
 
-    /**
-     * Opens the menu for the selected player.
-     *
-     * @param player Selected player.
-     */
-    fun open(player: Player) {
-        _player = player
+    /** Opens the menu for the player. */
+    fun open() {
         Core.scheduleTask(true) {
             processItems()
             handler.open()
         }
     }
 
-    /** Closes the menu. */
+    /** Closes the menu for the player. */
     fun close() = handler.close()
 
     /**

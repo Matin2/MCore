@@ -5,6 +5,7 @@ import me.matin.core.managers.menu.handlers.ListMenuHandler
 import me.matin.core.managers.menu.items.other.Filler
 import me.matin.core.managers.menu.items.other.MenuList
 import net.kyori.adventure.text.Component
+import org.bukkit.entity.Player
 import kotlin.properties.Delegates
 
 /**
@@ -19,10 +20,12 @@ import kotlin.properties.Delegates
  *    inventory or not.
  * @param preventCursorLoss (Optional) Whether to prevent deletion of the
  *    item on the cursor or not.
+ * @property player Player witch the menu opens for.
  * @property list List of the menu.
  */
 @Suppress("MemberVisibilityCanBePrivate")
 open class ListMenu<T>(
+    override val player: Player,
     title: Component,
     type: MenuType,
     val list: MenuList<T>,
@@ -30,7 +33,7 @@ open class ListMenu<T>(
     filler: Filler = Filler(),
     freezeBottomInv: Boolean = false,
     preventCursorLoss: Boolean = true
-): Menu(title, type, filler, freezeBottomInv, preventCursorLoss) {
+): Menu(player, title, type, filler, freezeBottomInv, preventCursorLoss) {
 
     override val handler: ListMenuHandler<T> by lazy { ListMenuHandler(this) }
     private var _pages: Int = 0
