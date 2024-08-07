@@ -1,39 +1,31 @@
 package me.matin.core.managers.menu.menus
 
-import me.matin.core.managers.menu.MenuType
 import me.matin.core.managers.menu.handlers.ListMenuHandler
-import me.matin.core.managers.menu.items.other.Filler
 import me.matin.core.managers.menu.items.other.MenuList
 import net.kyori.adventure.text.Component
-import org.bukkit.entity.Player
 import kotlin.properties.Delegates
 
 /**
  * Class for creating paged menus containing a list.
  *
+ * @param T Type of the list of the menu.
  * @param title Title of the menu.
- * @param type Type of the menu.
  * @param page (Optional) Page that the menu opens on.
- * @param filler (Optional) Filler of the empty slots in the menu.
  * @param freezeBottomInv (Optional) Whether to freeze the bottom(player)
  *    inventory or not.
  * @param preventCursorLoss (Optional) Whether to prevent deletion of the
  *    item on the cursor or not.
- * @property player Player witch the menu opens for.
- * @property list List of the menu.
  */
 @Suppress("MemberVisibilityCanBePrivate")
-open class ListMenu<T>(
-    override val player: Player,
+abstract class ListMenu<T>(
     title: Component,
-    type: MenuType,
-    val list: MenuList<T>,
     page: Int = 0,
-    filler: Filler = Filler(),
     freezeBottomInv: Boolean = false,
     preventCursorLoss: Boolean = true
-): Menu(player, title, type, filler, freezeBottomInv, preventCursorLoss) {
+): Menu(title, freezeBottomInv, preventCursorLoss) {
 
+    /** List of the menu. */
+    abstract val list: MenuList<T>
     override val handler: ListMenuHandler<T> by lazy { ListMenuHandler(this) }
     private var _pages: Int = 0
 

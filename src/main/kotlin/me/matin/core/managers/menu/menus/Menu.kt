@@ -17,25 +17,28 @@ import kotlin.time.Duration
  * Class for creating menus.
  *
  * @param title Title of the menu.
- * @property player Player witch the menu opens for.
- * @property type Type of the menu.
- * @property filler (Optional) Filler of the empty slots in the menu.
  * @property freezeBottomInv (Optional) Whether to freeze the
  *    bottom(player) inventory or not.
  * @property preventCursorLoss (Optional) Whether to prevent deletion of
  *    the item on the cursor or not.
  */
 @Suppress("unused")
-open class Menu(
-    open val player: Player,
+abstract class Menu(
     title: Component,
-    val type: MenuType,
-    val filler: Filler = Filler(),
     val freezeBottomInv: Boolean = false,
     val preventCursorLoss: Boolean = true
 ) {
 
-    /** Get or change the title of the menu. */
+    /** Player that the menu opens for. */
+    abstract val player: Player
+
+    /** Type of the menu. */
+    abstract val type: MenuType
+
+    /** Filler witch the menu's empty slots are filled with. */
+    open val filler: Filler = Filler()
+
+    /** Title of the menu. */
     var title: Component = title
         set(value) {
             field = value
