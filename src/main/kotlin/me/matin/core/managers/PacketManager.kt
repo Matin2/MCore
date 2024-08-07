@@ -58,18 +58,17 @@ object PacketManager {
         Core.scheduleTask(true) {
             if (model < 0) playTotem(player).also { return@scheduleTask }
             val oldItem = player.inventory.itemInOffHand
-            ItemStack(Material.TOTEM_OF_UNDYING).also {
-                it.itemMeta.also { meta ->
-                    meta.setCustomModelData(model)
-                    it.setItemMeta(meta)
-                }
-                var isItemSet = false
-                Core.scheduleTask {
-                    player.inventory.setItem(40, it)
-                    isItemSet = true
-                }
-                while (!isItemSet) runCatching { Thread.sleep(10) }
+            val item = ItemStack(Material.TOTEM_OF_UNDYING)
+            item.itemMeta.also { meta ->
+                meta.setCustomModelData(model)
+                item.itemMeta = meta
             }
+            var isItemSet = false
+            Core.scheduleTask {
+                player.inventory.setItem(40, item)
+                isItemSet = true
+            }
+            while (!isItemSet) runCatching { Thread.sleep(10) }.onFailure { return@scheduleTask }
             playTotem(player)
             Core.scheduleTask {
                 player.inventory.setItem(40, oldItem)
@@ -90,7 +89,7 @@ object PacketManager {
      */
     @JvmStatic
     fun changeInvTitle(player: Player, title: Component) {
-        val (containerId, type) = Core.packetInventoryTitle.idType[player] ?: return
+        val (containerId, type) = Core.packetInvTitle.idType[player] ?: return
         val wrapper = WrapperPlayServerOpenWindow(containerId, type, title)
         PacketEvents.getAPI().playerManager.sendPacket(player, wrapper)
     }
