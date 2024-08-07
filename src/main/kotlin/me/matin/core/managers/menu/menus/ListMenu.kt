@@ -11,7 +11,6 @@ import kotlin.properties.Delegates
 /**
  * Class for creating paged menus containing a list.
  *
- * @param T Type of the list.
  * @param title Title of the menu.
  * @param type Type of the menu.
  * @param page (Optional) Page that the menu opens on.
