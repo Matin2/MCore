@@ -41,7 +41,7 @@ object SkinProfile {
         return profile
     }
 
-    enum class DataBase {
+    enum class Head {
 
         HeadDatabase, HeadDB;
 
