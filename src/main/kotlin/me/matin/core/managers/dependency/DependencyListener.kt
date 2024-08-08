@@ -13,23 +13,21 @@ object DependencyListener: Listener {
     val monitoredPlugins: MutableMap<Map<String, String>, Plugin.(Set<String>, Set<String>, Set<String>) -> Unit> =
         mutableMapOf()
 
-    private fun monitor() = Core.scheduleTask(true) {
-        monitoredPlugins.forEach { (dependencies, action) ->
-            PluginManager.checkState(dependencies) { installed, missing, wrongVersion ->
-                Core.scheduleTask {
-                    Core.instance.action(installed, missing, wrongVersion)
+    private fun monitor() {
+        Core.scheduleTask(true) {
+            monitoredPlugins.forEach { (dependencies, action) ->
+                PluginManager.checkState(dependencies) { installed, missing, wrongVersion ->
+                    Core.scheduleTask {
+                        Core.instance.action(installed, missing, wrongVersion)
+                    }
                 }
             }
         }
     }
 
     @EventHandler
-    fun onPluginDisable(event: PluginDisableEvent) {
-        monitor()
-    }
+    fun onPluginDisable(event: PluginDisableEvent) = monitor()
 
     @EventHandler
-    fun onPluginEnable(event: PluginEnableEvent) {
-        monitor()
-    }
+    fun onPluginEnable(event: PluginEnableEvent) = monitor()
 }
