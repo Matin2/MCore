@@ -19,7 +19,7 @@ import kotlin.properties.Delegates
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class ListMenu<T>(
     title: Component,
-    page: Int = 0,
+    page: Int = 1,
     freezeBottomInv: Boolean = false,
     preventCursorLoss: Boolean = true
 ): Menu(title, freezeBottomInv, preventCursorLoss) {
@@ -27,7 +27,7 @@ abstract class ListMenu<T>(
     /** List of the menu. */
     abstract val list: MenuList<T>
     override val handler: ListMenuHandler<T> by lazy { ListMenuHandler(this) }
-    private var _pages: Int = 0
+    private var _pages: Int = 1
 
     /** Number of pages this menu has. */
     val pages get() = _pages
@@ -35,7 +35,7 @@ abstract class ListMenu<T>(
     /** Get or change the current page of the menu */
     var page: Int by Delegates.vetoable(page) { _, _, newValue ->
         updatePages()
-        if (newValue in 0..<pages) {
+        if (newValue in 1..pages) {
             handler.updatePage()
             true
         } else false
