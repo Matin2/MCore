@@ -105,12 +105,11 @@ object TextManager {
     }
 
     /**
-     * Converts the given string to a [Component]
+     * Returns a component representation of the object.
      *
      * @param color (Optional) Color of the component.
      * @param decorations (Optional) Decorations of the component.
-     * @return The converted component.
-     * @receiver The string to convert.
+     * @see toString
      */
     @JvmStatic
     fun <T: Any> T.toComponent(color: TextColor? = null, vararg decorations: TextDecoration = arrayOf()): Component =
