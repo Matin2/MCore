@@ -4,7 +4,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.jetbrains.annotations.Range
 
 @Suppress("unused")
-sealed class MenuType private constructor(val type: InventoryType?, open val rows: Int?) {
+sealed class MenuType(val type: InventoryType?, open val rows: Int?) {
 
     data class NORMAL(override val rows: @Range(from = 1, to = 6) Int): MenuType(null, rows)
     data object DISPENSER: MenuType(InventoryType.DISPENSER, null)
