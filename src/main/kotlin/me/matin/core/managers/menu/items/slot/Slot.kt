@@ -23,14 +23,14 @@ class Slot(
 ) {
 
     lateinit var inventory: Inventory
-    internal var mutableOldItem: ItemStack? = null
-    val oldItem: ItemStack? get() = mutableOldItem
+    private var _oldItem: ItemStack? = null
+    val oldItem: ItemStack? get() = _oldItem
     var item: ItemStack? = defaultItem
         set(value) {
-            mutableOldItem = field
-            field = value
-            val changeItem = value?.takeUnless { it.type == Material.AIR || it.amount == 0 } ?: display.toItem()
-            inventory.setItem(slot, changeItem)
+            _oldItem = field
+            field = value?.takeUnless { it.isEmpty }
+            value?.takeUnless { it.type == Material.AIR || it.amount == 0 } ?: display.toItem()
+            inventory.setItem(slot, field ?: display.toItem())
         }
 
     @Suppress("DEPRECATION", "MemberVisibilityCanBePrivate")
@@ -58,8 +58,39 @@ class Slot(
                 field = newValue
             }
 
-        private fun getCursor(cursor: ItemStack?): ItemStack? =
-            cursor?.takeUnless { it.type == Material.AIR || it.amount == 0 }
+        private fun getCursor(item: ItemStack?): ItemStack? = item?.takeUnless { it.isEmpty }
+    }
+
+    inner class ItemModifier {
+
+        fun place(place: SlotAction.PLACE, item: ItemStack): Int = when (place) {
+            SlotAction.PLACE_ALL, SlotAction.INVENTORY_PLACE -> {
+                this@Slot.item = this@Slot.item?.apply { amount += item.amount } ?: run { item }
+                0
+            }
+
+            SlotAction.PLACE_ONE -> {
+                this@Slot.item = this@Slot.item?.apply { amount++ } ?: run { item.apply { amount = 1 } }
+                item.amount--
+            }
+
+            SlotAction.PLACE_SOME -> {
+                val slotItem = this@Slot.item!!
+                val fillAmount = slotItem.itemMeta.maxStackSize - slotItem.amount
+                val leftover = item.amount - fillAmount
+                this@Slot.item = slotItem.apply { amount = slotItem.itemMeta.maxStackSize }
+                leftover
+            }
+        }
+
+        fun pickup(pickup: SlotAction.PICKUP): ItemStack = when (pickup) {
+            SlotAction.PICKUP_ALL, SlotAction.INVENTORY_PICKUP -> {
+                TODO()
+            }
+
+            SlotAction.PICKUP_HALF -> TODO()
+            SlotAction.PICKUP_ONE -> TODO()
+        }
     }
 }
 
