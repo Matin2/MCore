@@ -1,14 +1,13 @@
 package me.matin.core.managers.dependency
 
+import me.matin.core.managers.Extras.opt
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
+import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Suppress("UnstableApiUsage", "unused")
 object PluginManager {
-
-    @JvmStatic
-    operator fun get(pluginName: String): Plugin? =
-        Bukkit.getPluginManager().getPlugin(pluginName)?.takeIf { it.isEnabled }
 
     var Plugin.enabled: Boolean
         get() {
@@ -21,32 +20,49 @@ object PluginManager {
             }
         }
 
+    /**
+     * @param name Name of the plugin to get
+     * @return The [Plugin] with the given name or `null` if not found.
+     */
     @JvmStatic
-    fun isInstalled(pluginName: String): Boolean = get(pluginName) != null
+    operator fun get(name: String): Optional<Plugin> =
+        Bukkit.getPluginManager().getPlugin(name)?.takeIf { it.isEnabled }.opt
 
+    /**
+     * Checks the state of the given plugins.
+     *
+     * @param plugins Plugins to check.
+     * @param action Action to run after check. (Gives a set of installed and a
+     *    set of missing plugins.)
+     */
     @JvmStatic
-    fun areInstalled(pluginNames: Array<String>): Boolean = pluginNames.map { get(it) != null }.all { it }
-
-    @JvmStatic
-    fun checkState(dependencies: Set<String>, action: (installed: Set<String>, missing: Set<String>) -> Unit) {
-        val installed = dependencies.filter { isInstalled(it) }.toSet()
-        action(installed, dependencies - installed)
+    fun checkState(plugins: Set<String>, action: (installed: Set<String>, missing: Set<String>) -> Unit) {
+        val installed = plugins.filter { get(it).isPresent }.toSet()
+        action(installed, plugins - installed)
     }
 
+    /**
+     * Checks the state of the given plugins with version support.
+     *
+     * @param pluginsWithVersion Plugins to check with their valid versions.
+     * @param action Action to run after check. (Gives a set of installed, a
+     *    set of missing plugins and a set of plugins with wrong installed
+     *    version.)
+     */
     @JvmStatic
     fun checkState(
-        dependenciesWithVersion: Map<String, String>,
+        pluginsWithVersion: Map<String, String>,
         action: (installed: Set<String>, missing: Set<String>, wrongVersion: Set<String>) -> Unit
     ) {
         val installed = mutableSetOf<String>()
         val wrongVersion = mutableSetOf<String>()
-        dependenciesWithVersion.forEach { (name, versions) ->
-            get(name)?.run {
-                val isCorrectVersion = versions.takeIf { it.isNotBlank() }?.let { inVersions(it) } ?: true
+        pluginsWithVersion.forEach { (name, versions) ->
+            get(name).getOrNull()?.run {
+                val isCorrectVersion = versions.takeIf { it.isNotBlank() }?.let { inVersions(it) } != false
                 if (isCorrectVersion) installed.add(name) else wrongVersion.add(name)
             }
         }
-        action(installed, (dependenciesWithVersion.keys - installed) - wrongVersion, wrongVersion)
+        action(installed, (pluginsWithVersion.keys - installed) - wrongVersion, wrongVersion)
     }
 
     @JvmStatic
