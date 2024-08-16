@@ -70,7 +70,7 @@ class Core: JavaPlugin() {
         }
     }
 
-    class Depends(depends: Set<String>) {
+    internal class Depends(depends: Set<String>) {
 
         var skinsRestorer: SkinsRestorer? = null
         var headDatabase: HeadDatabaseAPI? = null
@@ -111,7 +111,7 @@ class Core: JavaPlugin() {
         lateinit var instance: Core
 
         @JvmStatic
-        lateinit var depends: Depends
+        internal lateinit var depends: Depends
 
         @JvmStatic
         var corePlayerTrackingRange: MutableMap<World, Int> = HashMap()
