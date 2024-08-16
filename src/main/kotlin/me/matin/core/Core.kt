@@ -33,7 +33,6 @@ class Core: JavaPlugin() {
         server.pluginManager.apply {
             registerEvents(MenuListener, instance)
             registerEvents(DependencyListener, instance)
-            registerEvents(TestListener, instance)
         }
     }.let { logger.info("Plugin enabled in ${it.text()}.") }
 
