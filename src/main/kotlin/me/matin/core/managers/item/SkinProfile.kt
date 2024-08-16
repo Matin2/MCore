@@ -22,7 +22,7 @@ object SkinProfile {
      * @return [PlayerProfile] of the player with SkinsRestorer support.
      */
     operator fun get(player: OfflinePlayer): PlayerProfile {
-        val skinsRestorer = Core.skinsRestorer ?: return player.playerProfile
+        val skinsRestorer = Core.depends.skinsRestorer ?: return player.playerProfile
         val skin = runCatching {
             skinsRestorer.playerStorage.getSkinForPlayer(player.uniqueId, player.name).takeIf { it.isPresent }?.get()
         }.getOrNull() ?: return player.playerProfile
@@ -59,13 +59,13 @@ object SkinProfile {
          */
         operator fun get(id: Int): PlayerProfile? {
             when (this) {
-                HeadDatabase -> Core.headDatabase?.apply {
+                HeadDatabase -> Core.depends.headDatabase?.apply {
                     val base64 = getBase64(id.toString()).takeIf { isHead(id.toString()) } ?: return null
                     return SkinProfile[base64, true]
                 }
 
                 HeadDB -> {
-                    if (!Core.headDB) return null
+                    if (!Core.depends.headDB) return null
                     val base64 = HeadAPI.getHeadById(id).takeIf { it.isPresent }?.get()?.texture ?: return null
                     return SkinProfile[base64, true]
                 }
