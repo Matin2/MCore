@@ -35,7 +35,7 @@ data class DisplayItem(
 ) {
 
     fun toItem(): ItemStack {
-        if (material == Material.AIR) return ItemStack(Material.AIR)
+        if (material == Material.AIR) return ItemStack.empty()
         val item = ItemStack(material)
         val meta = item.itemMeta!!
         meta.setMaxStackSize(99)
