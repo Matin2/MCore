@@ -22,8 +22,8 @@ dependencies {
     compileOnly("net.skinsrestorer:skinsrestorer-api:15.4.0")
     compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
     compileOnly("com.github.TheSilentPro:HeadDB:5.0.0-rc.11")
-    implementation("de.tr7zw:item-nbt-api:2.13.1")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.5.1")
+    implementation("de.tr7zw:item-nbt-api:2.13.2")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.5.3")
     implementation("com.github.retrooper:packetevents-spigot:2.3.1-SNAPSHOT")
 
     implementation(kotlin("stdlib"))
