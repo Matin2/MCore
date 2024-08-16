@@ -1,6 +1,7 @@
 package me.matin.core.managers.item
 
 import me.matin.core.managers.TaskManager.schedule
+import me.matin.core.managers.item.ItemManager.checkAir
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -13,8 +14,8 @@ enum class ModifyItem {
     AMOUNT,
     DURABILITY;
 
-        item.takeUnless { it.type == Material.AIR }?.apply {
     private fun modifyAmount(item: ItemStack, modification: ItemModifyType, value: Int) = schedule(true) {
+        item.checkAir()?.apply {
             amount = min(
                 when (modification) {
                     ItemModifyType.SET -> value
