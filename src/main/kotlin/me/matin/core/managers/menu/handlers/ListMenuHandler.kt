@@ -1,6 +1,6 @@
 package me.matin.core.managers.menu.handlers
 
-import me.matin.core.Core
+import me.matin.core.managers.TaskManager.schedule
 import me.matin.core.managers.menu.items.other.MenuList
 import me.matin.core.managers.menu.menus.ListMenu
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -23,7 +23,7 @@ class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
     }
 
     fun updatePage() {
-        Core.scheduleTask(true) {
+        schedule(true) {
             listManager.manageDisplay(inventory, menu.list, menu.page)
             val fillerSlots = (0..<inventory.size).toMutableSet()
             fillerSlots.removeAll(menu.list.slots)

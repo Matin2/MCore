@@ -1,6 +1,6 @@
 package me.matin.core.managers.menu.handlers
 
-import me.matin.core.Core
+import me.matin.core.managers.TaskManager.schedule
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.items.other.Filler
@@ -29,7 +29,7 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
         createInventory()
         updateItems(true, (0..<inventory.size).toMutableSet())
         var open = false
-        Core.scheduleTask {
+        schedule {
             menu.player.openInventory(inventory)
             open = true
         }
@@ -45,12 +45,12 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
 
     fun close(closeInventory: Boolean = true) {
         if (closeInventory) menu.player.closeInventory()
-        Core.scheduleTask(true) {
+        schedule(true) {
             scheduler.onClose()
             slotManager.slots.forEach { slot ->
                 val item = slot.item ?: return@forEach
                 slot.itemDeleteAction?.also { action ->
-                    Core.scheduleTask { action(item, ItemDeleteReason.MENU_CLOSED) }
+                    schedule { action(item, ItemDeleteReason.MENU_CLOSED) }
                 } ?: run { menu.player.inventory.addItem(item) }
             }
         }

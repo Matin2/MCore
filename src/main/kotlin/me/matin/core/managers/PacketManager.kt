@@ -9,6 +9,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
 import me.matin.core.Core
+import me.matin.core.managers.TaskManager.schedule
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -27,7 +28,7 @@ object PacketManager {
      */
     @JvmStatic
     fun swingHand(player: Player, mainHand: Boolean) {
-        Core.scheduleTask(true) {
+        schedule(true) {
             val animationType =
                 if (mainHand) WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM
                 else WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_OFF_HAND
@@ -55,8 +56,8 @@ object PacketManager {
      */
     @JvmStatic
     fun showTotem(player: Player, model: Int = -1) {
-        Core.scheduleTask(true) {
-            if (model < 0) playTotem(player).also { return@scheduleTask }
+        schedule(true) {
+            if (model < 0) playTotem(player).also { return@schedule }
             val oldItem = player.inventory.itemInOffHand
             val item = ItemStack(Material.TOTEM_OF_UNDYING)
             item.itemMeta.also { meta ->
@@ -64,13 +65,13 @@ object PacketManager {
                 item.itemMeta = meta
             }
             var isItemSet = false
-            Core.scheduleTask {
+            schedule {
                 player.inventory.setItem(40, item)
                 isItemSet = true
             }
-            while (!isItemSet) runCatching { Thread.sleep(10) }.onFailure { return@scheduleTask }
+            while (!isItemSet) runCatching { Thread.sleep(10) }.onFailure { return@schedule }
             playTotem(player)
-            Core.scheduleTask {
+            schedule {
                 player.inventory.setItem(40, oldItem)
             }
         }

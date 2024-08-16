@@ -1,6 +1,7 @@
 package me.matin.core.managers.dependency
 
 import me.matin.core.Core
+import me.matin.core.managers.TaskManager.schedule
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
@@ -14,10 +15,10 @@ object DependencyListener: Listener {
         mutableMapOf()
 
     private fun monitor() {
-        Core.scheduleTask(true) {
+        schedule(true) {
             monitoredPlugins.forEach { (dependencies, action) ->
                 PluginManager.checkState(dependencies) { installed, missing, wrongVersion ->
-                    Core.scheduleTask {
+                    schedule {
                         Core.instance.action(installed, missing, wrongVersion)
                     }
                 }

@@ -1,7 +1,7 @@
 package me.matin.core.managers.menu.menus
 
-import me.matin.core.Core
 import me.matin.core.managers.PacketManager
+import me.matin.core.managers.TaskManager.schedule
 import me.matin.core.managers.menu.MenuType
 import me.matin.core.managers.menu.handlers.MenuHandler
 import me.matin.core.managers.menu.items.MenuItem
@@ -48,7 +48,7 @@ abstract class Menu(
 
     /** Opens the menu for the player. */
     fun open() {
-        Core.scheduleTask(true) {
+        schedule(true) {
             processItems()
             handler.open()
         }

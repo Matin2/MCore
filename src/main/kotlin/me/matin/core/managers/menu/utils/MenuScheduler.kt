@@ -1,6 +1,7 @@
 package me.matin.core.managers.menu.utils
 
-import me.matin.core.Core
+import me.matin.core.managers.TaskManager
+import me.matin.core.managers.TaskManager.schedule
 import org.bukkit.scheduler.BukkitTask
 import kotlin.time.Duration
 
@@ -32,7 +33,7 @@ class MenuScheduler {
             tasksToRun.add(Triple(async, delay to interval, task))
             return
         }
-        val bukkitTask = Core.scheduleTask(async, delay, interval, task)
+        val bukkitTask = TaskManager.schedule(async, delay, interval, task)
         runningTasks.add(bukkitTask)
     }
 }
