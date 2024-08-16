@@ -1,7 +1,6 @@
 package me.matin.core.managers.item
 
 import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -10,11 +9,8 @@ import java.util.*
 @Suppress("unused")
 object ItemManager {
 
-    val ItemStack?.isAir get() = this?.takeUnless { it.amount == 0 || it.type == Material.AIR } == null
-    val air get() = ItemStack(Material.AIR)
-
-
     @JvmStatic
+    fun ItemStack?.checkAir(): ItemStack? = this?.takeUnless { it.isEmpty }
 
     @JvmStatic
     fun drop(item: ItemStack, location: Location, blockFace: Optional<BlockFace> = Optional.empty()) {
