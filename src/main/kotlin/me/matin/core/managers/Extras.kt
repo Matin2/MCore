@@ -1,5 +1,9 @@
 package me.matin.core.managers
 
+import me.matin.core.Core
+import org.bukkit.Bukkit
+import org.bukkit.plugin.Plugin
+import org.bukkit.scheduler.BukkitTask
 import java.util.*
 import kotlin.math.roundToLong
 import kotlin.time.Duration
@@ -38,6 +42,35 @@ object Extras {
             if (toString().isBlank()) append("0ms")
         }
     }.removeSuffix(separator)
+fun schedule(
+    plugin: Plugin,
+    async: Boolean = false,
+    delay: Duration = Duration.ZERO,
+    interval: Duration = Duration.ZERO,
+    task: () -> Unit
+): BukkitTask = Bukkit.getScheduler().run {
+    when (async) {
+        true -> when {
+            interval != Duration.ZERO -> runTaskTimerAsynchronously(plugin, task, delay.ticks, interval.ticks)
+            delay != Duration.ZERO -> runTaskLaterAsynchronously(plugin, task, delay.ticks)
+            else -> runTaskAsynchronously(plugin, task)
+        }
+
+        false -> when {
+            interval != Duration.ZERO -> runTaskTimer(plugin, task, delay.ticks, interval.ticks)
+            delay != Duration.ZERO -> runTaskLater(plugin, task, delay.ticks)
+            else -> runTask(plugin, task)
+        }
+    }
+}
+
+internal fun schedule(
+    async: Boolean = false,
+    delay: Duration = Duration.ZERO,
+    interval: Duration = Duration.ZERO,
+    task: () -> Unit
+): BukkitTask = schedule(Core.instance, async, delay, interval, task)
+
 
     private fun <T: Number> StringBuilder.addTime(
         time: T,
