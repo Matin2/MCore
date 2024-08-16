@@ -3,9 +3,6 @@ package me.matin.core.managers
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
-import kotlin.math.roundToLong
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
 
 @Suppress("unused")
 object TextManager {
@@ -65,43 +62,6 @@ object TextManager {
                 else append(separator + text)
             }
         }
-    }
-
-    @JvmStatic
-    fun Duration.toReadableString(
-        separator: String = " ",
-        makePlural: Boolean = false,
-        daySuffix: String = "d",
-        hourSuffix: String = "h",
-        minuteSuffix: String = "m",
-        secondSuffix: String = "s",
-        millisecondSuffix: String = "ms"
-    ): String = buildString {
-        this@toReadableString.toComponents { days, hours, minutes, seconds, nanos ->
-            addTime(days, daySuffix, makePlural, separator)
-            addTime(hours.toLong(), hourSuffix, makePlural, separator)
-            addTime(minutes, minuteSuffix, makePlural, separator)
-            addTime(seconds, secondSuffix, makePlural, separator)
-            addTime(nanos / 1_000_000, millisecondSuffix, makePlural, separator)
-            if (toString().isBlank()) append("0$millisecondSuffix")
-        }
-    }.removeSuffix(separator)
-
-    private fun <T: Number> StringBuilder.addTime(time: T, suffix: String, makePlural: Boolean, separator: String) {
-        time.takeIf { it.toInt() > 0 }?.also {
-            if (!makePlural) {
-                append(time.toString() + suffix + separator)
-                return
-            }
-            val newSuffix = if (it.toInt() > 1) "${suffix}s" else suffix
-            append(it.toString() + newSuffix + separator)
-        }
-    }
-
-    @JvmStatic
-    fun Duration.toTicks(): Long {
-        val seconds = this.toDouble(DurationUnit.SECONDS)
-        return (seconds * 20).roundToLong()
     }
 
     /**
