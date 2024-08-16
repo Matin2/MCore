@@ -107,11 +107,4 @@ object PacketManager {
             idType[player] = wrapper.containerId to wrapper.type
         }
     }
-//    @JvmStatic
-//    fun changeItem(player: Player, item: ItemStack, slot: Int) {
-//        val packetItem = SpigotConversionUtil.fromBukkitItemStack(item)
-//        val s = minOf(maxOf(slot, 0), 40)
-//        val packet = WrapperPlayServerSetSlot(-2, 0, s, packetItem)
-//        PacketEvents.getAPI().playerManager.sendPacket(player, packet)
-//    }
 }
