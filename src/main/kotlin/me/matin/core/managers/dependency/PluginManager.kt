@@ -1,6 +1,6 @@
 package me.matin.core.managers.dependency
 
-import me.matin.core.managers.Extras.opt
+import me.matin.core.managers.opt
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import java.util.*

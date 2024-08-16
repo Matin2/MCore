@@ -1,6 +1,6 @@
 package me.matin.core.managers.menu.handlers
 
-import me.matin.core.managers.TaskManager.schedule
+import me.matin.core.managers.schedule
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.items.other.Filler

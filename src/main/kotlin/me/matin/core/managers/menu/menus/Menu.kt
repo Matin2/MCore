@@ -1,7 +1,7 @@
 package me.matin.core.managers.menu.menus
 
 import me.matin.core.managers.PacketManager
-import me.matin.core.managers.TaskManager.schedule
+import me.matin.core.managers.schedule
 import me.matin.core.managers.menu.MenuType
 import me.matin.core.managers.menu.handlers.MenuHandler
 import me.matin.core.managers.menu.items.MenuItem

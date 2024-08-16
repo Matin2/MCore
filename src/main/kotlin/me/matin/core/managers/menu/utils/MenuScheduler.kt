@@ -1,9 +1,8 @@
 package me.matin.core.managers.menu.utils
 
-import me.matin.core.managers.TaskManager
-import me.matin.core.managers.TaskManager.schedule
 import org.bukkit.scheduler.BukkitTask
 import kotlin.time.Duration
+import me.matin.core.managers.schedule as scheduleTask
 
 class MenuScheduler {
 
@@ -14,7 +13,7 @@ class MenuScheduler {
     fun onOpen() {
         open = true
         for ((async, delay, interval, action) in tasksToRun) {
-            val task = TaskManager.schedule(async, delay, interval, action)
+            val task = scheduleTask(async, delay, interval, action)
             runningTasks.add(task)
         }
         tasksToRun.clear()
@@ -33,7 +32,7 @@ class MenuScheduler {
             tasksToRun.add(Task(async, delay, interval, task))
             return
         }
-        val bukkitTask = TaskManager.schedule(async, delay, interval, task)
+        val bukkitTask = scheduleTask(async, delay, interval, task)
         runningTasks.add(bukkitTask)
     }
 
