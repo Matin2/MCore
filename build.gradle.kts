@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "2.0.10"
     id("io.github.goooler.shadow") version "8.1.8"
     id("maven-publish")
+    idea
 }
 
 group = "com.github.Matin2"
@@ -50,6 +51,14 @@ tasks.shadowJar {
 
 tasks.build {
     dependsOn(tasks.shadowJar)
+}
+
+tasks.create<Copy>("copyJarToServer") {
+    copy {
+        from(layout.buildDirectory.dir("libs").get().asFile.path)
+        rename("${project.name}-${project.version}.jar", "${project.name}.jar")
+        into("F:/Minecraft/MCServer/planned/test/plugins")
+    }
 }
 
 val javaVersion = 21
