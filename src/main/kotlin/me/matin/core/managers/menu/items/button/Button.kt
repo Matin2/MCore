@@ -14,14 +14,6 @@ class Button(
     val interactAction: Interacted.() -> Unit = {}
 ) {
 
-    constructor(
-        slot: Int,
-        vararg statesDisplay: DisplayItem,
-        show: Boolean = true,
-        state: Int = 0,
-        interactAction: Interacted.() -> Unit = {}
-    ): this(setOf(slot), *statesDisplay, show = show, state = state, interactAction = interactAction)
-
     private var stateChangeAction: (StateChanged.() -> Unit)? = null
     lateinit var inventory: Inventory
     val states = statesDisplay.indices.toSet()
@@ -38,6 +30,19 @@ class Button(
             }
             stateChangeAction?.invoke(StateChanged(oldState))
         }
+
+    constructor(
+        slot: Int,
+        vararg statesDisplay: DisplayItem,
+        show: Boolean = true,
+        state: Int = 0,
+        interactAction: Interacted.() -> Unit = {}
+    ): this(setOf(slot), *statesDisplay, show = show, state = state, interactAction = interactAction)
+
+    infix fun onStateChange(action: StateChanged.() -> Unit): Button {
+        stateChangeAction = action
+        return this
+    }
 
     inner class Interacted(event: InventoryClickEvent, action: ButtonAction): Interact(event, action) {
 
@@ -57,10 +62,5 @@ class Button(
             set(value) {
                 this@Button.state = value
             }
-    }
-
-    infix fun onStateChange(action: StateChanged.() -> Unit): Button {
-        stateChangeAction = action
-        return this
     }
 }
