@@ -8,13 +8,13 @@ import kotlin.time.Duration
 class MenuScheduler {
 
     private val runningTasks = mutableSetOf<BukkitTask>()
-    private val tasksToRun: MutableList<Triple<Boolean, Pair<Duration, Duration>, () -> Unit>> = mutableListOf()
+    private val tasksToRun: MutableList<Task> = mutableListOf()
     private var open = false
 
     fun onOpen() {
         open = true
-        for ((async, delayInterval, action) in tasksToRun) {
-            val task = Core.scheduleTask(async, delayInterval.first, delayInterval.second, action)
+        for ((async, delay, interval, action) in tasksToRun) {
+            val task = TaskManager.schedule(async, delay, interval, action)
             runningTasks.add(task)
         }
         tasksToRun.clear()
@@ -30,10 +30,12 @@ class MenuScheduler {
 
     fun schedule(async: Boolean, delay: Duration, interval: Duration, task: () -> Unit) {
         if (open) {
-            tasksToRun.add(Triple(async, delay to interval, task))
+            tasksToRun.add(Task(async, delay, interval, task))
             return
         }
         val bukkitTask = TaskManager.schedule(async, delay, interval, task)
         runningTasks.add(bukkitTask)
     }
+
+    private data class Task(val async: Boolean, val delay: Duration, val interval: Duration, val task: () -> Unit)
 }
