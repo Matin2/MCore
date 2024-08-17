@@ -24,6 +24,16 @@ val Duration.ticks: Long
         return (seconds * 20).roundToLong()
     }
 
+/**
+ * Schedules given task using bukkit's task scheduler.
+ *
+ * @param plugin Plugin witch the task is scheduled for.
+ * @param async Whether the task should run asynchronously or not.
+ * @param delay Task will run after this delay.
+ * @param interval Task will run repeatedly with this interval.
+ * @param task Task witch is scheduled.
+ * @return [BukkitTask] of the scheduled task.
+ */
 fun schedule(
     plugin: Plugin,
     async: Boolean = false,
@@ -46,6 +56,15 @@ fun schedule(
     }
 }
 
+/**
+ * Schedules given task for [Core] plugin using bukkit's task scheduler.
+ *
+ * @param async Whether the task should run asynchronously or not.
+ * @param delay Task will run after this delay.
+ * @param interval Task will run repeatedly with this interval.
+ * @param task Task witch is scheduled.
+ * @return [BukkitTask] of the scheduled task.
+ */
 internal fun schedule(
     async: Boolean = false,
     delay: Duration = Duration.ZERO,
