@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.10"
-    kotlin("plugin.serialization") version "2.0.10"
+    kotlin("jvm") version "2.0.20"
+    kotlin("plugin.serialization") version "2.0.20"
     id("io.github.goooler.shadow") version "8.1.8"
     id("maven-publish")
     idea
@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
-    compileOnly("net.skinsrestorer:skinsrestorer-api:15.4.0")
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.4.2")
     compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
     compileOnly("com.github.TheSilentPro:HeadDB:5.0.0-rc.11")
     implementation("de.tr7zw:item-nbt-api:2.13.2")
