@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryInteractEvent
 class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
 
     private lateinit var fillerSlots: Set<Int>
-    private var listManager = MenuList.Manager<T>()
+    private val listManager by lazy { MenuList.Manager<T>() }
 
     override fun open() {
         listManager.makeListMap(menu.list)

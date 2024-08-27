@@ -9,6 +9,8 @@ import me.matin.core.managers.menu.items.slot.SlotManager
 import me.matin.core.managers.menu.menus.Menu
 import me.matin.core.managers.menu.utils.MenuScheduler
 import me.matin.core.methods.schedule
+import me.matin.mlib.lazyApply
+import me.matin.mlib.nullable
 import org.bukkit.Bukkit
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryInteractEvent
@@ -20,10 +22,10 @@ import kotlin.time.Duration
 open class MenuHandler(open val menu: Menu): InventoryHolder {
 
     private lateinit var inventory: Inventory
-    private val buttonManager: ButtonManager = ButtonManager()
-    private val slotManager: SlotManager = SlotManager()
-    private val fillerManager: Filler.Manager = Filler.Manager()
-    private val scheduler = MenuScheduler()
+    private val buttonManager = lazy { ButtonManager() }
+    private val slotManager = lazy { SlotManager() }
+    private val fillerManager by lazy { Filler.Manager() }
+    private val scheduler = lazy { MenuScheduler() }
 
     open fun open() {
         createInventory()
@@ -34,20 +36,20 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
             open = true
         }
         while (!open) runCatching { Thread.sleep(10) }.onFailure { return }
-        scheduler.onOpen()
+        scheduler.lazyApply { onOpen() }
     }
 
     private fun createInventory() {
         inventory = menu.type.type?.let { Bukkit.createInventory(this, it, menu.title) } ?: let {
-            Bukkit.createInventory(this, maxOf(minOf(menu.type.rows!!, 6), 1) * 9, menu.title)
+            Bukkit.createInventory(this, menu.type.rows!!.coerceIn(1, 6) * 9, menu.title)
         }
     }
 
     fun close(closeInventory: Boolean = true) {
         if (closeInventory) menu.player.closeInventory()
         schedule(true) {
-            scheduler.onClose()
-            slotManager.slots.forEach { slot ->
+            scheduler.lazyApply { onClose() }
+            slotManager.nullable?.slots?.forEach { slot ->
                 val item = slot.item ?: return@forEach
                 slot.itemDeleteAction?.also { action ->
                     schedule { action(item, ItemDeleteReason.MENU_CLOSED) }
@@ -57,31 +59,27 @@ open class MenuHandler(open val menu: Menu): InventoryHolder {
     }
 
     fun scheduleTask(async: Boolean, delay: Duration, interval: Duration, task: () -> Unit) {
-        scheduler.schedule(async, delay, interval, task)
-    }
-
-    fun publicUpdateItems() {
-        updateItems(false, (0..<inventory.size).toMutableSet())
+        scheduler.value.schedule(async, delay, interval, task)
     }
 
     open fun manageBehavior(event: InventoryInteractEvent) {
-        slotManager.manageBehavior(event)
+        slotManager.lazyApply { manageBehavior(event) }
         if (event !is InventoryClickEvent) return
-        buttonManager.manageBehavior(event)
+        buttonManager.lazyApply { manageBehavior(event) }
         fillerManager.manageBehavior(event, menu.filler)
     }
 
     open fun updateItems(useDefaultItem: Boolean, fillerSlots: MutableSet<Int>) {
-        buttonManager.manageDisplay(inventory, fillerSlots)
-        slotManager.manageDisplay(inventory, fillerSlots, useDefaultItem)
+        buttonManager.lazyApply { manageDisplay(inventory, fillerSlots) }
+        slotManager.lazyApply { manageDisplay(inventory, fillerSlots, useDefaultItem) }
         fillerManager.apply {
             slots = fillerSlots
             manageDisplay(inventory, menu.filler)
         }
     }
 
-    fun addButton(button: Button) = buttonManager.buttons.add(button)
-    fun addSlot(slot: Slot) = slotManager.slots.add(slot)
+    fun addButton(button: Button) = buttonManager.value.buttons.add(button)
+    fun addSlot(slot: Slot) = slotManager.value.slots.add(slot)
 
     override fun getInventory(): Inventory {
         return inventory
