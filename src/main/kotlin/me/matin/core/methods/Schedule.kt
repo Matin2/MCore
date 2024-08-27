@@ -6,23 +6,7 @@ import me.matin.core.Core
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
-import java.util.*
-import kotlin.math.roundToLong
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-
-/** Returns an [Optional] representation of the object. */
-val <T: Any> T?.optional get() = Optional.ofNullable(this)
-
-/** Returns an [Optional] representation of the object. */
-val <T: Any> T?.opt get() = Optional.ofNullable(this)
-
-/** Converts this [Duration] value to server ticks. */
-val Duration.ticks: Long
-    get() {
-        val seconds = this.toDouble(DurationUnit.SECONDS)
-        return (seconds * 20).roundToLong()
-    }
 
 /**
  * Schedules given task using bukkit's task scheduler.
@@ -43,14 +27,20 @@ fun schedule(
 ): BukkitTask = Bukkit.getScheduler().run {
     when (async) {
         true -> when {
-            interval != Duration.ZERO -> runTaskTimerAsynchronously(plugin, task, delay.ticks, interval.ticks)
-            delay != Duration.ZERO -> runTaskLaterAsynchronously(plugin, task, delay.ticks)
+            interval != Duration.ZERO -> runTaskTimerAsynchronously(
+                plugin,
+                task,
+                delay.inWholeTicks,
+                interval.inWholeTicks
+            )
+
+            delay != Duration.ZERO -> runTaskLaterAsynchronously(plugin, task, delay.inWholeTicks)
             else -> runTaskAsynchronously(plugin, task)
         }
 
         false -> when {
-            interval != Duration.ZERO -> runTaskTimer(plugin, task, delay.ticks, interval.ticks)
-            delay != Duration.ZERO -> runTaskLater(plugin, task, delay.ticks)
+            interval != Duration.ZERO -> runTaskTimer(plugin, task, delay.inWholeTicks, interval.inWholeTicks)
+            delay != Duration.ZERO -> runTaskLater(plugin, task, delay.inWholeTicks)
             else -> runTask(plugin, task)
         }
     }
