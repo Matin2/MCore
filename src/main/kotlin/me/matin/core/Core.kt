@@ -10,7 +10,7 @@ import me.matin.core.managers.PacketManager
 import me.matin.core.managers.dependency.DependencyListener
 import me.matin.core.managers.dependency.PluginManager
 import me.matin.core.managers.menu.MenuListener
-import me.matin.core.managers.text
+import me.matin.mlib.text
 import net.skinsrestorer.api.SkinsRestorer
 import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit

@@ -1,6 +1,7 @@
 package me.matin.core.managers.menu.items.button
 
 import me.matin.core.managers.menu.utils.DisplayItem
+import me.matin.mlib.coerceLoopIn
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import me.matin.core.managers.menu.utils.Interacted as Interact
@@ -20,11 +21,7 @@ class Button(
     var state: Int = state
         set(value) {
             val oldState = field
-            field = when {
-                value < 0 -> (value % statesDisplay.size) + statesDisplay.size
-                value > states.last() -> value % statesDisplay.size
-                else -> value
-            }
+            field = value.coerceLoopIn(statesDisplay.indices)
             slots.forEach {
                 inventory.setItem(it, statesDisplay[field].toItem())
             }
