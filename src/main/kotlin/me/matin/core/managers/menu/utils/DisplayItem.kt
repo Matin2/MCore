@@ -34,36 +34,37 @@ data class DisplayItem(
     var nbt: NBTContainer? = null
 ) {
 
-    fun toItem(): ItemStack {
-        if (material == Material.AIR) return ItemStack.empty()
-        val item = ItemStack(material)
-        val meta = item.itemMeta!!
-        meta.setMaxStackSize(99)
-        if (rarity != null) meta.setRarity(rarity)
-        if (name != null) meta.itemName(name)
-        item.amount = maxOf(minOf(amount, 99), 1)
-        if (lore.isNotEmpty()) meta.lore(lore)
-        if (model > 0) meta.setCustomModelData(model)
-        meta.setEnchantmentGlintOverride(glow)
-        meta.isHideTooltip = hideTooltip
-        setColor(meta)
-        setSkull(meta)
-        setDurability(item, meta)
-        trim?.also {
-            (meta as? ArmorMeta)?.trim = trim
-        }
-        banner?.apply {
-            setOptions(meta as? BannerMeta ?: return@apply)
-        }
-        meta.addItemFlags(*ItemFlag.entries.toTypedArray())
-        item.itemMeta = meta
-        nbt?.also {
-            NBT.modify(item) { itemNBT ->
-                itemNBT.mergeCompound(it)
+    val item: ItemStack
+        get() {
+            if (material == Material.AIR) return ItemStack.empty()
+            val item = ItemStack(material)
+            val meta = item.itemMeta!!
+            meta.setMaxStackSize(99)
+            rarity?.also(meta::setRarity)
+            name?.also(meta::itemName)
+            item.amount = amount.coerceIn(1, 99)
+            if (lore.isNotEmpty()) meta.lore(lore)
+            if (model > 0) meta.setCustomModelData(model)
+            meta.setEnchantmentGlintOverride(glow)
+            meta.isHideTooltip = hideTooltip
+            setColor(meta)
+            setSkull(meta)
+            setDurability(item, meta)
+            trim?.also {
+                (meta as? ArmorMeta)?.trim = it
             }
+            banner?.apply {
+                setOptions(meta as? BannerMeta ?: return@apply)
+            }
+            meta.addItemFlags(*ItemFlag.entries.toTypedArray())
+            item.itemMeta = meta
+            nbt?.also {
+                NBT.modify(item) { itemNBT ->
+                    itemNBT.mergeCompound(it)
+                }
+            }
+            return item
         }
-        return item
-    }
 
     private fun setColor(meta: ItemMeta) {
         when (meta) {
