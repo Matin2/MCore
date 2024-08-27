@@ -6,10 +6,8 @@ import me.matin.core.methods.schedule
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryInteractEvent
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
 class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
 
-    private lateinit var fillerSlots: Set<Int>
     private val listManager by lazy { MenuList.Manager<T>() }
 
     override fun open() {

@@ -8,14 +8,14 @@ import net.kyori.adventure.text.format.TextDecoration
 object TextManager {
 
     private fun String.customSplit(separator: String): List<String> {
-        if (separator.isNotEmpty()) return this.split(separator)
-        if (" " in this.trim()) return this.split(" ")
-        return this.split("(?<=.)(?=\\p{Lu})".toRegex())
+        if (separator.isNotEmpty()) return split(separator)
+        if (" " in trim()) return split(" ")
+        return split("(?<=.)(?=\\p{Lu})".toRegex())
     }
 
     @JvmStatic
     fun String.camelcase(splitBy: String = "", separator: String = ""): String {
-        val separated = this.customSplit(splitBy)
+        val separated = customSplit(splitBy)
         return buildString {
             for ((index, value) in separated.withIndex()) {
                 if (index == 0) {
@@ -29,9 +29,9 @@ object TextManager {
 
     @JvmStatic
     fun String.pascalcase(splitBy: String? = "", separator: String = ""): String {
-        splitBy ?: return this.first().uppercase() + this.drop(1).lowercase()
+        splitBy ?: return first().uppercase() + drop(1).lowercase()
         return buildString {
-            this@pascalcase.customSplit(splitBy).forEachIndexed { index, string ->
+            customSplit(splitBy).forEachIndexed { index, string ->
                 when (index) {
                     0 -> append(string.first().uppercase() + string.drop(1).lowercase())
                     else -> append(separator + string.first().uppercase() + string.drop(1).lowercase())
@@ -43,7 +43,7 @@ object TextManager {
     @JvmStatic
     fun String.alternatecase(): String {
         return buildString {
-            for ((index, char) in this@alternatecase.toCharArray().withIndex()) {
+            for ((index, char) in toCharArray().withIndex()) {
                 if (index % 2 == 0) {
                     append(char.lowercase())
                     continue
@@ -56,7 +56,7 @@ object TextManager {
     @JvmStatic
     fun String.lowercase(splitBy: String = "", separator: String): String {
         return buildString {
-            this@lowercase.customSplit(splitBy).forEachIndexed { index, string ->
+            customSplit(splitBy).forEachIndexed { index, string ->
                 val text = string.lowercase()
                 if (index == 0) append(text)
                 else append(separator + text)
@@ -73,5 +73,5 @@ object TextManager {
      */
     @JvmStatic
     fun <T: Any> T.toComponent(color: TextColor? = null, vararg decorations: TextDecoration = arrayOf()): Component =
-        Component.text(this.toString(), color, *decorations)
+        Component.text(toString(), color, *decorations)
 }

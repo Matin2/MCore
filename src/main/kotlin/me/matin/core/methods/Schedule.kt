@@ -61,25 +61,3 @@ internal fun schedule(
     interval: Duration = Duration.ZERO,
     task: () -> Unit
 ): BukkitTask = schedule(Core.instance, async, delay, interval, task)
-
-/** Returns a readable text representation of this duration. */
-fun Duration.text(separator: String = " "): String = buildString {
-    this@text.toComponents { days, hours, minutes, seconds, nanos ->
-        val millis = nanos / 1_000_000
-        append("${separator + days}d")
-        addTime(days, "d", separator)
-        addTime(hours, "h", separator)
-        addTime(minutes, "m", separator)
-        addTime(seconds, "s", separator)
-        addTime(millis, "ms", separator)
-        if (toString().isBlank()) append("0ms")
-    }
-}.removeSuffix(separator)
-
-private fun <T: Number> StringBuilder.addTime(
-    time: T,
-    suffix: String,
-    separator: String
-): StringBuilder? = time.takeIf { it.toInt() > 0 }?.let {
-    this.append(time.toString() + suffix + separator)
-}

@@ -4,13 +4,12 @@ import org.bukkit.Location
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.util.*
 
 @Suppress("unused")
 object ItemManager {
 
     @JvmStatic
-    fun ItemStack?.checkAir(): ItemStack? = this?.takeUnless { it.isEmpty }
+    fun ItemStack?.checkAir(): ItemStack? = takeUnless { it?.isEmpty == true }
 
     @JvmStatic
     fun drop(item: ItemStack, location: Location, blockFace: Optional<BlockFace> = Optional.empty()) {
@@ -20,17 +19,15 @@ object ItemManager {
     }
 
     @JvmStatic
-    fun getSlots(player: Player, slots: String): Set<Int> {
-        return slots.split(',').filter { it.isNotBlank() }.map {
-            when (it) {
-                "mainhand" -> player.inventory.heldItemSlot
-                "offhand" -> 40
-                "helmet" -> 36
-                "chestplate" -> 37
-                "leggings" -> 38
-                "boots" -> 39
-                else -> it.toIntOrNull() ?: return emptySet()
-            }
-        }.toSet()
-    }
+    fun getSlots(player: Player, slots: String): Set<Int> = slots.split(',').filter { it.isNotBlank() }.map {
+        when (it) {
+            "mainhand" -> player.inventory.heldItemSlot
+            "offhand" -> 40
+            "helmet" -> 36
+            "chestplate" -> 37
+            "leggings" -> 38
+            "boots" -> 39
+            else -> it.toIntOrNull() ?: return emptySet()
+        }
+    }.toSet()
 }

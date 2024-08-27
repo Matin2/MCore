@@ -18,7 +18,6 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import kotlin.time.Duration
 
-@Suppress("unused")
 open class MenuHandler(open val menu: Menu): InventoryHolder {
 
     private lateinit var inventory: Inventory

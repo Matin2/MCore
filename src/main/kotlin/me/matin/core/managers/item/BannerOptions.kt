@@ -8,12 +8,9 @@ import org.bukkit.inventory.meta.BannerMeta
 @Suppress("unused")
 class BannerOptions(private vararg val patterns: Pattern) {
 
-    constructor(vararg patterns: Pair<DyeColor, PatternType>): this(patterns = patterns.map {
-        Pattern(
-            it.first,
-            it.second
-        )
-    }.toTypedArray())
+    constructor(vararg patterns: Pair<DyeColor, PatternType>): this(
+        patterns = patterns.map { Pattern(it.first, it.second) }.toTypedArray()
+    )
 
     fun setOptions(meta: BannerMeta) {
         meta.patterns = patterns.toList()
@@ -23,6 +20,6 @@ class BannerOptions(private vararg val patterns: Pattern) {
 
         @JvmStatic
         fun getOptions(meta: BannerMeta): BannerOptions =
-            BannerOptions(*meta.patterns.map { it.color to it.pattern }.toTypedArray())
+            BannerOptions(*meta.patterns.toTypedArray())
     }
 }
