@@ -18,7 +18,7 @@ class ButtonManager {
             if (!button.show) return
             button.inventory = inventory
             button.slots.forEach {
-                inventory.setItem(it, button.statesDisplay[button.state].toItem())
+                inventory.setItem(it, button.statesDisplay[button.state].item)
                 fillerSlots.remove(it)
             }
         }

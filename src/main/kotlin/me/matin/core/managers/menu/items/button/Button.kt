@@ -23,7 +23,7 @@ class Button(
             val oldState = field
             field = value.coerceLoopIn(statesDisplay.indices)
             slots.forEach {
-                inventory.setItem(it, statesDisplay[field].toItem())
+                inventory.setItem(it, statesDisplay[field].item)
             }
             stateChangeAction?.invoke(StateChanged(oldState))
         }

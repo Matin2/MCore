@@ -19,7 +19,7 @@ class Filler(val display: DisplayItem = DisplayItem(), val interactAction: Inter
         }
 
         fun manageDisplay(inventory: Inventory, filler: Filler) = slots.forEach {
-            inventory.setItem(it, filler.display.toItem())
+            inventory.setItem(it, filler.display.item)
         }
     }
 }

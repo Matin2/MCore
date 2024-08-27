@@ -31,11 +31,11 @@ class MenuList<T>(
 
         fun manageDisplay(inventory: Inventory, list: MenuList<T>, page: Int) {
             val listSlots = listMap?.getValue(page)?.map {
-                inventory.setItem(it.second, list.display(list.list[it.first]).toItem())
+                inventory.setItem(it.second, list.display(list.list[it.first]).item)
                 it.second
             }?.toSet() ?: return
             val fillerSlots = list.slots - listSlots
-            fillerSlots.forEach { inventory.setItem(it, list.filler.display.toItem()) }
+            fillerSlots.forEach { inventory.setItem(it, list.filler.display.item) }
         }
 
         fun manageBehavior(event: InventoryClickEvent, list: MenuList<T>, page: Int) {

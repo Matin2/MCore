@@ -29,8 +29,8 @@ class Slot(
         set(value) {
             _oldItem = field
             field = value?.takeUnless { it.isEmpty }
-            value?.takeUnless { it.type == Material.AIR || it.amount == 0 } ?: display.toItem()
-            inventory.setItem(slot, field ?: display.toItem())
+            value?.takeUnless { it.type == Material.AIR || it.amount == 0 } ?: display.item
+            inventory.setItem(slot, field ?: display.item)
         }
 
     @Suppress("DEPRECATION", "MemberVisibilityCanBePrivate")
