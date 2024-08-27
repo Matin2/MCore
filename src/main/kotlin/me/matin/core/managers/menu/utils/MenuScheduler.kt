@@ -2,7 +2,7 @@ package me.matin.core.managers.menu.utils
 
 import org.bukkit.scheduler.BukkitTask
 import kotlin.time.Duration
-import me.matin.core.managers.schedule as scheduleTask
+import me.matin.core.methods.schedule as scheduleTask
 
 class MenuScheduler {
 

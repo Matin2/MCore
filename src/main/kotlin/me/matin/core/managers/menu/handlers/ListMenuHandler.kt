@@ -1,8 +1,8 @@
 package me.matin.core.managers.menu.handlers
 
-import me.matin.core.managers.schedule
 import me.matin.core.managers.menu.items.other.MenuList
 import me.matin.core.managers.menu.menus.ListMenu
+import me.matin.core.methods.schedule
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryInteractEvent
 

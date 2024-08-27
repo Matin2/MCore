@@ -1,6 +1,5 @@
 package me.matin.core.managers.menu.handlers
 
-import me.matin.core.managers.schedule
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.button.ButtonManager
 import me.matin.core.managers.menu.items.other.Filler
@@ -9,6 +8,7 @@ import me.matin.core.managers.menu.items.slot.Slot
 import me.matin.core.managers.menu.items.slot.SlotManager
 import me.matin.core.managers.menu.menus.Menu
 import me.matin.core.managers.menu.utils.MenuScheduler
+import me.matin.core.methods.schedule
 import org.bukkit.Bukkit
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryInteractEvent

@@ -1,6 +1,6 @@
 package me.matin.core.managers.item
 
-import me.matin.core.managers.schedule
+import me.matin.core.methods.schedule
 import me.matin.core.managers.item.ItemManager.checkAir
 import org.bukkit.Material
 import org.bukkit.entity.Player

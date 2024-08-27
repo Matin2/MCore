@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.matin.core.managers
+package me.matin.core.methods
 
 import me.matin.core.Core
 import org.bukkit.Bukkit

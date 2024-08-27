@@ -1,7 +1,7 @@
 package me.matin.core.managers.dependency
 
 import me.matin.core.Core
-import me.matin.core.managers.schedule
+import me.matin.core.methods.schedule
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent

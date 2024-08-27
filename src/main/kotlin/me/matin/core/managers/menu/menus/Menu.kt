@@ -1,13 +1,13 @@
 package me.matin.core.managers.menu.menus
 
 import me.matin.core.managers.PacketManager
-import me.matin.core.managers.schedule
 import me.matin.core.managers.menu.MenuType
 import me.matin.core.managers.menu.handlers.MenuHandler
 import me.matin.core.managers.menu.items.MenuItem
 import me.matin.core.managers.menu.items.button.Button
 import me.matin.core.managers.menu.items.other.Filler
 import me.matin.core.managers.menu.items.slot.Slot
+import me.matin.core.methods.schedule
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import kotlin.reflect.full.hasAnnotation
