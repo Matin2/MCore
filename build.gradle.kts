@@ -1,3 +1,6 @@
+import com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.serialization") version "2.0.20"
@@ -34,20 +37,34 @@ dependencies {
 }
 
 tasks.shadowJar {
-    val dir = "me.matin.core.libs"
-    relocate("de.tr7zw.changeme.nbtapi", "$dir.nbtapi")
-    relocate("dev.jorel.commandapi", "$dir.commandapi")
-    relocate("assets", "$dir.packetevents.assets")
-    relocate("com.github.retrooper.packetevents", "$dir.packetevents.api")
-    relocate("io.github.retrooper.packetevents", "$dir.packetevents.impl")
-    relocate("kotlinx", "$dir.kotlinx")
+    val relocations = mapOf(
+        "me.matin.mlib" to "mlib",
+        "de.tr7zw.changeme.nbtapi" to "nbtapi",
+        "dev.jorel.commandapi" to "commandapi",
+        "assets" to "packetevents.assets",
+        "com.github.retrooper.packetevents" to "packetevents.api",
+        "io.github.retrooper.packetevents" to "packetevents.impl",
+        "kotlinx" to "kotlinx",
+    )
+    relocate("me.matin.core.libs", relocations)
     dependencies {
-        exclude(dependency("org.jetbrains:annotations"))
-        exclude(dependency("com.google.code.gson:gson"))
-        exclude(dependency("net.kyori:"))
-        exclude(dependency("org.slf4j:"))
+        val depends = setOf(
+            "org.jetbrains:annotations",
+            "com.google.code.gson:gson",
+            "net.kyori:",
+            "org.slf4j:",
+        )
+        excludeDependencies(depends)
     }
     archiveFileName.set("${project.name}-${project.version}.jar")
+}
+
+private fun ShadowJar.relocate(dir: String, relocations: Map<String, String>) = relocations.forEach {
+    relocate(it.key, "$dir.${it.value}")
+}
+
+private fun DependencyFilter.excludeDependencies(dependencies: Set<String>) = dependencies.forEach {
+    exclude(dependency(it))
 }
 
 tasks.build {
@@ -61,7 +78,6 @@ tasks.create<Copy>("copyJarToServer") {
         into("F:/Minecraft/MCServer/planned/test/plugins")
     }
 }
-
 val javaVersion = 21
 
 java {
