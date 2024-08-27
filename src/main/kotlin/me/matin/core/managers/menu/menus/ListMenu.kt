@@ -30,12 +30,12 @@ abstract class ListMenu<T>(
     private var _pages: Int = 0
 
     /** Number of pages this menu has. */
-    val pages get() = 0..<_pages
+    val pages get() = (0..<_pages).toSet()
 
     /** Get or change the current page of the menu. */
     var page: Int by Delegates.vetoable(page) { _, _, newValue ->
         updatePages()
-        if (newValue in pages) {
+        if (newValue in 0.._pages) {
             handler.updatePage()
             true
         } else false
