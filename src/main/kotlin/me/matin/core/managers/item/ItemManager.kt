@@ -12,9 +12,9 @@ object ItemManager {
     fun ItemStack?.checkAir(): ItemStack? = takeUnless { it?.isEmpty == true }
 
     @JvmStatic
-    fun drop(item: ItemStack, location: Location, blockFace: Optional<BlockFace> = Optional.empty()) {
+    fun drop(item: ItemStack, location: Location, blockFace: BlockFace? = null) {
         if (item.isEmpty) return
-        val dropLocation = if (blockFace.isPresent) location.block.getRelative(blockFace.get()).location else location
+        val dropLocation = blockFace?.let { location.block.getRelative(it).location } ?: location
         location.world.dropItemNaturally(dropLocation, item)
     }
 

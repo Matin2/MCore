@@ -1,10 +1,7 @@
 package me.matin.core.managers.dependency
 
-import me.matin.core.managers.opt
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
-import java.util.*
-import kotlin.jvm.optionals.getOrNull
 
 @Suppress("UnstableApiUsage", "unused")
 object PluginManager {
@@ -25,8 +22,8 @@ object PluginManager {
      * @return The [Plugin] with the given name or `null` if not found.
      */
     @JvmStatic
-    operator fun get(name: String): Optional<Plugin> =
-        Bukkit.getPluginManager().getPlugin(name)?.takeIf { it.isEnabled }.opt
+    operator fun get(name: String): Plugin? =
+        Bukkit.getPluginManager().getPlugin(name)?.takeIf { it.isEnabled }
 
     /**
      * Checks the state of the given plugins.
@@ -37,7 +34,7 @@ object PluginManager {
      */
     @JvmStatic
     fun checkState(plugins: Set<String>, action: (installed: Set<String>, missing: Set<String>) -> Unit) {
-        val installed = plugins.filter { get(it).isPresent }.toSet()
+        val installed = plugins.filter { get(it) != null }.toSet()
         action(installed, plugins - installed)
     }
 
@@ -57,7 +54,7 @@ object PluginManager {
         val installed = mutableSetOf<String>()
         val wrongVersion = mutableSetOf<String>()
         pluginsWithVersion.forEach { (name, versions) ->
-            get(name).getOrNull()?.run {
+            get(name)?.run {
                 val isCorrectVersion = versions.takeIf { it.isNotBlank() }?.let { inVersions(it) } != false
                 if (isCorrectVersion) installed.add(name) else wrongVersion.add(name)
             }

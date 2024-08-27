@@ -2,7 +2,6 @@ package me.matin.core.managers.menu
 
 import me.matin.core.managers.item.ItemManager
 import me.matin.core.managers.menu.handlers.MenuHandler
-import me.matin.core.managers.opt
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -45,7 +44,7 @@ object MenuListener: Listener {
         val cursor = player.openInventory.cursor.takeUnless { it.isEmpty || it.type.isAir } ?: return
         handler.takeIf { it.menu.preventCursorLoss } ?: return
         player.inventory.addItem(cursor).takeUnless { it.isEmpty() } ?: ItemManager.drop(
-            cursor, player.location, BlockFace.UP.opt
+            cursor, player.location, BlockFace.UP
         )
     }
 }
