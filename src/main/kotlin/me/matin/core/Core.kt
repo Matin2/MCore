@@ -77,21 +77,15 @@ class Core: JavaPlugin() {
 
         init {
             Dependency("SkinsRestorer").apply {
-                if (state.boolean) skinsRestorer = SkinsRestorerProvider.get()
-                onStateChange {
-                    skinsRestorer = when (it.boolean) {
-                        true -> SkinsRestorerProvider.get()
-                        false -> null
-                    }
+                skinsRestorer = SkinsRestorerProvider.get().takeIf { state.boolean } ?: return@apply
+                onStateChange { newState ->
+                    skinsRestorer = SkinsRestorerProvider.get().takeIf { newState.boolean }
                 }
             }
             Dependency("HeadDatabase").apply {
-                if (state.boolean) headDatabase = HeadDatabaseAPI()
-                onStateChange {
-                    headDatabase = when (it.boolean) {
-                        true -> HeadDatabaseAPI()
-                        false -> null
-                    }
+                headDatabase = HeadDatabaseAPI().takeIf { state.boolean } ?: return@apply
+                onStateChange { newState ->
+                    headDatabase = HeadDatabaseAPI().takeIf { newState.boolean }
                 }
             }
             Dependency("HeadDB").apply {
