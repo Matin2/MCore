@@ -6,29 +6,25 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
-import org.bukkit.plugin.Plugin
+
+private typealias MonitoredDepends = MutableMap<Dependency, StateChangeAction>
 
 @Suppress("unused")
 object DependencyListener: Listener {
 
-    val monitoredPlugins: MutableMap<Map<String, String>, Plugin.(Set<String>, Set<String>, Set<String>) -> Unit> =
-        mutableMapOf()
+    val monitoredPlugins: MonitoredDepends = mutableMapOf()
 
-    private fun monitor() {
-        schedule(true) {
-            monitoredPlugins.forEach { (dependencies, action) ->
-                PluginManager.checkState(dependencies) { installed, missing, wrongVersion ->
-                    schedule {
-                        Core.instance.action(installed, missing, wrongVersion)
-                    }
-                }
-            }
+    private fun check(name: String) = schedule(true) {
+        for ((dependency, action) in monitoredPlugins) {
+            if (dependency.name != name) continue
+            val newState = dependency.state
+            schedule { action(Core.instance, newState) }
         }
     }
 
     @EventHandler
-    fun onPluginDisable(event: PluginDisableEvent) = monitor()
+    fun onPluginDisable(event: PluginDisableEvent) = check(event.plugin.name)
 
     @EventHandler
-    fun onPluginEnable(event: PluginEnableEvent) = monitor()
+    fun onPluginEnable(event: PluginEnableEvent) = check(event.plugin.name)
 }

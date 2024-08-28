@@ -7,8 +7,8 @@ import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.arcaniax.hdb.api.HeadDatabaseAPI
 import me.matin.core.managers.PacketManager
+import me.matin.core.managers.dependency.Dependency
 import me.matin.core.managers.dependency.DependencyListener
-import me.matin.core.managers.dependency.PluginManager
 import me.matin.core.managers.menu.MenuListener
 import me.matin.mlib.text
 import net.skinsrestorer.api.SkinsRestorer
@@ -27,8 +27,7 @@ class Core: JavaPlugin() {
             init()
             eventManager.registerListeners(packetInvTitle)
         }
-        val softDepends = setOf("SkinsRestorer", "HeadDatabase", "HeadDB")
-        depends = Depends(softDepends)
+        depends = Depends()
         setPlayerTrackingRange(corePlayerTrackingRange)
         server.pluginManager.apply {
             registerEvents(MenuListener, instance)
@@ -70,37 +69,34 @@ class Core: JavaPlugin() {
         }
     }
 
-    internal class Depends(depends: Set<String>) {
+    internal class Depends {
 
         var skinsRestorer: SkinsRestorer? = null
         var headDatabase: HeadDatabaseAPI? = null
         var headDB: Boolean = false
 
         init {
-            checkDepends(depends)
-            monitorDepends(depends)
-        }
-
-        private fun checkDepends(softDepends: Set<String>) = PluginManager.checkState(softDepends) { installed, _ ->
-            if ("SkinsRestorer" in installed) skinsRestorer = SkinsRestorerProvider.get()
-            if ("HeadDatabase" in installed) headDatabase = HeadDatabaseAPI()
-            if ("HeadDB" in installed) headDB = true
-        }
-
-        private fun monitorDepends(softDepends: Set<String>) = PluginManager.monitorState(
-            softDepends.toSet()
-        ) { installed, missing ->
-            when ("SkinsRestorer") {
-                in installed -> skinsRestorer = SkinsRestorerProvider.get()
-                in missing -> skinsRestorer = null
+            Dependency("SkinsRestorer").apply {
+                if (state.boolean) skinsRestorer = SkinsRestorerProvider.get()
+                onStateChange {
+                    skinsRestorer = when (it.boolean) {
+                        true -> SkinsRestorerProvider.get()
+                        false -> null
+                    }
+                }
             }
-            when ("HeadDatabase") {
-                in installed -> headDatabase = HeadDatabaseAPI()
-                in missing -> headDatabase = null
+            Dependency("HeadDatabase").apply {
+                if (state.boolean) headDatabase = HeadDatabaseAPI()
+                onStateChange {
+                    headDatabase = when (it.boolean) {
+                        true -> HeadDatabaseAPI()
+                        false -> null
+                    }
+                }
             }
-            when ("HeadDB") {
-                in installed -> headDB = true
-                in missing -> headDB = false
+            Dependency("HeadDB").apply {
+                headDB = state.boolean
+                onStateChange { headDB = it.boolean }
             }
         }
     }
