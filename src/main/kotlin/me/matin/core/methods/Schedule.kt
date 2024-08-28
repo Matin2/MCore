@@ -18,7 +18,7 @@ import kotlin.time.Duration
  * @param task Task witch is scheduled.
  * @return [BukkitTask] of the scheduled task.
  */
-fun schedule(
+fun scheduleTask(
     plugin: Plugin,
     async: Boolean = false,
     delay: Duration = Duration.ZERO,
@@ -47,6 +47,25 @@ fun schedule(
 }
 
 /**
+ * Schedules given task using bukkit's task scheduler.
+ *
+ * @param plugin Plugin witch the task is scheduled for.
+ * @param async Whether the task should run asynchronously or not.
+ * @param delay Task will run after this delay.
+ * @param interval Task will run repeatedly with this interval.
+ * @param task Task witch is scheduled.
+ */
+fun schedule(
+    plugin: Plugin,
+    async: Boolean = false,
+    delay: Duration = Duration.ZERO,
+    interval: Duration = Duration.ZERO,
+    task: () -> Unit
+) {
+    scheduleTask(plugin, async, delay, interval, task)
+}
+
+/**
  * Schedules given task for [Core] plugin using bukkit's task scheduler.
  *
  * @param async Whether the task should run asynchronously or not.
@@ -55,9 +74,26 @@ fun schedule(
  * @param task Task witch is scheduled.
  * @return [BukkitTask] of the scheduled task.
  */
+internal fun scheduleTask(
+    async: Boolean = false,
+    delay: Duration = Duration.ZERO,
+    interval: Duration = Duration.ZERO,
+    task: () -> Unit
+): BukkitTask = scheduleTask(Core.instance, async, delay, interval, task)
+
+/**
+ * Schedules given task for [Core] plugin using bukkit's task scheduler.
+ *
+ * @param async Whether the task should run asynchronously or not.
+ * @param delay Task will run after this delay.
+ * @param interval Task will run repeatedly with this interval.
+ * @param task Task witch is scheduled.
+ */
 internal fun schedule(
     async: Boolean = false,
     delay: Duration = Duration.ZERO,
     interval: Duration = Duration.ZERO,
     task: () -> Unit
-): BukkitTask = schedule(Core.instance, async, delay, interval, task)
+) {
+    scheduleTask(Core.instance, async, delay, interval, task)
+}

@@ -1,7 +1,7 @@
 package me.matin.core.managers.item
 
-import me.matin.core.methods.schedule
 import me.matin.core.managers.item.ItemManager.checkAir
+import me.matin.core.methods.schedule
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -26,17 +26,15 @@ enum class ModifyItem {
         }
     }
 
-    private fun modifyDurability(item: ItemStack, modification: ItemModifyType, value: Int) {
-        schedule(true) {
-            item.itemMeta =
-                (item.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable }?.itemMeta as? Damageable)?.apply {
-                    damage = when (modification) {
-                        ItemModifyType.SET -> item.type.maxDurability - value
-                        ItemModifyType.ADD -> damage - value
-                        ItemModifyType.TAKE -> damage + value
-                    }
+    private fun modifyDurability(item: ItemStack, modification: ItemModifyType, value: Int) = schedule(true) {
+        item.itemMeta =
+            (item.takeUnless { it.type == Material.AIR || it.itemMeta.isUnbreakable }?.itemMeta as? Damageable)?.apply {
+                damage = when (modification) {
+                    ItemModifyType.SET -> item.type.maxDurability - value
+                    ItemModifyType.ADD -> damage - value
+                    ItemModifyType.TAKE -> damage + value
                 }
-        }
+            }
     }
 
     class Item internal constructor(private val item: ItemStack?, private val type: ModifyItem) {

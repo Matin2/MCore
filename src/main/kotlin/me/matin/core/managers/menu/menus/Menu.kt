@@ -47,11 +47,9 @@ abstract class Menu(
     internal open val handler by lazy { MenuHandler(this) }
 
     /** Opens the menu for the player. */
-    fun open() {
-        schedule(true) {
-            processItems()
-            handler.open()
-        }
+    fun open() = schedule(true) {
+        processItems()
+        handler.open()
     }
 
     /** Closes the menu for the player. */

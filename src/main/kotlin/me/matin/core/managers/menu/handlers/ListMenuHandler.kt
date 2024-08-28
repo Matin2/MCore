@@ -20,13 +20,11 @@ class ListMenuHandler<T>(override val menu: ListMenu<T>): MenuHandler(menu) {
         listManager.manageBehavior(event as? InventoryClickEvent ?: return, menu.list, menu.page)
     }
 
-    fun updatePage() {
-        schedule(true) {
-            listManager.manageDisplay(inventory, menu.list, menu.page)
-            val fillerSlots = (0..<inventory.size).toMutableSet()
-            fillerSlots.removeAll(menu.list.slots)
-            super.updateItems(false, fillerSlots)
-        }
+    fun updatePage() = schedule(true) {
+        listManager.manageDisplay(inventory, menu.list, menu.page)
+        val fillerSlots = (0..<inventory.size).toMutableSet()
+        fillerSlots.removeAll(menu.list.slots)
+        super.updateItems(false, fillerSlots)
     }
 
     override fun updateItems(useDefaultItem: Boolean, fillerSlots: MutableSet<Int>) {
