@@ -7,12 +7,15 @@ import org.bukkit.plugin.Plugin
 
 typealias StateChangeAction = Plugin.(newState: DependencyState) -> Unit
 
-data class Dependency(val name: String, private val versionPredicate: (version: String) -> Boolean) {
+class Dependency(val name: String, private val versionPredicate: (version: String) -> Boolean) {
 
     val state get() = DependencyState[name, versionPredicate]
 
     constructor(name: String, vararg versions: String): this(name, { it in versions })
     constructor(name: String): this(name, { true })
+
+    operator fun component1() = name
+    operator fun component2() = state
 
     infix fun onStateChange(block: StateChangeAction) {
         DependencyListener.monitoredPlugins[this] = block

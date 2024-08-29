@@ -33,7 +33,7 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
 }
 
 tasks.shadowJar {
@@ -70,13 +70,14 @@ private fun DependencyFilter.excludeDependencies(dependencies: Set<String>) = de
 tasks.build {
     dependsOn(tasks.shadowJar)
 }
-//tasks.create<Copy>("copyJarToServer") {
-//    copy {
-//        from(layout.buildDirectory.dir("libs").get().asFile.path)
-//        rename("${project.name}-${project.version}.jar", "${project.name}.jar")
-//        into("F:/Minecraft/MCServer/planned/test/plugins")
-//    }
-//}
+
+tasks.create<Copy>("copyJarToServer") {
+    copy {
+        from(layout.buildDirectory.dir("libs").get().asFile.path)
+        rename("${project.name}-${project.version}.jar", "${project.name}.jar")
+        into("F:/Minecraft/MCServer/planned/test/plugins")
+    }
+}
 
 val javaVersion = 21
 
