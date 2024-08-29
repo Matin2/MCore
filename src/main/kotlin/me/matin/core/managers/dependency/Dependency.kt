@@ -1,13 +1,15 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package me.matin.core.managers.dependency
 
+import me.matin.core.Core
 import org.bukkit.Bukkit
-import org.bukkit.plugin.Plugin
+import java.util.logging.Logger
 
-typealias StateChangeAction = Plugin.(newState: DependencyState) -> Unit
-
-class Dependency(val name: String, private val versionPredicate: (version: String) -> Boolean) {
+class Dependency(
+    val name: String,
+    private val versionPredicate: (version: String) -> Boolean
+) {
 
     val state get() = DependencyState[name, versionPredicate]
 
@@ -17,10 +19,13 @@ class Dependency(val name: String, private val versionPredicate: (version: Strin
     operator fun component1() = name
     operator fun component2() = state
 
-    infix fun onStateChange(block: StateChangeAction) {
+    fun use(block: DependencyComponent.() -> Unit) {
+        DependencyComponent(state, Core.instance.logger, false).block()
         DependencyListener.monitoredPlugins[this] = block
     }
 }
+
+data class DependencyComponent(val state: DependencyState, val logger: Logger, val stateChanged: Boolean)
 
 sealed class DependencyState(val boolean: Boolean) {
 
