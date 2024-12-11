@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.github.Matin2"
-version = "1.3.0"
+version = "1.3.0-SNAPSHOT 1"
 
 repositories {
     mavenCentral()
@@ -77,12 +77,10 @@ java {
 }
 
 tasks.processResources {
-    val ver = mapOf("version" to version)
+    val ver = "version" to version.toString().trimEnd { it.isDigit() || it.isWhitespace() }
     inputs.properties(ver)
     filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        expand(ver)
-    }
+    filesMatching("plugin.yml") { expand(ver) }
 }
 
 tasks.withType<JavaCompile> {
