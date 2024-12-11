@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.serialization") version "2.0.20"
+    kotlin("jvm") version "2.1.0"
+    kotlin("plugin.serialization") version "2.1.0"
     id("io.github.goooler.shadow") version "8.1.8"
     id("maven-publish")
     idea
@@ -22,18 +22,18 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
-    compileOnly("net.skinsrestorer:skinsrestorer-api:15.4.2")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.5.0")
     compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
     compileOnly("com.github.TheSilentPro:HeadDB:5.0.0-rc.11")
     implementation(fileTree("libs"))
-    implementation("de.tr7zw:item-nbt-api:2.13.2")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.5.3")
-    implementation("com.github.retrooper:packetevents-spigot:2.3.1-SNAPSHOT")
+    implementation("de.tr7zw:item-nbt-api:2.14.0")
+    implementation("dev.jorel:commandapi-bukkit-shade:9.7.0")
+    implementation("com.github.retrooper:packetevents-spigot:2.7.0")
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 }
 
 tasks.shadowJar {
