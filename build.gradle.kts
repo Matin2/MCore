@@ -1,4 +1,4 @@
-import com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter
+import org.jetbrains.kotlin.gradle.internal.config.LanguageFeature
 
 plugins {
     kotlin("jvm") version "2.1.0"
@@ -92,6 +92,14 @@ tasks.withType<JavaCompile> {
 
 kotlin {
     jvmToolchain(javaVersion)
+    val features = setOf(
+        LanguageFeature.ExplicitBackingFields,
+        LanguageFeature.WhenGuards,
+        LanguageFeature.BreakContinueInInlineLambdas
+    )
+    compilerOptions {
+        sourceSets.all { features.forEach { languageSettings.enableLanguageFeature(it.name) } }
+    }
 }
 
 publishing {
