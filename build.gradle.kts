@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     kotlin("jvm") version "2.1.0"
@@ -46,25 +45,15 @@ tasks.shadowJar {
         "io.github.retrooper.packetevents" to "packetevents.impl",
         "kotlinx" to "kotlinx",
     )
-    relocate("me.matin.core.libs", relocations)
-    dependencies {
-        val depends = setOf(
-            "org.jetbrains:annotations",
-            "com.google.code.gson:gson",
-            "net.kyori:",
-            "org.slf4j:",
-        )
-        excludeDependencies(depends)
-    }
+    val exclusions = setOf(
+        "org.jetbrains:annotations",
+        "com.google.code.gson:gson",
+        "net.kyori:",
+        "org.slf4j:",
+    )
+    relocations.forEach { relocate(it.key, "me.matin.core.libs.${it.value}") }
+    dependencies { exclusions.forEach { exclude(dependency(it)) } }
     archiveFileName.set("${project.name}-${project.version}.jar")
-}
-
-private fun ShadowJar.relocate(dir: String, relocations: Map<String, String>) = relocations.forEach {
-    relocate(it.key, "$dir.${it.value}")
-}
-
-private fun DependencyFilter.excludeDependencies(dependencies: Set<String>) = dependencies.forEach {
-    exclude(dependency(it))
 }
 
 tasks.build {
@@ -83,8 +72,8 @@ val javaVersion = 21
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
 tasks.processResources {
