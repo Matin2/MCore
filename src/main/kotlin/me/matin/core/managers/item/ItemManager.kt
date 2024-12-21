@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack
 object ItemManager {
 
     @JvmStatic
-    fun ItemStack?.checkAir(): ItemStack? = takeUnless { it?.isEmpty == true }
+    fun ItemStack?.checkEmpty(): ItemStack? = takeUnless { it?.isEmpty == true }
 
     @JvmStatic
     fun drop(item: ItemStack, location: Location, blockFace: BlockFace? = null) {

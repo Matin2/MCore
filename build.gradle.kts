@@ -77,7 +77,7 @@ java {
 }
 
 tasks.processResources {
-    val ver = "version" to version.toString().trimEnd { it.isDigit() || it.isWhitespace() }
+    val ver = "version" to version.toString().replaceAfter('-', "SNAPSHOT")
     inputs.properties(ver)
     filteringCharset = "UTF-8"
     filesMatching("plugin.yml") { expand(ver) }
