@@ -1,4 +1,4 @@
-package me.matin.core.managers
+package me.matin.mcore.managers
 
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
