@@ -86,7 +86,6 @@ tasks.withType<JavaCompile> {
 kotlin {
     jvmToolchain(javaVersion)
     val features = setOf(
-        LanguageFeature.ExplicitBackingFields,
         LanguageFeature.WhenGuards,
         LanguageFeature.BreakContinueInInlineLambdas
     )
