@@ -1,8 +1,9 @@
 import org.jetbrains.kotlin.gradle.internal.config.LanguageFeature
 
 plugins {
-    kotlin("jvm") version "2.1.0"
-    kotlin("plugin.serialization") version "2.1.0"
+    val kotlinVersion = "2.1.10"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
     id("io.github.goooler.shadow") version "8.1.8"
     id("maven-publish")
     idea
@@ -22,17 +23,17 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("net.skinsrestorer:skinsrestorer-api:15.5.0")
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.5.2")
     compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
     compileOnly("com.github.TheSilentPro:HeadDB:5.0.0-rc.11")
     implementation(fileTree("libs"))
-    implementation("de.tr7zw:item-nbt-api:2.14.0")
+    implementation("de.tr7zw:item-nbt-api:2.14.1")
     implementation("dev.jorel:commandapi-bukkit-shade:9.7.0")
     implementation("com.github.retrooper:packetevents-spigot:2.7.0")
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 }
 
 tasks.shadowJar {
@@ -51,7 +52,7 @@ tasks.shadowJar {
         "net.kyori:",
         "org.slf4j:",
     )
-    relocations.forEach { relocate(it.key, "me.matin.core.libs.${it.value}") }
+    relocations.forEach { relocate(it.key, "me.matin.mcore.libs.${it.value}") }
     dependencies { exclusions.forEach { exclude(dependency(it)) } }
     archiveFileName.set("${project.name}-${project.version}.jar")
 }
@@ -69,12 +70,6 @@ tasks.create<Copy>("copyJarToServer") {
 }
 
 val javaVersion = 21
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
-    sourceCompatibility = JavaVersion.toVersion(javaVersion)
-    targetCompatibility = JavaVersion.toVersion(javaVersion)
-}
 
 tasks.processResources {
     val ver = "version" to version.toString().replaceAfter('-', "SNAPSHOT")
