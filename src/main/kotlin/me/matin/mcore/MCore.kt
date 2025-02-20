@@ -6,13 +6,11 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
-import me.arcaniax.hdb.api.HeadDatabaseAPI
 import me.matin.mcore.managers.InventoryTitle
 import me.matin.mcore.managers.dependency.DependencyListener
 import me.matin.mcore.managers.dependency.DependencyManager
 import me.matin.mcore.methods.registerListeners
 import me.matin.mlib.text
-import net.skinsrestorer.api.SkinsRestorerProvider.get
 import org.bukkit.Bukkit.getScheduler
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.time.measureTime
@@ -61,7 +59,7 @@ class MCore: JavaPlugin() {
 
 internal object Depends: DependencyManager(MCore.instance) {
 	
-	val skinsRestorer by addDependency("SkinsRestorer", false, get())
-	val headDatabase by addDependency("HeadDatabase", false, HeadDatabaseAPI())
-	val headDB by addDependency("HeadDB", false)
+	val skinsRestorer by addDependency("SkinsRestorer", false)::available
+	val headDatabase by addDependency("HeadDatabase", false)::available
+	val headDB by addDependency("HeadDB", false)::available
 }

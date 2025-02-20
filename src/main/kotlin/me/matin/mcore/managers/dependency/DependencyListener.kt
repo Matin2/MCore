@@ -1,5 +1,6 @@
 package me.matin.mcore.managers.dependency
 
+import me.matin.mcore.MCore
 import me.matin.mcore.methods.async
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -16,17 +17,23 @@ internal object DependencyListener: Listener {
 		available = plugin?.run { isEnabled && versionCheck(pluginMeta.version) } == true
 	}
 	
-	fun Plugin.setEnabled(enabled: Boolean) {
+	infix fun Plugin.setEnabled(enabled: Boolean) {
 		if (isEnabled == enabled) return
-		server.pluginManager.also { if (enabled) it.enablePlugin(this) else it.disablePlugin(this) }
+		if (enabled) {
+			server.pluginManager.enablePlugin(this)
+			MCore.instance.logger.info("${this.name} got enabled.")
+			return
+		}
+		server.pluginManager.disablePlugin(this)
+		MCore.instance.logger.info("${this.name} got disabled.")
 	}
 	
 	private fun check(name: String) = async {
 		for (manager in managers) {
 			val depend = manager.dependencies.find { it.name == name } ?: continue
 			checkDepend(depend)
-			if (depend.required) manager.plugin.setEnabled(depend.available)
-			break
+			if (!depend.required) continue
+			manager.plugin.setEnabled(depend.available)
 		}
 	}
 	

@@ -1,16 +1,18 @@
 package me.matin.mcore.managers
 
 import com.destroystokyo.paper.profile.PlayerProfile
+import me.arcaniax.hdb.api.HeadDatabaseAPI
 import me.matin.mcore.Depends
-import me.matin.mlib.nullable
 import net.skinsrestorer.api.Base64Utils.decode
 import net.skinsrestorer.api.PropertyUtils
+import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit.createProfile
 import org.bukkit.OfflinePlayer
 import org.bukkit.profile.PlayerTextures.SkinModel
 import tsp.headdb.core.api.HeadAPI.getHeadById
 import java.net.URI
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Suppress("unused")
 object PlayerProfiles {
@@ -20,8 +22,9 @@ object PlayerProfiles {
 	 * @return [PlayerProfile] of the player with SkinsRestorer support.
 	 */
 	operator fun get(player: OfflinePlayer): PlayerProfile {
+		if (!Depends.skinsRestorer) return player.playerProfile
 		val skin = runCatching {
-			Depends.skinsRestorer?.playerStorage?.getSkinForPlayer(player.uniqueId, player.name)?.nullable
+			SkinsRestorerProvider.get().playerStorage.getSkinForPlayer(player.uniqueId, player.name).get()
 		}.getOrNull() ?: return player.playerProfile
 		return get(
 			PropertyUtils.getSkinTextureUrl(skin),
@@ -44,8 +47,8 @@ object PlayerProfiles {
 	
 	enum class DataBase(private val base64: (Int) -> String?) {
 		
-		HeadDatabase({ Depends.headDatabase?.getBase64("$it") }),
-		HeadDB({ if (Depends.headDB) getHeadById(it).nullable?.texture else null });
+		HeadDatabase({ if (Depends.headDatabase) HeadDatabaseAPI().getBase64("$it") else null }),
+		HeadDB({ if (Depends.headDB) getHeadById(it).getOrNull()?.texture else null });
 		
 		/**
 		 * @param id Head id witch the profile is created for.

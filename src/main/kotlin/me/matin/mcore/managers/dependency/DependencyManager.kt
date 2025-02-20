@@ -1,9 +1,8 @@
 package me.matin.mcore.managers.dependency
 
+import me.matin.mcore.MCore
 import me.matin.mcore.managers.dependency.DependencyListener.checkDepend
 import me.matin.mcore.managers.dependency.DependencyListener.setEnabled
-import me.matin.mcore.methods.async
-import me.matin.mlib.filterAll
 import org.bukkit.plugin.Plugin
 
 open class DependencyManager(internal val plugin: Plugin) {
@@ -14,27 +13,19 @@ open class DependencyManager(internal val plugin: Plugin) {
 		name: String,
 		required: Boolean,
 		versionCheck: (String) -> Boolean = { true },
-	) = Dependency(name, required, versionCheck).run {
-		dependencies.add(this)
-		Available()
-	}
+	): Dependency = Dependency(name, required, versionCheck).also { dependencies.add(it) }
 	
-	fun <T: Any> addDependency(
-		name: String,
-		required: Boolean,
-		value: T,
-		versionCheck: (String) -> Boolean = { true },
-	) = Dependency(name, required, versionCheck).run {
-		dependencies.add(this)
-		Value(value)
-	}
-	
-	fun manage() = async {
+	fun manage() {
 		DependencyListener.managers.add(this)
-		val enabled = dependencies.filterAll {
-			checkDepend(it)
-			it.required to it.available
-		}
-		plugin.setEnabled(enabled)
+		val enabled = dependencies.onEach(::checkDepend).filter { it.required }.ifEmpty { return }
+			.filter { !it.available }.ifEmpty {
+				MCore.instance.logger.info("All the required dependencies for ${plugin.name} are installed.")
+				plugin setEnabled true
+				return
+			}
+		MCore.instance.logger.info(
+			"${enabled.joinToString(" and ", limit = 3)} are required by ${plugin.name} but are not available."
+		)
+		plugin setEnabled false
 	}
 }
