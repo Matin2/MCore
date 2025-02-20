@@ -30,10 +30,10 @@ dependencies {
     implementation("de.tr7zw:item-nbt-api:2.14.1")
     implementation("dev.jorel:commandapi-bukkit-shade:9.7.0")
     implementation("com.github.retrooper:packetevents-spigot:2.7.0")
-
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    
+    compileOnly(kotlin("stdlib"))
+    compileOnly(kotlin("reflect"))
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 }
 
 tasks.shadowJar {
@@ -47,6 +47,9 @@ tasks.shadowJar {
         "kotlinx" to "kotlinx",
     )
     val exclusions = setOf(
+        "org.jetbrains.kotlin:kotlin-stdlib",
+        "org.jetbrains.kotlin:kotlin-reflect",
+        "org.jetbrains.kotlinx:kotlinx-serialization-json",
         "org.jetbrains:annotations",
         "com.google.code.gson:gson",
         "net.kyori:",
@@ -60,22 +63,15 @@ tasks.shadowJar {
 tasks.build {
     dependsOn(tasks.shadowJar)
 }
-
-tasks.create<Copy>("copyJarToServer") {
-    copy {
-        from(layout.buildDirectory.dir("libs").get().asFile.path)
-        rename("${project.name}-${project.version}.jar", "${project.name}.jar")
-        into("F:/Minecraft/MCServer/planned/test/plugins")
-    }
-}
-
+val kotlinVersion = "2.1.10"
 val javaVersion = 21
 
 tasks.processResources {
     val ver = "version" to version.toString().replaceAfter('-', "SNAPSHOT")
-    inputs.properties(ver)
+    val kotlinVer = "kotlin_version" to kotlinVersion
+    inputs.properties(ver, kotlinVer)
     filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") { expand(ver) }
+    filesMatching("plugin.yml") { expand(ver, kotlinVer) }
 }
 
 tasks.withType<JavaCompile> {

@@ -41,7 +41,7 @@ object PacketManager {
 		PacketEvents.getAPI().playerManager.sendPacket(player, it)
 	}
 	
-	private inline fun setItem(player: Player, item: ItemStack, crossinline also: () -> Unit = {}) = sync {
+	private fun setItem(player: Player, item: ItemStack, also: () -> Unit = {}) = sync {
 		player.inventory.setItem(40, item)
 		also()
 	}

@@ -19,11 +19,11 @@ import kotlin.time.toJavaDuration
  * @param task Task witch is scheduled.
  * @return [BukkitTask] of the scheduled task.
  */
-inline fun syncedTask(
+fun syncedTask(
 	plugin: Plugin,
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ): BukkitTask = Bukkit.getScheduler().run {
 	when {
 		interval != Duration.ZERO -> runTaskTimer(
@@ -47,11 +47,11 @@ inline fun syncedTask(
  * @param task Task witch is scheduled.
  * @return [BukkitTask] of the scheduled task.
  */
-inline fun asyncedTask(
+fun asyncedTask(
 	plugin: Plugin,
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ): BukkitTask = Bukkit.getScheduler().run {
 	when {
 		interval != Duration.ZERO -> runTaskTimerAsynchronously(
@@ -75,11 +75,11 @@ inline fun asyncedTask(
  * @param task Task witch is scheduled.
  * @param async Whether the task should run asynchronously or not.
  */
-inline fun sync(
+fun sync(
 	plugin: Plugin,
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ) {
 	syncedTask(plugin, delay, interval, task)
 }
@@ -92,39 +92,39 @@ inline fun sync(
  * @param interval Task will run repeatedly with this interval.
  * @param task Task witch is scheduled.
  */
-inline fun async(
+fun async(
 	plugin: Plugin,
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ) {
 	asyncedTask(plugin, delay, interval, task)
 }
 
-internal inline fun syncedTask(
+internal fun syncedTask(
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ): BukkitTask = syncedTask(MCore.instance, delay, interval, task)
 
-internal inline fun asyncedTask(
+internal fun asyncedTask(
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ): BukkitTask = asyncedTask(MCore.instance, delay, interval, task)
 
-internal inline fun sync(
+internal fun sync(
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ) {
 	sync(MCore.instance, delay, interval, task)
 }
 
-internal inline fun async(
+internal fun async(
 	delay: Duration = Duration.ZERO,
 	interval: Duration = Duration.ZERO,
-	crossinline task: (MThread) -> Unit,
+	task: (MThread) -> Unit,
 ) {
 	async(MCore.instance, delay, interval, task)
 }
