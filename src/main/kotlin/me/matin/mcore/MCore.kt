@@ -7,8 +7,8 @@ import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
 import me.matin.mcore.managers.InventoryTitle
-import me.matin.mcore.managers.dependency.DependencyListener
-import me.matin.mcore.managers.dependency.DependencyManager
+import me.matin.mcore.managers.hook.HooksListener
+import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.methods.registerListeners
 import me.matin.mlib.text
 import org.bukkit.Bukkit.getScheduler
@@ -25,7 +25,7 @@ class MCore: JavaPlugin() {
 			eventManager.registerListeners(InventoryTitle)
 		}
 		Depends.manage()
-		registerListeners(DependencyListener)
+		registerListeners(HooksListener)
 	}.run { logger.info("Plugin enabled in ${text()}.") }
 	
 	@Suppress("UnstableApiUsage")
@@ -39,7 +39,6 @@ class MCore: JavaPlugin() {
 			CommandAPIBukkitConfig(this)
 				.shouldHookPaperReload(true)
 				.silentLogs(true)
-				.usePluginNamespace()
 				.initializeNBTAPI(ReadWriteNBT::class.java, NBT::wrapNMSTag)
 		)
 	}.run { logger.info("Plugin loaded in ${text()}.") }
@@ -57,9 +56,9 @@ class MCore: JavaPlugin() {
 	}
 }
 
-internal object Depends: DependencyManager(MCore.instance) {
+internal object Depends: HooksManager(MCore.instance) {
 	
-	val skinsRestorer by addDependency("SkinsRestorer", false)::available
-	val headDatabase by addDependency("HeadDatabase", false)::available
-	val headDB by addDependency("HeadDB", false)::available
+	val skinsRestorer by newHook("SkinsRestorer", false)
+	val headDatabase by newHook("HeadDatabase", false)
+	val headDB by newHook("HeadDB", false)
 }

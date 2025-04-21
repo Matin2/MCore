@@ -1,4 +1,4 @@
-package me.matin.mcore.managers.dependency
+package me.matin.mcore.managers.hook
 
 import me.matin.mcore.MCore
 import me.matin.mcore.methods.async
@@ -8,12 +8,12 @@ import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
 import org.bukkit.plugin.Plugin
 
-internal object DependencyListener: Listener {
+internal object HooksListener: Listener {
 	
-	val managers: MutableSet<DependencyManager> = mutableSetOf()
+	val managers: MutableSet<HooksManager> = mutableSetOf()
 	
 	@Suppress("UnstableApiUsage")
-	fun checkDepend(dependency: Dependency) = dependency.run {
+	fun checkHook(hook: Hook) = hook.run {
 		available = plugin?.run { isEnabled && versionCheck(pluginMeta.version) } == true
 	}
 	
@@ -21,19 +21,22 @@ internal object DependencyListener: Listener {
 		if (isEnabled == enabled) return
 		if (enabled) {
 			server.pluginManager.enablePlugin(this)
-			MCore.instance.logger.info("${this.name} got enabled.")
+			MCore.instance.logger.info("$name got enabled.")
 			return
 		}
 		server.pluginManager.disablePlugin(this)
-		MCore.instance.logger.info("${this.name} got disabled.")
+		MCore.instance.logger.info("$name got disabled.")
 	}
 	
 	private fun check(name: String) = async {
 		for (manager in managers) {
-			val depend = manager.dependencies.find { it.name == name } ?: continue
-			checkDepend(depend)
+			val depend = manager.hooks.find { it.name == name } ?: continue
+			checkHook(depend)
 			if (!depend.required) continue
-			manager.plugin.setEnabled(depend.available)
+			manager.checkRequired {
+				someUnavailable =
+					"${unavailable.joinToString(limit = 3)} are required by ${manager.plugin.name} but are not available."
+			}
 		}
 	}
 	
