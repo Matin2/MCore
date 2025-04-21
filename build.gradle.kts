@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.internal.config.LanguageFeature
 
 plugins {
-    val kotlinVersion = "2.1.10"
+    val kotlinVersion = "2.1.20"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
     id("io.github.goooler.shadow") version "8.1.8"
@@ -23,17 +23,17 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("net.skinsrestorer:skinsrestorer-api:15.5.2")
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.6.2")
     compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
     compileOnly("com.github.TheSilentPro:HeadDB:5.0.0-rc.11")
     implementation(fileTree("libs"))
-    implementation("de.tr7zw:item-nbt-api:2.14.1")
-    implementation("dev.jorel:commandapi-bukkit-shade:9.7.0")
+    implementation("de.tr7zw:item-nbt-api:2.15.0")
+    implementation("dev.jorel:commandapi-bukkit-shade:10.0.0")
     implementation("com.github.retrooper:packetevents-spigot:2.7.0")
     
     compileOnly(kotlin("stdlib"))
     compileOnly(kotlin("reflect"))
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 }
 
 tasks.shadowJar {
