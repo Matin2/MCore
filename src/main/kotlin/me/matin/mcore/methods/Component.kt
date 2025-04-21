@@ -11,6 +11,7 @@ import net.kyori.adventure.text.format.TextDecoration
  * Returns a component representation of the object.
  *
  * @see toString
+ * @see Component.text
  */
 fun String.toComponent() = Component.text(this)
 
@@ -19,6 +20,7 @@ fun String.toComponent() = Component.text(this)
  *
  * @param style Style of the component.
  * @see toString
+ * @see Component.text
  */
 infix fun String.toComponent(style: Style) = Component.text(this, style)
 
@@ -27,6 +29,7 @@ infix fun String.toComponent(style: Style) = Component.text(this, style)
  *
  * @param color Color of the component.
  * @see toString
+ * @see Component.text
  */
 infix fun String.toComponent(color: TextColor?) = Component.text(this, color)
 
@@ -36,6 +39,7 @@ infix fun String.toComponent(color: TextColor?) = Component.text(this, color)
  * @param color Color of the component.
  * @param decorations Decorations of the component.
  * @see toString
+ * @see Component.text
  */
 fun String.toComponent(
 	color: TextColor?,
