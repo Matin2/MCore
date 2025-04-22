@@ -5,16 +5,16 @@ import org.bukkit.event.Listener
 import kotlin.reflect.KProperty
 
 open class Hook(
-	open val name: String,
-	open val required: Boolean,
-	private val versionCheck: (String) -> Boolean = { true },
+	internal val name: String,
+	internal val required: Boolean,
+	internal val versionCheck: (String) -> Boolean = { true },
 ): Listener {
 	
-	inline val plugin get() = getPluginManager().getPlugin(name)
+	val plugin get() = getPluginManager().getPlugin(name)
 	var available = false
 		internal set
 	
-	open fun versionCheck(version: String): Boolean = versionCheck.invoke(version)
+	open fun onCheck() {}
 	
 	operator fun getValue(thisRef: Any?, property: KProperty<*>): Boolean = available
 }

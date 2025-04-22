@@ -15,6 +15,7 @@ internal object HooksListener: Listener {
 	@Suppress("UnstableApiUsage")
 	fun checkHook(hook: Hook) = hook.run {
 		available = plugin?.run { isEnabled && versionCheck(pluginMeta.version) } == true
+		onCheck()
 	}
 	
 	infix fun Plugin.setEnabled(enabled: Boolean) {
