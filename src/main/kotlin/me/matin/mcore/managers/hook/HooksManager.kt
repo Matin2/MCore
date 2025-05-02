@@ -4,7 +4,10 @@ import me.matin.mcore.MCore
 import me.matin.mcore.managers.hook.HooksListener.checkHook
 import me.matin.mcore.managers.hook.HooksListener.setEnabled
 import org.bukkit.Bukkit
+import org.bukkit.event.EventHandler
 import org.bukkit.plugin.Plugin
+import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.memberExtensionFunctions
 
 open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook) {
 	
@@ -15,9 +18,10 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook) {
 	
 	fun manage() {
 		HooksListener.managers.add(this)
-		hooks.forEach {
-			checkHook(it)
-			Bukkit.getPluginManager().registerEvents(it, plugin)
+		hooks.forEach { hook ->
+			checkHook(hook, true)
+			if (hook::class.memberExtensionFunctions.any { it.hasAnnotation<EventHandler>() })
+				Bukkit.getPluginManager().registerEvents(hook, plugin)
 		}
 		checkRequired {
 			allAvailable = "All the required dependencies for ${plugin.name} are installed."

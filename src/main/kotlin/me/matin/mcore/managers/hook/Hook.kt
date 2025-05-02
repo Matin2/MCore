@@ -16,5 +16,7 @@ open class Hook(
 	
 	open fun onCheck() {}
 	
+	open fun onFirstCheck() {}
+	
 	operator fun getValue(thisRef: Any?, property: KProperty<*>): Boolean = available
 }
