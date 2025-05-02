@@ -24,12 +24,13 @@ object PacketManager {
 	 * @param player Selected player
 	 * @param model (Optional) CustomModelData for the totem
 	 */
+	@Suppress("UnstableApiUsage")
 	@JvmStatic
 	fun showTotem(player: Player, model: Int = -1) = async { thread ->
 		if (model < 0) playTotem(player).also { return@async }
 		val oldItem = player.inventory.itemInOffHand
 		val item = ItemStack(TOTEM_OF_UNDYING)
-		item.editMeta { it.setCustomModelData(model) }
+		item.editMeta { it.customModelDataComponent.floats.add(model.toFloat()) }
 		var isItemSet = false
 		setItem(player, item) { isItemSet = true }
 		thread.pauseWhile(!isItemSet, 10.milliseconds)
