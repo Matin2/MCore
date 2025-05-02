@@ -2,8 +2,6 @@
 
 package me.matin.mcore.methods
 
-import org.bukkit.Location
-import org.bukkit.block.BlockFace
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
@@ -28,9 +26,3 @@ fun Plugin.registerListeners(vararg listeners: Listener) = listeners.forEach {
 }
 
 fun ItemStack?.checkEmpty(): ItemStack? = takeUnless { it?.isEmpty == true }
-
-fun dropItem(item: ItemStack, location: Location, blockFace: BlockFace? = null) {
-	if (item.isEmpty) return
-	val dropLocation = blockFace?.let { location.block.getRelative(it).location } ?: location
-	location.world.dropItemNaturally(dropLocation, item)
-}
