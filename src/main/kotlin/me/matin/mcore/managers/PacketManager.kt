@@ -4,7 +4,7 @@ import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketListenerPriority.NORMAL
 import com.github.retrooper.packetevents.event.PacketSendEvent
-import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play.Server.OPEN_WINDOW
+import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
 import me.matin.mcore.methods.async
@@ -47,29 +47,24 @@ object PacketManager {
 		also()
 	}
 	
-	/**
-	 * Changes the title of the inventory witch the selected player is
-	 * currently viewing.
-	 *
-	 * @param player Selected player
-	 * @param title New title
-	 */
 	@JvmStatic
-	fun changeInvTitle(player: Player, title: Component) {
-		val (containerId, type) = InventoryTitle.idType[player.name] ?: return
-		val wrapper = WrapperPlayServerOpenWindow(containerId, type, title)
-		PacketEvents.getAPI().playerManager.sendPacket(player, wrapper)
-	}
+	context(player: Player)
+	var openInventoryTitle: Component?
+		get() = InventoryTitle.openWindows[player.name]?.title
+		set(value) {
+			value ?: return
+			val wrapper = InventoryTitle.openWindows[player.name]?.apply { title = value } ?: return
+			PacketEvents.getAPI().playerManager.sendPacket(player, wrapper)
+		}
 }
 
 internal object InventoryTitle: PacketListenerAbstract(NORMAL) {
 	
-	val idType = mutableMapOf<String, Pair<Int, Int>>()
+	val openWindows = mutableMapOf<String, WrapperPlayServerOpenWindow>()
 	
 	override fun onPacketSend(event: PacketSendEvent) {
-		if (event.packetType != OPEN_WINDOW) return
-		val wrapper = WrapperPlayServerOpenWindow(event)
+		if (event.packetType != Play.Server.OPEN_WINDOW) return
 		val player = event.user?.name ?: return
-		idType[player] = wrapper.containerId to wrapper.type
+		openWindows[player] = WrapperPlayServerOpenWindow(event)
 	}
 }
