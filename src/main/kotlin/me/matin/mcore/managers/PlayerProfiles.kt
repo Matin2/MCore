@@ -9,7 +9,6 @@ import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit.createProfile
 import org.bukkit.OfflinePlayer
 import org.bukkit.profile.PlayerTextures.SkinModel
-import tsp.headdb.core.api.HeadAPI.getHeadById
 import java.net.URI
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
@@ -48,7 +47,7 @@ object PlayerProfiles {
 	enum class DataBase(private val base64: (Int) -> String?) {
 		
 		HeadDatabase({ if (Depends.headDatabase) HeadDatabaseAPI().getBase64("$it") else null }),
-		HeadDB({ if (Depends.headDB) getHeadById(it).getOrNull()?.texture else null });
+		HeadDB({ Depends.HeadDB.api?.findById(it)?.get()?.getOrNull()?.texture });
 		
 		/**
 		 * @param id Head id witch the profile is created for.

@@ -3,6 +3,7 @@ package me.matin.mcore.managers.hook
 import me.matin.mcore.MCore
 import me.matin.mcore.managers.hook.HooksListener.checkHook
 import me.matin.mcore.managers.hook.HooksListener.setEnabled
+import me.matin.mcore.methods.async
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.plugin.Plugin
@@ -16,7 +17,7 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook) {
 	fun newHook(name: String, required: Boolean, versionCheck: (String) -> Boolean = { true }): Hook =
 		Hook(name, required, versionCheck).also { hooks.add(it) }
 	
-	fun manage() {
+	fun manage() = async(plugin) {
 		HooksListener.managers.add(this)
 		hooks.forEach { hook ->
 			checkHook(hook, true)

@@ -22,15 +22,15 @@ repositories {
 }
 
 dependencies {
-	compileOnly("io.papermc.paper:paper-api:1.21.6-R0.1-SNAPSHOT")
-	compileOnly("net.skinsrestorer:skinsrestorer-api:15.6.4")
+	compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
+	compileOnly("net.skinsrestorer:skinsrestorer-api:15.7.7")
 	compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
-	compileOnly("com.github.TheSilentPro:HeadDB:5.0.0-rc.11")
+	compileOnly("com.github.TheSilentPro:HeadDB:6.0.0-rc.2")
 	implementation(fileTree("libs"))
 	implementation("de.tr7zw:item-nbt-api:2.15.1")
 	implementation("dev.jorel:commandapi-bukkit-shade:10.1.1")
 	implementation("dev.jorel:commandapi-bukkit-kotlin:10.1.1")
-	implementation("com.github.retrooper:packetevents-spigot:2.8.0")
+	implementation("com.github.retrooper:packetevents-spigot:2.9.3")
 	
 	compileOnly(kotlin("stdlib"))
 	compileOnly(kotlin("reflect"))

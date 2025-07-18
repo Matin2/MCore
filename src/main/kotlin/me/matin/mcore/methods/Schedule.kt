@@ -6,7 +6,6 @@ import me.matin.mcore.MCore
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
-import tsp.helperlite.Schedulers.async
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 

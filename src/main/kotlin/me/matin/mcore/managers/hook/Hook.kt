@@ -15,8 +15,8 @@ open class Hook(
 		internal set
 	
 	open fun onCheck() {}
-	
 	open fun onFirstCheck() {}
+	open fun extraChecks(): Boolean = true
 	
 	operator fun getValue(thisRef: Any?, property: KProperty<*>): Boolean = available
 }

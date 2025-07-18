@@ -11,9 +11,8 @@ internal object HooksListener: Listener {
 	
 	val managers: MutableSet<HooksManager> = mutableSetOf()
 	
-	@Suppress("UnstableApiUsage")
 	fun checkHook(hook: Hook, first: Boolean) = hook.run {
-		available = plugin?.run { isEnabled && versionCheck(pluginMeta.version) } == true
+		available = plugin?.run { isEnabled && versionCheck(pluginMeta.version) && extraChecks() } == true
 		if (first) onFirstCheck()
 		onCheck()
 	}

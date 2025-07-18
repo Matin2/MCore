@@ -48,13 +48,12 @@ object PacketManager {
 	}
 	
 	@JvmStatic
-	context(player: Player)
-	var openInventoryTitle: Component?
-		get() = InventoryTitle.openWindows[player.name]?.title
+	var Player.openInventoryTitle: Component?
+		get() = InventoryTitle.openWindows[name]?.title
 		set(value) {
 			value ?: return
-			val wrapper = InventoryTitle.openWindows[player.name]?.apply { title = value } ?: return
-			PacketEvents.getAPI().playerManager.sendPacket(player, wrapper)
+			val wrapper = InventoryTitle.openWindows[name]?.apply { title = value } ?: return
+			PacketEvents.getAPI().playerManager.sendPacket(this, wrapper)
 		}
 }
 
