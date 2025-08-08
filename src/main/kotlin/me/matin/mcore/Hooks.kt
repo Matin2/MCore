@@ -19,14 +19,13 @@ internal object Hooks {
 	
 	object HeadDatabase: Hook("HeadDatabase", false, manager) {
 		
-		private var _api: CompletableDeferred<HeadDatabaseAPI>? = CompletableDeferred()
-			get() = field.takeIf { available }
-		val api: Deferred<HeadDatabaseAPI>? get() = _api
+		val api: CompletableDeferred<HeadDatabaseAPI>? = CompletableDeferred()
+			get() = if (available) field else null
 		
 		@EventHandler
 		@Suppress("UnusedReceiverParameter")
 		fun DatabaseLoadEvent.onLoad() {
-			_api?.complete(HeadDatabaseAPI())
+			api?.complete(HeadDatabaseAPI())
 		}
 	}
 	
@@ -38,7 +37,7 @@ internal object Hooks {
 				onReady().asDeferred().join()
 			}
 		}
-			get() = field.takeIf { available }
+			get() = if (available) field else null
 		
 		override fun requirements() = rsp != null
 	}
