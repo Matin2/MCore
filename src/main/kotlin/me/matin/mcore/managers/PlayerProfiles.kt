@@ -20,7 +20,7 @@ object PlayerProfiles {
 	 * @param player Player witch you want the profile of.
 	 * @return [PlayerProfile] of the player with SkinsRestorer support.
 	 */
-	operator fun get(player: OfflinePlayer): PlayerProfile {
+	operator fun get(player: OfflinePlayer, model: SkinModel? = null): PlayerProfile {
 		if (!Hooks.skinsRestorer.available) return player.playerProfile
 		val skin = runCatching {
 			SkinsRestorerProvider.get().playerStorage.getSkinForPlayer(player.uniqueId, player.name).get()
@@ -28,7 +28,7 @@ object PlayerProfiles {
 		return get(
 			PropertyUtils.getSkinTextureUrl(skin),
 			false,
-			SkinModel.valueOf(PropertyUtils.getSkinVariant(skin).name)
+			model ?: SkinModel.valueOf(PropertyUtils.getSkinVariant(skin).name)
 		)
 	}
 	
