@@ -7,63 +7,65 @@ import com.github.retrooper.packetevents.event.PacketSendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
-import me.matin.mcore.methods.async
-import me.matin.mcore.methods.sync
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.CustomModelData
+import kotlinx.coroutines.launch
+import me.matin.mcore.MCore.Companion.pluginScope
+import me.matin.mcore.managers.InventoryTitle.openWindows
 import net.kyori.adventure.text.Component
 import org.bukkit.Material.TOTEM_OF_UNDYING
 import org.bukkit.entity.Player
+import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
-import kotlin.time.Duration.Companion.milliseconds
 
-@Suppress("unused")
+@Suppress("unused", "UnstableApiUsage")
 object PacketManager {
+	
+	@JvmStatic
+	var InventoryView.displayTitle: Component?
+		get() = openWindows[player]?.title
+		set(value) {
+			value ?: return
+			pluginScope.launch {
+				val user = player as Player
+				val wrapper = openWindows[user]?.apply { title = value } ?: return@launch
+				PacketEvents.getAPI().playerManager.sendPacket(user, wrapper)
+				user.updateInventory()
+				openWindows[user] = wrapper
+			}
+		}
 	
 	/**
 	 * Shows totem animation to the selected player.
 	 *
-	 * @param player Selected player
 	 * @param model (Optional) CustomModelData for the totem
+	 * @receiver Selected player
 	 */
-	@Suppress("UnstableApiUsage")
 	@JvmStatic
-	fun showTotem(player: Player, model: Int = -1) = async { thread ->
-		if (model < 0) playTotem(player).also { return@async }
-		val oldItem = player.inventory.itemInOffHand
-		val item = ItemStack(TOTEM_OF_UNDYING)
-		item.editMeta { it.customModelDataComponent.floats.add(model.toFloat()) }
-		var isItemSet = false
-		setItem(player, item) { isItemSet = true }
-		thread.pauseWhile(!isItemSet, 10.milliseconds)
-		playTotem(player)
-		setItem(player, oldItem)
-	}
-	
-	private fun playTotem(player: Player) = WrapperPlayServerEntityStatus(player.entityId, 35).let {
-		PacketEvents.getAPI().playerManager.sendPacket(player, it)
-	}
-	
-	private fun setItem(player: Player, item: ItemStack, also: () -> Unit = {}) = sync {
-		player.inventory.setItem(40, item)
-		also()
-	}
-	
-	@JvmStatic
-	var Player.openInventoryTitle: Component?
-		get() = InventoryTitle.openWindows[name]?.title
-		set(value) {
-			value ?: return
-			val wrapper = InventoryTitle.openWindows[name]?.apply { title = value } ?: return
-			PacketEvents.getAPI().playerManager.sendPacket(this, wrapper)
+	fun Player.showTotem(model: CustomModelData? = null) {
+		model ?: run { sendTotemPacket(); return }
+		val item = inventory.itemInOffHand
+		val totem = ItemStack.of(TOTEM_OF_UNDYING).apply {
+			setData(DataComponentTypes.CUSTOM_MODEL_DATA, model)
 		}
+		inventory.setItem(40, totem)
+		sendTotemPacket()
+		inventory.setItem(40, item)
+	}
+	
+	private fun Player.sendTotemPacket() =
+		PacketEvents.getAPI().playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 
 internal object InventoryTitle: PacketListenerAbstract(NORMAL) {
 	
-	val openWindows = mutableMapOf<String, WrapperPlayServerOpenWindow>()
+	val openWindows: MutableMap<Player, WrapperPlayServerOpenWindow> = mutableMapOf()
 	
 	override fun onPacketSend(event: PacketSendEvent) {
-		if (event.packetType != Play.Server.OPEN_WINDOW) return
-		val player = event.user?.name ?: return
-		openWindows[player] = WrapperPlayServerOpenWindow(event)
+		val player: Player = event.getPlayer() ?: return
+		when (event.packetType) {
+			Play.Server.OPEN_WINDOW -> openWindows[player] = WrapperPlayServerOpenWindow(event)
+			Play.Server.CLOSE_WINDOW -> openWindows.remove(player)
+		}
 	}
 }
