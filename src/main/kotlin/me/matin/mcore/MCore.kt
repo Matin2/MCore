@@ -1,12 +1,8 @@
 package me.matin.mcore
 
 import com.github.retrooper.packetevents.PacketEvents
-import com.github.thesilentpro.headdb.api.HeadAPI
-import de.tr7zw.changeme.nbtapi.NBT
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT
-import dev.jorel.commandapi.CommandAPI
-import dev.jorel.commandapi.CommandAPIBukkitConfig
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
+import kotlinx.coroutines.*
 import me.matin.mcore.managers.InventoryTitle
 import me.matin.mcore.managers.hook.Hook
 import me.matin.mcore.managers.hook.HooksListener
@@ -16,6 +12,7 @@ import me.matin.mlib.text
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.getScheduler
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.concurrent.Executor
 import kotlin.time.measureTime
 
 class MCore: JavaPlugin() {
@@ -26,7 +23,7 @@ class MCore: JavaPlugin() {
 			init()
 			eventManager.registerListeners(InventoryTitle)
 		}
-		Depends.manage()
+		pluginScope = CoroutineScope(CoroutineName("MCoreScope"))
 		registerListeners(HooksListener)
 	}.run { logger.info("Plugin enabled in ${text()}.") }
 	
@@ -41,9 +38,13 @@ class MCore: JavaPlugin() {
 	
 	override fun onDisable() = measureTime {
 		PacketEvents.getAPI().terminate()
+		pluginScope.cancel(CancellationException("Plugin has been disabled."))
 	}.run { logger.info("Plugin disabled in ${text()}.") }
 	
 	companion object {
+		
+		@JvmStatic
+		lateinit var pluginScope: CoroutineScope private set
 		
 		@JvmStatic
 		lateinit var instance: MCore private set

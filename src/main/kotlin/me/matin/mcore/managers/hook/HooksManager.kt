@@ -17,8 +17,8 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook) {
 	fun newHook(name: String, required: Boolean, versionCheck: (String) -> Boolean = { true }): Hook =
 		Hook(name, required, versionCheck).also { hooks.add(it) }
 	
-	fun manage() = async(plugin) {
 		HooksListener.managers.add(this)
+	fun manage() = pluginScope.launch {
 		hooks.forEach { hook ->
 			checkHook(hook, true)
 			if (hook::class.memberExtensionFunctions.any { it.hasAnnotation<EventHandler>() })
