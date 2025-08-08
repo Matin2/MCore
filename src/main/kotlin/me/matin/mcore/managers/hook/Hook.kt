@@ -2,21 +2,24 @@ package me.matin.mcore.managers.hook
 
 import org.bukkit.Bukkit.getPluginManager
 import org.bukkit.event.Listener
-import kotlin.reflect.KProperty
+import org.bukkit.plugin.Plugin
 
 open class Hook(
-	internal val name: String,
-	internal val required: Boolean,
-	internal val versionCheck: (String) -> Boolean = { true },
+	val name: String,
+	val required: Boolean,
+	manager: HooksManager,
+	private val requirements: (Plugin) -> Boolean = { true },
 ): Listener {
 	
-	val plugin get() = getPluginManager().getPlugin(name)
+	val plugin
+		get() = getPluginManager().getPlugin(name) ?: throw NullPointerException("Plugin $name is not available")
 	var available = false
 		internal set
 	
-	open fun onCheck() {}
-	open fun onFirstCheck() {}
-	open fun extraChecks(): Boolean = true
+	init {
+		manager.hooks.add(this)
+	}
 	
-	operator fun getValue(thisRef: Any?, property: KProperty<*>): Boolean = available
+	protected open fun requirements() = requirements.invoke(plugin)
+	internal fun checkRequirements() = requirements()
 }

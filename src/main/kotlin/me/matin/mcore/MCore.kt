@@ -4,13 +4,9 @@ import com.github.retrooper.packetevents.PacketEvents
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
 import kotlinx.coroutines.*
 import me.matin.mcore.managers.InventoryTitle
-import me.matin.mcore.managers.hook.Hook
 import me.matin.mcore.managers.hook.HooksListener
-import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.methods.registerListeners
 import me.matin.mlib.text
-import org.bukkit.Bukkit
-import org.bukkit.Bukkit.getScheduler
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.Executor
 import kotlin.time.measureTime
@@ -25,6 +21,7 @@ class MCore: JavaPlugin() {
 		}
 		pluginScope = CoroutineScope(CoroutineName("MCoreScope"))
 		registerListeners(HooksListener)
+		Hooks.manager.manage()
 	}.run { logger.info("Plugin enabled in ${text()}.") }
 	
 	@Suppress("UnstableApiUsage")
@@ -51,17 +48,5 @@ class MCore: JavaPlugin() {
 	}
 }
 
-internal object Depends: HooksManager(MCore.instance, HeadDB) {
-	
-	val skinsRestorer by newHook("SkinsRestorer", false)
-	val headDatabase by newHook("HeadDatabase", false)
-	
-	object HeadDB: Hook("HeadDB", false) {
-		
-		private val rsp get() = Bukkit.getServicesManager().getRegistration(HeadAPI::class.java)
-		
-		override fun extraChecks() = rsp != null
-		
-		val api = rsp?.provider
-	}
-}
+@Suppress("unused")
+val serverDispatcher = Executor { it.run() }.asCoroutineDispatcher()

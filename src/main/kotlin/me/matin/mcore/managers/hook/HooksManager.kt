@@ -1,49 +1,57 @@
 package me.matin.mcore.managers.hook
 
-import me.matin.mcore.MCore
-import me.matin.mcore.managers.hook.HooksListener.checkHook
+import kotlinx.coroutines.launch
+import me.matin.mcore.MCore.Companion.pluginScope
+import me.matin.mcore.managers.hook.HookCheckEvent.CheckState
 import me.matin.mcore.managers.hook.HooksListener.setEnabled
-import me.matin.mcore.methods.async
-import org.bukkit.Bukkit
-import org.bukkit.event.EventHandler
+import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit.getPluginManager
 import org.bukkit.plugin.Plugin
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.memberExtensionFunctions
 
-open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook) {
+open class HooksManager(internal val plugin: Plugin, logEditor: Logs.() -> Unit = {}) {
 	
-	val hooks: MutableSet<Hook> = hooks.toMutableSet()
+	val hooks: MutableSet<Hook> = mutableSetOf()
+	private val logs = Logs().apply { logEditor() }
 	
-	fun newHook(name: String, required: Boolean, versionCheck: (String) -> Boolean = { true }): Hook =
-		Hook(name, required, versionCheck).also { hooks.add(it) }
-	
-		HooksListener.managers.add(this)
 	fun manage() = pluginScope.launch {
 		hooks.forEach { hook ->
-			checkHook(hook, true)
-			if (hook::class.memberExtensionFunctions.any { it.hasAnnotation<EventHandler>() })
-				Bukkit.getPluginManager().registerEvents(hook, plugin)
+			getPluginManager().registerEvents(hook, plugin)
+			checkHook(hook, CheckState.INITIAL)
 		}
-		checkRequired {
-			allAvailable = "All the required dependencies for ${plugin.name} are installed."
-			someUnavailable =
-				"${unavailable.joinToString(limit = 3)} are required by ${plugin.name} but are not available."
-		}
+		checkRequired()
+		HooksListener.managers.add(this@HooksManager)
 	}
 	
-	internal fun checkRequired(message: Messages.() -> Unit) {
+	internal fun checkHook(hook: Hook, state: CheckState) {
+		hook.available = runCatching { hook.plugin }.getOrNull()?.isEnabled == true && hook.checkRequirements()
+		plugin.componentLogger.info(logCheckedHook(hook, state == CheckState.INITIAL))
+		when (state) {
+			CheckState.INITIAL -> HookInitialCheckEvent(hook)
+			CheckState.ENABLED -> HookEnableEvent(hook)
+			CheckState.DISABLED -> HookDisableEvent(hook)
+		}.callEvent()
+	}
+	
+	private fun logCheckedHook(hook: Hook, initial: Boolean) = when {
+		initial && hook.available -> logs.successful_hook(hook)
+		initial -> logs.fail_hook(hook)
+		hook.available -> logs.successful_rehook(hook)
+		else -> logs.successful_unhook(hook)
+	}
+	
+	internal fun checkRequired() {
 		val unavailable = hooks.filter { it.required }.ifEmpty { return }.filter { !it.available }.map { it.name }
-		val allAvailable = unavailable.isEmpty()
-		val messages = Messages(unavailable).apply(message)
-		val message = if (allAvailable) messages.allAvailable else messages.someUnavailable
-		plugin setEnabled allAvailable
-		message.ifBlank { return }
-		MCore.instance.logger.info(message)
+		plugin setEnabled unavailable.isEmpty().also {
+			if (it) plugin.componentLogger.info(logs.all_required_available)
+		}
 	}
 	
-	internal class Messages(val unavailable: List<String>) {
-		
-		var allAvailable: String = ""
-		var someUnavailable: String = ""
-	}
+	@Suppress("PropertyName")
+	data class Logs(
+		var successful_hook: (Hook) -> Component = { Component.text("Successfully hooked to ${it.name}.") },
+		var fail_hook: (Hook) -> Component = { Component.text("Failed to hook to ${it.name}.") },
+		var successful_unhook: (Hook) -> Component = { Component.text("Successfully unhooked from ${it.name}.") },
+		var successful_rehook: (Hook) -> Component = { Component.text("Successfully rehooked to ${it.name}.") },
+		var all_required_available: Component = Component.text("All the required dependencies are installed."),
+	) //"${it.joinToString(limit = 3)} are required by ${plugin.name} but are not available."
 }

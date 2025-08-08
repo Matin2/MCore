@@ -1,8 +1,8 @@
 package me.matin.mcore.managers
 
 import com.destroystokyo.paper.profile.PlayerProfile
-import me.arcaniax.hdb.api.HeadDatabaseAPI
-import me.matin.mcore.Depends
+import kotlinx.coroutines.future.asDeferred
+import me.matin.mcore.Hooks
 import net.skinsrestorer.api.Base64Utils.decode
 import net.skinsrestorer.api.PropertyUtils
 import net.skinsrestorer.api.SkinsRestorerProvider
@@ -21,7 +21,7 @@ object PlayerProfiles {
 	 * @return [PlayerProfile] of the player with SkinsRestorer support.
 	 */
 	operator fun get(player: OfflinePlayer): PlayerProfile {
-		if (!Depends.skinsRestorer) return player.playerProfile
+		if (!Hooks.skinsRestorer.available) return player.playerProfile
 		val skin = runCatching {
 			SkinsRestorerProvider.get().playerStorage.getSkinForPlayer(player.uniqueId, player.name).get()
 		}.getOrNull() ?: return player.playerProfile
@@ -44,15 +44,15 @@ object PlayerProfiles {
 			setTextures(textures.apply { setSkin(url, model) })
 		}
 	
-	enum class DataBase(private val base64: (Int) -> String?) {
+	enum class DataBase(private val base64: suspend (Int) -> String?) {
 		
-		HeadDatabase({ if (Depends.headDatabase) HeadDatabaseAPI().getBase64("$it") else null }),
-		HeadDB({ Depends.HeadDB.api?.findById(it)?.get()?.getOrNull()?.texture });
+		HeadDatabase({ Hooks.HeadDatabase.api?.await()?.getBase64("$it") }),
+		HeadDB({ Hooks.HeadDB.api?.await()?.findById(it)?.asDeferred()?.await()?.getOrNull()?.texture });
 		
 		/**
 		 * @param id Head id witch the profile is created for.
 		 * @return [PlayerProfile] from the given head id or `null` if not found.
 		 */
-		operator fun get(id: Int) = base64(id)?.let { get(it, true) }
+		suspend operator fun get(id: Int) = base64(id)?.let { get(it, true) }
 	}
 }
