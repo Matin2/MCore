@@ -35,6 +35,10 @@ dependencies {
 	implementation(kotlin("reflect"))
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+	
+	implementation("org.spongepowered:configurate-yaml:4.2.0")
+	implementation("org.spongepowered:configurate-extra-kotlin:4.2.0")
+	implementation("com.github.ItsDoot:configurate-serialization:0.1.1")
 }
 
 tasks.shadowJar {
@@ -45,6 +49,10 @@ tasks.shadowJar {
 		"assets" to "packetevents.assets",
 		"com.github.retrooper.packetevents" to "packetevents.api",
 		"io.github.retrooper.packetevents" to "packetevents.impl",
+		//Configurate
+		"org.spongepowered.configurate" to "configurate",
+		"io.leangen.geantyref" to "configurate.geantyref",
+		"pw.dotdash.configurate" to "configurate",
 	)
 	val exclusions = setOf(
 		"org.jetbrains:annotations",
