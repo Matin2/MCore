@@ -22,7 +22,6 @@ class MCore: JavaPlugin() {
 	
 	override fun onEnable() = measureTime {
 		instance = this
-		CommandAPI.onEnable()
 		PacketEvents.getAPI().apply {
 			init()
 			eventManager.registerListeners(InventoryTitle)
@@ -38,17 +37,9 @@ class MCore: JavaPlugin() {
 			settings.reEncodeByDefault(false).checkForUpdates(false)
 			load()
 		}
-		CommandAPI.onLoad(
-			CommandAPIBukkitConfig(this)
-				.shouldHookPaperReload(true)
-				.silentLogs(true)
-				.initializeNBTAPI(ReadWriteNBT::class.java, NBT::wrapNMSTag)
-		)
 	}.run { logger.info("Plugin loaded in ${text()}.") }
 	
 	override fun onDisable() = measureTime {
-		getScheduler().cancelTasks(this)
-		CommandAPI.onDisable()
 		PacketEvents.getAPI().terminate()
 	}.run { logger.info("Plugin disabled in ${text()}.") }
 	

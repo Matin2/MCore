@@ -22,15 +22,14 @@ repositories {
 }
 
 dependencies {
-	compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
-	compileOnly("net.skinsrestorer:skinsrestorer-api:15.7.7")
+	compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+	compileOnly("net.skinsrestorer:skinsrestorer-api:15.7.8")
 	compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
 	compileOnly("com.github.TheSilentPro:HeadDB:6.0.0-rc.2")
+	
 	implementation(fileTree("libs"))
 	implementation("de.tr7zw:item-nbt-api:2.15.1")
-	implementation("dev.jorel:commandapi-bukkit-shade:10.1.1")
-	implementation("dev.jorel:commandapi-bukkit-kotlin:10.1.1")
-	implementation("com.github.retrooper:packetevents-spigot:2.9.3")
+	implementation("com.github.retrooper:packetevents-spigot:2.9.4")
 	
 	compileOnly(kotlin("stdlib"))
 	compileOnly(kotlin("reflect"))
@@ -41,7 +40,7 @@ tasks.shadowJar {
 	val relocations = mapOf(
 		"me.matin.mlib" to "mlib",
 		"de.tr7zw.changeme.nbtapi" to "nbtapi",
-		"dev.jorel.commandapi" to "commandapi",
+		//PacketEvents
 		"assets" to "packetevents.assets",
 		"com.github.retrooper.packetevents" to "packetevents.api",
 		"io.github.retrooper.packetevents" to "packetevents.impl",
