@@ -31,9 +31,10 @@ dependencies {
 	implementation("de.tr7zw:item-nbt-api:2.15.1")
 	implementation("com.github.retrooper:packetevents-spigot:2.9.4")
 	
-	compileOnly(kotlin("stdlib"))
-	compileOnly(kotlin("reflect"))
-	compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+	implementation(kotlin("stdlib"))
+	implementation(kotlin("reflect"))
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
 
 tasks.shadowJar {
@@ -44,12 +45,8 @@ tasks.shadowJar {
 		"assets" to "packetevents.assets",
 		"com.github.retrooper.packetevents" to "packetevents.api",
 		"io.github.retrooper.packetevents" to "packetevents.impl",
-		"kotlinx" to "kotlinx",
 	)
 	val exclusions = setOf(
-		"org.jetbrains.kotlin:kotlin-stdlib",
-		"org.jetbrains.kotlin:kotlin-reflect",
-		"org.jetbrains.kotlinx:kotlinx-serialization-json",
 		"org.jetbrains:annotations",
 		"com.google.code.gson:gson",
 		"net.kyori:",
@@ -63,15 +60,13 @@ tasks.shadowJar {
 tasks.build {
 	dependsOn(tasks.shadowJar)
 }
-val kotlinVersion = "2.2.0"
 val javaVersion = 21
 
 tasks.processResources {
 	val ver = "version" to version.toString().replaceAfter('-', "SNAPSHOT")
-	val kotlinVer = "kotlin_version" to kotlinVersion
-	inputs.properties(ver, kotlinVer)
+	inputs.properties(ver)
 	filteringCharset = "UTF-8"
-	filesMatching("plugin.yml") { expand(ver, kotlinVer) }
+	filesMatching("plugin.yml") { expand(ver) }
 }
 
 tasks.withType<JavaCompile> {
