@@ -1,20 +1,22 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.launch
+import me.matin.mcore.MCore
 import me.matin.mcore.MCore.Companion.pluginScope
 import me.matin.mcore.managers.hook.HooksListener.setEnabled
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import org.bukkit.Bukkit.getPluginManager
 import org.bukkit.plugin.Plugin
 
 open class HooksManager(internal val plugin: Plugin, logEditor: Logs.() -> Unit = {}) {
 	
 	val hooks: MutableSet<Hook> = mutableSetOf()
-	private val logs = Logs().apply { logEditor() }
+	private val logs = Logs(plugin.componentLogger).apply { logEditor() }
 	
 	fun manage() = pluginScope.launch {
 		hooks.forEach { hook ->
-			hook.init()
+			hook.initialize()
 			logState(hook, true)
 			getPluginManager().registerEvents(hook, plugin)
 		}
@@ -24,30 +26,29 @@ open class HooksManager(internal val plugin: Plugin, logEditor: Logs.() -> Unit 
 	
 	internal fun checkRequired() {
 		val unavailable =
-			hooks.filter { it.required }.ifEmpty { return }.filterNot { it.available }
+			hooks.filter { it.required }.ifEmpty { return }.filterNot { it.available.value }
 		val available = unavailable.isEmpty()
 		if (available) {
-			plugin.componentLogger.error(
+			MCore.instance.componentLogger.error(
 				"""The following dependencies are required by ${plugin.name} but are not available: ${
 					unavailable.joinToString(prefix = "[", postfix = "]") { it.name }
 				}""")
 		} else {
-			plugin.componentLogger.info(logs.all_required_available)
+			logs.logger.info(logs.all_required_available)
 		}
 		plugin setEnabled available
 	}
 	
-	internal fun logState(hook: Hook, initial: Boolean) = plugin.componentLogger.info(
-		when {
-			initial && hook.available -> logs.successful_hook(hook)
-			initial -> logs.fail_hook(hook)
-			hook.available -> logs.successful_rehook(hook)
-			else -> logs.successful_unhook(hook)
-		}
-	)
+	internal fun logState(hook: Hook, initial: Boolean) = when {
+		initial && hook.available.value -> logs.successful_hook(hook)
+		initial -> logs.fail_hook(hook)
+		hook.available.value -> logs.successful_rehook(hook)
+		else -> logs.successful_unhook(hook)
+	}.takeUnless { it == Component.empty() }?.let { logs.logger.info(it) } ?: Unit
 	
 	@Suppress("PropertyName")
 	data class Logs(
+		var logger: ComponentLogger,
 		var successful_hook: (Hook) -> Component = { Component.text("Successfully hooked to ${it.name}.") },
 		var fail_hook: (Hook) -> Component = { Component.text("Failed to hook to ${it.name}.") },
 		var successful_unhook: (Hook) -> Component = { Component.text("Successfully unhooked from ${it.name}.") },

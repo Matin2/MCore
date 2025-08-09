@@ -1,7 +1,9 @@
 package me.matin.mcore.managers.hook
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
@@ -10,33 +12,32 @@ open class Hook(
 	val name: String,
 	val required: Boolean,
 	manager: HooksManager,
-	private val onInitialize: () -> Unit = {},
-	private val requirements: (Plugin) -> Boolean = { true },
+	open val requirements: (Plugin) -> Boolean = { true },
 ): Listener {
 	
 	private var _plugin: Plugin? = null
 	val plugin get() = _plugin
-	private val _state = MutableStateFlow(State.NOT_FOUND)
-	val state get() = _state.asStateFlow()
-	val available get() = _state.value == State.ENABLED
+	private val _available = MutableStateFlow(false)
+	val available get() = _available.asStateFlow()
 	
 	init {
 		manager.hooks.add(this)
 	}
 	
-	open fun requirements(plugin: Plugin) = requirements.invoke(plugin)
-	open fun onInitialize() = onInitialize.invoke()
+	open suspend fun CoroutineScope.init() {}
 	
-	internal suspend fun init() {
+	context(scope: CoroutineScope)
+	internal fun initialize() = scope.launch {
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
-		updateState()
-		HookInitialCheckEvent(this).callEvent()
-		onInitialize()
+		check(true)
+		launch { init() }
 	}
 	
-	internal suspend fun updateState() = _state.emit(_plugin?.run {
-		if (isEnabled) State.ENABLED else State.DISABLED
-	} ?: State.NOT_FOUND)
-	
-	enum class State { NOT_FOUND, ENABLED, DISABLED }
+	internal suspend fun check(initial: Boolean) {
+		val enabled = _plugin?.isEnabled == true
+		if (available.value == enabled) return
+		_available.emit(enabled)
+		val event = if (initial) HookInitialCheckEvent(this) else HookCheckEvent(this)
+		event.callEvent()
+	}
 }
