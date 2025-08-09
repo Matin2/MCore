@@ -1,8 +1,7 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
@@ -18,26 +17,31 @@ open class Hook(
 	private var _plugin: Plugin? = null
 	val plugin get() = _plugin
 	private val _available = MutableStateFlow(false)
-	val available get() = _available.asStateFlow()
+	val available get() = _available.value
 	
 	init {
 		manager.hooks.add(this)
 	}
 	
-	open suspend fun CoroutineScope.init() {}
+	protected open suspend fun onInitialCheck() {}
+	protected open suspend fun onCheck() {}
 	
-	context(scope: CoroutineScope)
-	internal fun initialize() = scope.launch {
+	internal suspend fun initialize(): Unit = coroutineScope {
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
-		check(true)
-		launch { init() }
+		check()
+		HookInitialCheckEvent(this@Hook).callEvent()
+		onInitialCheck()
+		launch {
+			_available.collect {
+				HookCheckEvent(this@Hook).callEvent()
+				onCheck()
+			}
+		}
 	}
 	
-	internal suspend fun check(initial: Boolean) {
+	internal suspend fun check() {
 		val enabled = _plugin?.isEnabled == true
-		if (available.value == enabled) return
+		if (available == enabled) return
 		_available.emit(enabled)
-		val event = if (initial) HookInitialCheckEvent(this) else HookCheckEvent(this)
-		event.callEvent()
 	}
 }

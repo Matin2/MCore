@@ -17,17 +17,17 @@ internal object HooksListener: Listener {
 		false -> server.pluginManager.disablePlugin(this)
 	}
 	
-	private fun check(plugin: Plugin) {
-		pluginScope.launch {
-			for (manager in managers) {
-				val hook = manager.hooks.find { it.plugin == plugin } ?: continue
-				hook.check(false)
-				manager.logState(hook, false)
-				if (hook.required) manager.checkRequired()
-			}
+	private fun check(plugin: Plugin) = pluginScope.launch {
+		for (manager in managers) {
+			val hook = manager.hooks.find { it.plugin == plugin } ?: continue
+			hook.check()
+			manager.logState(hook, false)
+			if (hook.required) manager.checkRequired()
 		}
 	}
 	
 	@EventHandler
-	fun PluginEvent.onPluginEnableDisable() = check(plugin)
+	fun PluginEvent.onPluginEnableDisable() {
+		check(plugin)
+	}
 }

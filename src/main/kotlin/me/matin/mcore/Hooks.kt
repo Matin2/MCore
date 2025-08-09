@@ -2,9 +2,9 @@ package me.matin.mcore
 
 import com.github.thesilentpro.headdb.api.HeadAPI
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.asDeferred
 import me.arcaniax.hdb.api.DatabaseLoadEvent
 import me.arcaniax.hdb.api.HeadDatabaseAPI
@@ -22,7 +22,7 @@ internal object Hooks {
 	object HeadDatabase: Hook("HeadDatabase", false, manager) {
 		
 		val api: CompletableDeferred<HeadDatabaseAPI>? = CompletableDeferred()
-			get() = if (available.value) field else null
+			get() = if (available) field else null
 		
 		@EventHandler
 		@Suppress("UnusedReceiverParameter")
@@ -39,14 +39,12 @@ internal object Hooks {
 		override val requirements: (Plugin) -> Boolean
 			get() = { rsp != null }
 		
-		override suspend fun CoroutineScope.init() {
-			available.collect {
-				api = if (it) async {
-					rsp!!.provider.apply {
-						onReady().asDeferred().join()
-					}
-				} else null
-			}
+		override suspend fun onCheck() = coroutineScope {
+			api = if (available) async {
+				rsp!!.provider.apply {
+					onReady().asDeferred().join()
+				}
+			} else null
 		}
 	}
 }
