@@ -10,6 +10,7 @@ open class Hook(
 	val name: String,
 	val required: Boolean,
 	manager: HooksManager,
+	private val onInitialize: () -> Unit = {},
 	private val requirements: (Plugin) -> Boolean = { true },
 ): Listener {
 	
@@ -24,7 +25,7 @@ open class Hook(
 	}
 	
 	open fun requirements(plugin: Plugin) = requirements.invoke(plugin)
-	open fun onInitialize() {}
+	open fun onInitialize() = onInitialize.invoke()
 	
 	internal suspend fun init() {
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
