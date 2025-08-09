@@ -26,22 +26,22 @@ open class Hook(
 	protected open suspend fun onInitialCheck() {}
 	protected open suspend fun onCheck() {}
 	
-	internal suspend fun initialize(): Unit = coroutineScope {
-		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
-		check()
-		HookInitialCheckEvent(this@Hook).callEvent()
-		onInitialCheck()
+	internal suspend fun initialize() = coroutineScope {
 		launch {
 			_available.collect {
-				HookCheckEvent(this@Hook).callEvent()
 				onCheck()
 			}
 		}
+		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
+		check(true)
+		onInitialCheck()
 	}
 	
-	internal suspend fun check() {
+	internal suspend fun check(initial: Boolean) {
 		val enabled = _plugin?.isEnabled == true
 		if (available == enabled) return
 		_available.emit(enabled)
+		val event = if (initial) HookInitialCheckEvent(this) else HookCheckEvent(this)
+		event.callEvent()
 	}
 }

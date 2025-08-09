@@ -20,7 +20,7 @@ internal object HooksListener: Listener {
 	private fun check(plugin: Plugin) = pluginScope.launch {
 		for (manager in managers) {
 			val hook = manager.hooks.find { it.plugin == plugin } ?: continue
-			hook.check()
+			hook.check(false)
 			manager.logState(hook, false)
 			if (hook.required) manager.checkRequired()
 		}
