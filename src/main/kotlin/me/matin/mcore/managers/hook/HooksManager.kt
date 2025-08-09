@@ -2,7 +2,6 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.launch
 import me.matin.mcore.MCore.Companion.pluginScope
-import me.matin.mcore.managers.hook.HookCheckEvent.CheckState
 import me.matin.mcore.managers.hook.HooksListener.setEnabled
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit.getPluginManager
@@ -15,36 +14,37 @@ open class HooksManager(internal val plugin: Plugin, logEditor: Logs.() -> Unit 
 	
 	fun manage() = pluginScope.launch {
 		hooks.forEach { hook ->
+			hook.init()
+			logState(hook, true)
 			getPluginManager().registerEvents(hook, plugin)
-			checkHook(hook, CheckState.INITIAL)
 		}
 		checkRequired()
 		HooksListener.managers.add(this@HooksManager)
 	}
 	
-	internal fun checkHook(hook: Hook, state: CheckState) {
-		hook.available = runCatching { hook.plugin }.getOrNull()?.isEnabled == true && hook.checkRequirements()
-		plugin.componentLogger.info(logCheckedHook(hook, state == CheckState.INITIAL))
-		when (state) {
-			CheckState.INITIAL -> HookInitialCheckEvent(hook)
-			CheckState.ENABLED -> HookEnableEvent(hook)
-			CheckState.DISABLED -> HookDisableEvent(hook)
-		}.callEvent()
-	}
-	
-	private fun logCheckedHook(hook: Hook, initial: Boolean) = when {
-		initial && hook.available -> logs.successful_hook(hook)
-		initial -> logs.fail_hook(hook)
-		hook.available -> logs.successful_rehook(hook)
-		else -> logs.successful_unhook(hook)
-	}
-	
 	internal fun checkRequired() {
-		val unavailable = hooks.filter { it.required }.ifEmpty { return }.filter { !it.available }.map { it.name }
-		plugin setEnabled unavailable.isEmpty().also {
-			if (it) plugin.componentLogger.info(logs.all_required_available)
+		val unavailable =
+			hooks.filter { it.required }.ifEmpty { return }.filterNot { it.available }
+		val available = unavailable.isEmpty()
+		if (available) {
+			plugin.componentLogger.error(
+				"""The following dependencies are required by ${plugin.name} but are not available: ${
+					unavailable.joinToString(prefix = "[", postfix = "]") { it.name }
+				}""")
+		} else {
+			plugin.componentLogger.info(logs.all_required_available)
 		}
+		plugin setEnabled available
 	}
+	
+	internal fun logState(hook: Hook, initial: Boolean) = plugin.componentLogger.info(
+		when {
+			initial && hook.available -> logs.successful_hook(hook)
+			initial -> logs.fail_hook(hook)
+			hook.available -> logs.successful_rehook(hook)
+			else -> logs.successful_unhook(hook)
+		}
+	)
 	
 	@Suppress("PropertyName")
 	data class Logs(
@@ -53,5 +53,5 @@ open class HooksManager(internal val plugin: Plugin, logEditor: Logs.() -> Unit 
 		var successful_unhook: (Hook) -> Component = { Component.text("Successfully unhooked from ${it.name}.") },
 		var successful_rehook: (Hook) -> Component = { Component.text("Successfully rehooked to ${it.name}.") },
 		var all_required_available: Component = Component.text("All the required dependencies are installed."),
-	) //"${it.joinToString(limit = 3)} are required by ${plugin.name} but are not available."
+	)
 }

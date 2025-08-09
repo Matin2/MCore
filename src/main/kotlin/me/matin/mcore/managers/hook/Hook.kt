@@ -1,6 +1,8 @@
 package me.matin.mcore.managers.hook
 
-import org.bukkit.Bukkit.getPluginManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
@@ -11,15 +13,29 @@ open class Hook(
 	private val requirements: (Plugin) -> Boolean = { true },
 ): Listener {
 	
-	val plugin
-		get() = getPluginManager().getPlugin(name) ?: throw NullPointerException("Plugin $name is not available")
-	var available = false
-		internal set
+	private var _plugin: Plugin? = null
+	val plugin get() = _plugin
+	private val _state = MutableStateFlow(State.NOT_FOUND)
+	val state get() = _state.asStateFlow()
+	val available get() = _state.value == State.ENABLED
 	
 	init {
 		manager.hooks.add(this)
 	}
 	
-	protected open fun requirements() = requirements.invoke(plugin)
-	internal fun checkRequirements() = requirements()
+	open fun requirements(plugin: Plugin) = requirements.invoke(plugin)
+	open fun onInitialize() {}
+	
+	internal suspend fun init() {
+		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
+		updateState()
+		HookInitialCheckEvent(this).callEvent()
+		onInitialize()
+	}
+	
+	internal suspend fun updateState() = _state.emit(_plugin?.run {
+		if (isEnabled) State.ENABLED else State.DISABLED
+	} ?: State.NOT_FOUND)
+	
+	enum class State { NOT_FOUND, ENABLED, DISABLED }
 }

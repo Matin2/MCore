@@ -5,12 +5,14 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asDeferred
+import kotlinx.coroutines.launch
 import me.arcaniax.hdb.api.DatabaseLoadEvent
 import me.arcaniax.hdb.api.HeadDatabaseAPI
 import me.matin.mcore.managers.hook.Hook
 import me.matin.mcore.managers.hook.HooksManager
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
+import org.bukkit.plugin.Plugin
 
 internal object Hooks {
 	
@@ -32,13 +34,19 @@ internal object Hooks {
 	object HeadDB: Hook("HeadDB", false, manager) {
 		
 		private val rsp = Bukkit.getServicesManager().getRegistration(HeadAPI::class.java)
-		val api: Deferred<HeadAPI>? = MCore.pluginScope.async {
-			rsp!!.provider.apply {
-				onReady().asDeferred().join()
-			}
-		}
-			get() = if (available) field else null
+		var api: Deferred<HeadAPI>? = null
+			private set
 		
-		override fun requirements() = rsp != null
+		override fun requirements(plugin: Plugin) = rsp != null
+		
+		override fun onInitialize() = MCore.pluginScope.launch {
+			state.collect {
+				api = if (it == State.ENABLED) async {
+					rsp!!.provider.apply {
+						onReady().asDeferred().join()
+					}
+				} else null
+			}
+		}.let {}
 	}
 }

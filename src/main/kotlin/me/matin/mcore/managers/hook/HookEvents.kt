@@ -4,19 +4,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 
 @Suppress("unused")
-sealed class HookCheckEvent(val hook: Hook, val state: CheckState): Event(true) {
-	
-	override fun getHandlers(): HandlerList = handlerList
-	
-	enum class CheckState { INITIAL, ENABLED, DISABLED }
-	
-	companion object {
-		
-		val handlerList: HandlerList = HandlerList()
-	}
-}
-
-class HookInitialCheckEvent(hook: Hook): HookCheckEvent(hook, CheckState.INITIAL) {
+sealed class HookCheckEvent(val hook: Hook): Event(true) {
 	
 	override fun getHandlers(): HandlerList = handlerList
 	
@@ -26,7 +14,7 @@ class HookInitialCheckEvent(hook: Hook): HookCheckEvent(hook, CheckState.INITIAL
 	}
 }
 
-class HookEnableEvent(hook: Hook): HookCheckEvent(hook, CheckState.ENABLED) {
+class HookInitialCheckEvent(hook: Hook): HookCheckEvent(hook) {
 	
 	override fun getHandlers(): HandlerList = handlerList
 	
@@ -36,7 +24,17 @@ class HookEnableEvent(hook: Hook): HookCheckEvent(hook, CheckState.ENABLED) {
 	}
 }
 
-class HookDisableEvent(hook: Hook): HookCheckEvent(hook, CheckState.DISABLED) {
+class HookEnableEvent(hook: Hook): HookCheckEvent(hook) {
+	
+	override fun getHandlers(): HandlerList = handlerList
+	
+	companion object {
+		
+		val handlerList: HandlerList = HandlerList()
+	}
+}
+
+class HookDisableEvent(hook: Hook): HookCheckEvent(hook) {
 	
 	override fun getHandlers(): HandlerList = handlerList
 	

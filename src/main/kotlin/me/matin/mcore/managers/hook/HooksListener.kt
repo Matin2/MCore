@@ -1,9 +1,7 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.launch
-import me.matin.mcore.MCore
 import me.matin.mcore.MCore.Companion.pluginScope
-import me.matin.mcore.managers.hook.HookCheckEvent.CheckState
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
@@ -14,30 +12,28 @@ internal object HooksListener: Listener {
 	
 	val managers: MutableSet<HooksManager> = mutableSetOf()
 	
-	infix fun Plugin.setEnabled(enabled: Boolean) {
-		if (isEnabled == enabled) return
-		if (enabled) {
-			server.pluginManager.enablePlugin(this)
-			MCore.instance.logger.info("$name got enabled.")
-			return
-		}
-		server.pluginManager.disablePlugin(this)
-		MCore.instance.logger.info("$name got disabled.")
+	infix fun Plugin.setEnabled(enabled: Boolean) = when (enabled) {
+		isEnabled -> Unit
+		true -> server.pluginManager.enablePlugin(this)
+		false -> server.pluginManager.disablePlugin(this)
 	}
 	
-	private fun check(name: String, onEnable: Boolean) {
+	private fun check(plugin: Plugin, onEnable: Boolean) {
 		pluginScope.launch {
 			for (manager in managers) {
-				val hook = manager.hooks.find { it.name == name } ?: continue
-				manager.checkHook(hook, if (onEnable) CheckState.ENABLED else CheckState.DISABLED)
+				val hook = manager.hooks.find { it.plugin == plugin } ?: continue
+				hook.updateState()
+				val event = if (onEnable) HookEnableEvent(hook) else HookDisableEvent(hook)
+				event.callEvent()
+				manager.logState(hook, false)
 				if (hook.required) manager.checkRequired()
 			}
 		}
 	}
 	
 	@EventHandler
-	fun PluginEnableEvent.onPluginEnable() = check(plugin.name, true)
+	fun PluginEnableEvent.onPluginEnable() = check(plugin, true)
 	
 	@EventHandler
-	fun PluginDisableEvent.onPluginDisable() = check(plugin.name, false)
+	fun PluginDisableEvent.onPluginDisable() = check(plugin, false)
 }
