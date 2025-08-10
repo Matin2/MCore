@@ -1,25 +1,28 @@
+@file:Suppress("unused")
+
 package me.matin.mcore.managers.hook
 
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 
-@Suppress("unused")
-open class HookCheckEvent(val hook: Hook): Event(true) {
+class HookStateChangeEvent(val hook: Hook): Event(true) {
 	
 	override fun getHandlers(): HandlerList = handlerList
 	
 	companion object {
 		
+		@JvmStatic
 		val handlerList: HandlerList = HandlerList()
 	}
 }
 
-class HookInitialCheckEvent(hook: Hook): HookCheckEvent(hook) {
+class HookInitialStateCheckEvent(val hook: Hook): Event(true) {
 	
 	override fun getHandlers(): HandlerList = handlerList
 	
 	companion object {
 		
+		@JvmStatic
 		val handlerList: HandlerList = HandlerList()
 	}
 }

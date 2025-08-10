@@ -39,7 +39,7 @@ internal object Hooks {
 		override val requirements: (Plugin) -> Boolean
 			get() = { rsp != null }
 		
-		override suspend fun onCheck() = coroutineScope {
+		override suspend fun onStateChange() = coroutineScope {
 			api = if (available) async {
 				rsp!!.provider.apply {
 					onReady().asDeferred().join()
