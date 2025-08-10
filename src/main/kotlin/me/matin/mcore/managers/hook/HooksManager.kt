@@ -9,9 +9,9 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import org.bukkit.Bukkit.getPluginManager
 import org.bukkit.plugin.Plugin
 
-open class HooksManager(internal val plugin: Plugin, logEditor: Logs.() -> Unit = {}) {
+open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, logEditor: Logs.() -> Unit = {}) {
 	
-	val hooks: MutableSet<Hook> = mutableSetOf()
+	val hooks: MutableSet<Hook> = hooks.toMutableSet()
 	private val logs = Logs(plugin.componentLogger).apply { logEditor() }
 	
 	fun manage() = pluginScope.launch {

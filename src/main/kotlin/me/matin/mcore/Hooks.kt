@@ -16,10 +16,10 @@ import org.bukkit.plugin.Plugin
 
 internal object Hooks {
 	
-	val manager = HooksManager(MCore.instance)
-	val skinsRestorer = Hook("SkinsRestorer", false, manager)
+	val manager = HooksManager(MCore.instance, HeadDatabase, HeadDB)
+	val skinsRestorer = Hook("SkinsRestorer", false).also { manager.hooks.add(it) }
 	
-	object HeadDatabase: Hook("HeadDatabase", false, manager) {
+	object HeadDatabase: Hook("HeadDatabase", false) {
 		
 		val api: CompletableDeferred<HeadDatabaseAPI>? = CompletableDeferred()
 			get() = if (available) field else null
@@ -31,7 +31,7 @@ internal object Hooks {
 		}
 	}
 	
-	object HeadDB: Hook("HeadDB", false, manager) {
+	object HeadDB: Hook("HeadDB", false) {
 		
 		private val rsp = Bukkit.getServicesManager().getRegistration(HeadAPI::class.java)
 		var api: Deferred<HeadAPI>? = null

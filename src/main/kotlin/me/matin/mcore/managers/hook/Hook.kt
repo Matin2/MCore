@@ -10,7 +10,6 @@ import org.bukkit.plugin.Plugin
 open class Hook(
 	val name: String,
 	val required: Boolean,
-	manager: HooksManager,
 	open val requirements: (Plugin) -> Boolean = { true },
 ): Listener {
 	
@@ -18,10 +17,6 @@ open class Hook(
 	val plugin get() = _plugin
 	private val _available = MutableStateFlow(false)
 	val available get() = _available.value
-	
-	init {
-		manager.hooks.add(this)
-	}
 	
 	protected open suspend fun onStateChange() {}
 	protected open suspend fun onInitialStateCheck() {}
