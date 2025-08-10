@@ -1,6 +1,5 @@
 package me.matin.mcore.managers
 
-import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketListenerPriority.NORMAL
 import com.github.retrooper.packetevents.event.PacketSendEvent
@@ -10,8 +9,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOp
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
 import kotlinx.coroutines.launch
-import me.matin.mcore.MCore.Companion.pluginScope
-import me.matin.mcore.managers.InventoryTitle.openWindows
+import me.matin.mcore.MCore
 import net.kyori.adventure.text.Component
 import org.bukkit.Material.TOTEM_OF_UNDYING
 import org.bukkit.entity.Player
@@ -23,15 +21,15 @@ object PacketManager {
 	
 	@JvmStatic
 	var InventoryView.displayTitle: Component?
-		get() = openWindows[player]?.title
+		get() = InventoryTitle.openWindows[player]?.title
 		set(value) {
 			value ?: return
-			pluginScope.launch {
+			MCore.pluginScope.launch {
 				val user = player as Player
-				val wrapper = openWindows[user]?.apply { title = value } ?: return@launch
-				PacketEvents.getAPI().playerManager.sendPacket(user, wrapper)
+				val wrapper = InventoryTitle.openWindows[user]?.apply { title = value } ?: return@launch
+				MCore.packetEvents.playerManager.sendPacket(user, wrapper)
 				user.updateInventory()
-				openWindows[user] = wrapper
+				InventoryTitle.openWindows[user] = wrapper
 			}
 		}
 	
@@ -54,7 +52,7 @@ object PacketManager {
 	}
 	
 	private fun Player.sendTotemPacket() =
-		PacketEvents.getAPI().playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
+		MCore.packetEvents.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 
 internal object InventoryTitle: PacketListenerAbstract(NORMAL) {

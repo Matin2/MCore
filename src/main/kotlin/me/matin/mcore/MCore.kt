@@ -1,6 +1,7 @@
 package me.matin.mcore
 
 import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.PacketEventsAPI
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
 import kotlinx.coroutines.*
 import me.matin.mcore.managers.InventoryTitle
@@ -15,11 +16,11 @@ class MCore: JavaPlugin() {
 	
 	override fun onEnable() = measureTime {
 		instance = this
-		PacketEvents.getAPI().apply {
+		pluginScope = CoroutineScope(CoroutineName("MCoreScope"))
+		packetEvents = PacketEvents.getAPI().apply {
 			init()
 			eventManager.registerListeners(InventoryTitle)
 		}
-		pluginScope = CoroutineScope(CoroutineName("MCoreScope"))
 		registerListeners(HooksListener)
 		Hooks.manager.manage()
 	}.run { logger.info("Plugin enabled in ${text()}.") }
@@ -27,14 +28,14 @@ class MCore: JavaPlugin() {
 	@Suppress("UnstableApiUsage")
 	override fun onLoad() = measureTime {
 		PacketEvents.setAPI(build(this))
-		PacketEvents.getAPI()?.apply {
+		PacketEvents.getAPI().apply {
 			settings.reEncodeByDefault(false).checkForUpdates(false)
 			load()
 		}
 	}.run { logger.info("Plugin loaded in ${text()}.") }
 	
 	override fun onDisable() = measureTime {
-		PacketEvents.getAPI().terminate()
+		packetEvents.terminate()
 		pluginScope.cancel(CancellationException("Plugin has been disabled."))
 	}.run { logger.info("Plugin disabled in ${text()}.") }
 	
@@ -42,6 +43,9 @@ class MCore: JavaPlugin() {
 		
 		@JvmStatic
 		lateinit var pluginScope: CoroutineScope private set
+		
+		@JvmStatic
+		lateinit var packetEvents: PacketEventsAPI<*> private set
 		
 		@JvmStatic
 		lateinit var instance: MCore private set
