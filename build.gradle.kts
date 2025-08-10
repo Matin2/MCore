@@ -62,7 +62,14 @@ tasks.shadowJar {
 	)
 	relocations.forEach { relocate(it.key, "me.matin.mcore.libs.${it.value}") }
 	dependencies { exclusions.forEach { exclude(dependency(it)) } }
+	manifest { attributes["paperweight-mappings-namespace"] = "mojang" }
 	archiveFileName.set("${project.name}-${project.version}.jar")
+}
+
+tasks.jar {
+	manifest {
+		attributes["paperweight-mappings-namespace"] = "mojang"
+	}
 }
 
 tasks.build {

@@ -22,7 +22,7 @@ internal object Hooks {
 	object HeadDatabase: Hook("HeadDatabase", false) {
 		
 		val api: CompletableDeferred<HeadDatabaseAPI>? = CompletableDeferred()
-			get() = if (available) field else null
+			get() = if (isAvailable) field else null
 		
 		@EventHandler
 		@Suppress("UnusedReceiverParameter")
@@ -33,14 +33,14 @@ internal object Hooks {
 	
 	object HeadDB: Hook("HeadDB", false) {
 		
-		private val rsp = Bukkit.getServicesManager().getRegistration(HeadAPI::class.java)
+		private val rsp get() = Bukkit.getServicesManager().getRegistration(HeadAPI::class.java)
 		var api: Deferred<HeadAPI>? = null
 			private set
 		override val requirements: (Plugin) -> Boolean
 			get() = { rsp != null }
 		
 		override suspend fun onStateChange() = coroutineScope {
-			api = if (available) async {
+			api = if (isAvailable) async {
 				rsp!!.provider.apply {
 					onReady().asDeferred().join()
 				}

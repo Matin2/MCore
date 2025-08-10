@@ -26,7 +26,7 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, logEdit
 	
 	internal fun checkRequired() {
 		val unavailable =
-			hooks.filter { it.required }.ifEmpty { return }.filterNot { it.available }
+			hooks.filter { it.required }.ifEmpty { return }.filterNot { it.isAvailable }
 		val available = unavailable.isEmpty()
 		if (available) {
 			MCore.instance.componentLogger.error(
@@ -40,9 +40,9 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, logEdit
 	}
 	
 	internal fun logState(hook: Hook, initial: Boolean) = when {
-		initial && hook.available -> logs.successful_hook(hook)
+		initial && hook.isAvailable -> logs.successful_hook(hook)
 		initial -> logs.fail_hook(hook)
-		hook.available -> logs.successful_rehook(hook)
+		hook.isAvailable -> logs.successful_rehook(hook)
 		else -> logs.successful_unhook(hook)
 	}.takeUnless { it == Component.empty() }?.let { logs.logger.info(it) } ?: Unit
 	

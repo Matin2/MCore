@@ -51,12 +51,14 @@ object PacketManager {
 		inventory.setItem(40, item)
 	}
 	
+	@JvmStatic
 	private fun Player.sendTotemPacket() =
 		MCore.packetEvents.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 
 internal object InventoryTitle: PacketListenerAbstract(NORMAL) {
 	
+	@JvmStatic
 	val openWindows: MutableMap<Player, WrapperPlayServerOpenWindow> = mutableMapOf()
 	
 	override fun onPacketSend(event: PacketSendEvent) {

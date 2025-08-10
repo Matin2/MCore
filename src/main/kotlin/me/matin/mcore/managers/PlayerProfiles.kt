@@ -20,8 +20,9 @@ object PlayerProfiles {
 	 * @param player Player witch you want the profile of.
 	 * @return [PlayerProfile] of the player with SkinsRestorer support.
 	 */
+	@JvmStatic
 	operator fun get(player: OfflinePlayer, model: SkinModel? = null): PlayerProfile {
-		if (!Hooks.skinsRestorer.available) return player.playerProfile
+		if (!Hooks.skinsRestorer.isAvailable) return player.playerProfile
 		val skin = runCatching {
 			SkinsRestorerProvider.get().playerStorage.getSkinForPlayer(player.uniqueId, player.name).get()
 		}.getOrNull() ?: return player.playerProfile
@@ -38,6 +39,7 @@ object PlayerProfiles {
 	 * @param model (Optional) Model of the skin.
 	 * @return [PlayerProfile] from the given url.
 	 */
+	@JvmStatic
 	operator fun get(value: String, base64: Boolean, model: SkinModel = SkinModel.CLASSIC): PlayerProfile =
 		createProfile(UUID.randomUUID()).apply {
 			val url = URI(if (base64) PropertyUtils.getSkinTextureUrl(decode(value)) else value).toURL()
