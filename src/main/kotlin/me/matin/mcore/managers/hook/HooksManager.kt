@@ -3,7 +3,7 @@ package me.matin.mcore.managers.hook
 import kotlinx.coroutines.launch
 import me.matin.mcore.MCore
 import me.matin.mcore.MCore.Companion.pluginScope
-import me.matin.mcore.managers.hook.HooksListener.setEnabled
+import me.matin.mcore.methods.setEnabled
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import org.bukkit.Bukkit.getPluginManager

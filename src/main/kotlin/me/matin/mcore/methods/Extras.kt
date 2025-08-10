@@ -25,4 +25,10 @@ fun Plugin.registerListeners(vararg listeners: Listener) = listeners.forEach {
 	server.pluginManager.registerEvents(it, this)
 }
 
+infix fun Plugin.setEnabled(enabled: Boolean) = when (enabled) {
+	isEnabled -> Unit
+	true -> server.pluginManager.enablePlugin(this)
+	false -> server.pluginManager.disablePlugin(this)
+}
+
 fun ItemStack?.checkEmpty(): ItemStack? = takeUnless { it?.isEmpty == true }

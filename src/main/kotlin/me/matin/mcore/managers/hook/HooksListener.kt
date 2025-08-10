@@ -11,12 +11,6 @@ internal object HooksListener: Listener {
 	
 	val managers: MutableSet<HooksManager> = mutableSetOf()
 	
-	infix fun Plugin.setEnabled(enabled: Boolean) = when (enabled) {
-		isEnabled -> Unit
-		true -> server.pluginManager.enablePlugin(this)
-		false -> server.pluginManager.disablePlugin(this)
-	}
-	
 	private fun check(plugin: Plugin) = pluginScope.launch {
 		for (manager in managers) {
 			val hook = manager.hooks.find { it.plugin == plugin } ?: continue
