@@ -3,7 +3,7 @@ package me.matin.mcore.managers.hook
 import kotlinx.coroutines.launch
 import me.matin.mcore.MCore
 import me.matin.mcore.MCore.Companion.pluginScope
-import me.matin.mcore.methods.setEnabled
+import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import org.bukkit.Bukkit.getPluginManager
@@ -36,7 +36,7 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, logEdit
 		} else {
 			logs.logger.info(logs.all_required_available)
 		}
-		plugin setEnabled available
+		plugin.enabled = available
 	}
 	
 	internal fun logState(hook: Hook, initial: Boolean) = when {
