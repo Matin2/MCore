@@ -33,13 +33,13 @@ open class Hook(
 				onStateChange()
 			}
 		}
-		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
 		check()
 		HookInitialStateCheckEvent(this@Hook).callEvent()
 		onInitialStateCheck()
 	}
 	
 	internal suspend fun check() {
+		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
 		val enabled = _plugin?.isEnabled == true
 		if (available == enabled) return
 		_available.emit(enabled)
