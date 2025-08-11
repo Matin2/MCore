@@ -39,9 +39,9 @@ open class Hook(
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
 		val enabled = _plugin?.isEnabled == true
 		if (initial) {
-   _initialCheck.complete()
+		 _initialCheck.complete()
 		 HookInitialCheckEvent(this).callEvent()
-   onInitialCheck()
+		 onInitialCheck()
 			return
 		}
 		if (_stateChanges.value == enabled) return
