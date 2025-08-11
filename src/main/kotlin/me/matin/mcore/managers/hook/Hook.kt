@@ -1,6 +1,5 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +13,6 @@ import org.bukkit.plugin.Plugin
 typealias Hooked = Boolean
 
 @Suppress("unused")
-@OptIn(ExperimentalCoroutinesApi::class)
 open class Hook(
 	val name: String,
 	val required: Boolean,
@@ -24,10 +22,10 @@ open class Hook(
 	val plugin get() = _plugin
 	val isHooked: Hooked get() = _stateChanges.value
 	val stateChanges: SharedFlow<Hooked> get() = _stateChanges.asSharedFlow()
-	val initialCheckJob: Job get() = _initialCheckJob
+	val initialCheck: Job get() = _initialCheck
 	private var _plugin: Plugin? = null
 	private val _stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
-	private var _initialCheckJob = Job()
+	private var _initialCheck = Job()
 	
 	protected open suspend fun onStateChange() {}
 	protected open suspend fun onInitialCheck() {}
@@ -35,7 +33,7 @@ open class Hook(
 	internal suspend fun initialize() = coroutineScope {
 		launch { _stateChanges.collect { onStateChange() } }
 		check(true)
-		_initialCheckJob.complete()
+		_initialCheck.complete()
 		onInitialCheck()
 	}
 	
@@ -43,7 +41,7 @@ open class Hook(
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
 		val enabled = _plugin?.isEnabled == true
 		if (initial) {
-			_initialCheckJob.complete()
+			_initialCheck.complete()
 			HookInitialCheckEvent(this).callEvent()
 			return
 		}
