@@ -42,7 +42,7 @@ open class Hook(
 		 _initialCheck.complete()
 		 HookInitialCheckEvent(this).callEvent()
 		 onInitialCheck()
-			return
+		 return
 		}
 		if (_stateChanges.value == enabled) return
 		_stateChanges.emit(enabled)
