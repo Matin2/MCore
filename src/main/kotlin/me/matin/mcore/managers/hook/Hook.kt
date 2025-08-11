@@ -32,16 +32,16 @@ open class Hook(
 	
 	internal suspend fun initialize() = coroutineScope {
 		launch { _stateChanges.collect { onStateChange() } }
-		check(true)
-		onInitialCheck()
+		launch { check(true) }
 	}
 	
 	internal suspend fun check(initial: Boolean) {
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
 		val enabled = _plugin?.isEnabled == true
 		if (initial) {
-			_initialCheck.complete()
-			HookInitialCheckEvent(this).callEvent()
+   _initialCheck.complete()
+		 HookInitialCheckEvent(this).callEvent()
+   onInitialCheck()
 			return
 		}
 		if (_stateChanges.value == enabled) return
