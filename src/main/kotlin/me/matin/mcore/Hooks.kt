@@ -22,7 +22,7 @@ internal object Hooks {
 	object HeadDatabase: Hook("HeadDatabase", false) {
 		
 		val api: CompletableDeferred<HeadDatabaseAPI>? = CompletableDeferred()
-			get() = if (isAvailable) field else null
+			get() = if (isHooked) field else null
 		
 		@EventHandler
 		@Suppress("UnusedReceiverParameter")
@@ -40,7 +40,7 @@ internal object Hooks {
 			get() = { rsp != null }
 		
 		override suspend fun onStateChange() = coroutineScope {
-			api = if (isAvailable) async {
+			api = if (isHooked) async {
 				rsp!!.provider.apply {
 					onReady().asDeferred().join()
 				}

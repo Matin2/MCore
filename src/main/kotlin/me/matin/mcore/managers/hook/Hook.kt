@@ -1,10 +1,17 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
+
+typealias Hooked = Boolean
 
 @Suppress("unused")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -15,38 +22,33 @@ open class Hook(
 ): Listener {
 	
 	val plugin get() = _plugin
-	val isAvailable: Boolean get() = availability.value
-	val isAvailableAsync: Deferred<Boolean> get() = _isAvailableAsync
+	val isHooked: Hooked get() = _stateChanges.value
+	val stateChanges: SharedFlow<Hooked> get() = _stateChanges.asSharedFlow()
+	val initialCheckJob: Job get() = _initialCheckJob
 	private var _plugin: Plugin? = null
-	private val availability: MutableStateFlow<Boolean> = MutableStateFlow(false)
-	private var _isAvailableAsync = CompletableDeferred<Boolean>()
-	private lateinit var scope: CoroutineScope
-	
-	fun onStateChange(action: suspend (isAvailable: Boolean) -> Unit): Hook = scope.launch {
-		availability.collect { action(it) }
-	}.let { this }
+	private val _stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
+	private var _initialCheckJob = Job()
 	
 	protected open suspend fun onStateChange() {}
-	protected open suspend fun onInitialStateCheck() {}
+	protected open suspend fun onInitialCheck() {}
 	
 	internal suspend fun initialize() = coroutineScope {
-		scope = this
-		onStateChange { onStateChange() }
+		launch { _stateChanges.collect { onStateChange() } }
 		check(true)
-		onInitialStateCheck()
+		_initialCheckJob.complete()
+		onInitialCheck()
 	}
 	
 	internal suspend fun check(initial: Boolean) {
 		_plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
 		val enabled = _plugin?.isEnabled == true
 		if (initial) {
-			_isAvailableAsync.complete(enabled)
-			HookInitialStateCheckEvent(this).callEvent()
+			_initialCheckJob.complete()
+			HookInitialCheckEvent(this).callEvent()
 			return
 		}
-		if (availability.value == enabled) return
-		availability.emit(enabled)
-		_isAvailableAsync = CompletableDeferred<Boolean>().apply { complete(enabled) }
+		if (_stateChanges.value == enabled) return
+		_stateChanges.emit(enabled)
 		HookStateChangeEvent(this).callEvent()
 	}
 }

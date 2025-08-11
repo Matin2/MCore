@@ -16,7 +16,7 @@ class HookStateChangeEvent(val hook: Hook): Event(true) {
 	}
 }
 
-class HookInitialStateCheckEvent(val hook: Hook): Event(true) {
+class HookInitialCheckEvent(val hook: Hook): Event(true) {
 	
 	override fun getHandlers(): HandlerList = handlerList
 	

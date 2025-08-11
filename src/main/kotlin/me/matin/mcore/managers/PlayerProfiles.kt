@@ -22,7 +22,7 @@ object PlayerProfiles {
 	 */
 	@JvmStatic
 	operator fun get(player: OfflinePlayer, model: SkinModel? = null): PlayerProfile {
-		if (!Hooks.skinsRestorer.isAvailable) return player.playerProfile
+		if (!Hooks.skinsRestorer.isHooked) return player.playerProfile
 		val skin = runCatching {
 			SkinsRestorerProvider.get().playerStorage.getSkinForPlayer(player.uniqueId, player.name).get()
 		}.getOrNull() ?: return player.playerProfile
