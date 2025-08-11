@@ -32,7 +32,7 @@ open class Hook(
 	
 	internal suspend fun initialize() = coroutineScope {
 		launch { _stateChanges.collect { onStateChange() } }
-		launch { check(true) }
+		check(true)
 	}
 	
 	internal suspend fun check(initial: Boolean) {
