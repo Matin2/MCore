@@ -6,7 +6,7 @@ import de.tr7zw.changeme.nbtapi.NBT
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
 import kotlinx.coroutines.*
 import me.matin.mcore.managers.InventoryTitle
-import me.matin.mcore.managers.hook.HooksListener
+import me.matin.mcore.managers.hook.HooksHandler
 import me.matin.mcore.methods.enabled
 import me.matin.mcore.methods.registerListeners
 import me.matin.mlib.text
@@ -18,15 +18,16 @@ class MCore: JavaPlugin() {
 	
 	override fun onEnable() = measureTime {
 		instance = this
-		pluginScope = CoroutineScope(CoroutineName("MCoreScope"))
+		pluginScope = CoroutineScope(CoroutineName("MCoreScope") + SupervisorJob() + Dispatchers.Default)
 		checkNBTAPI()
 		packetEvents = PacketEvents.getAPI().apply {
 			init()
 			eventManager.registerListeners(InventoryTitle)
 		}
-		registerListeners(HooksListener)
-		Hooks.manager.manage()
-	}.run { componentLogger.debug("Plugin enabled in ${text()}.") }
+		registerListeners(HooksHandler)
+		HooksHandler.init()
+		Hooks.manager.manageEnable()
+	}.run { componentLogger.info("Plugin enabled in ${text()}.") }
 	
 	@Suppress("UnstableApiUsage")
 	override fun onLoad() = measureTime {
@@ -35,12 +36,13 @@ class MCore: JavaPlugin() {
 			settings.reEncodeByDefault(false).checkForUpdates(false)
 			load()
 		}
-	}.run { componentLogger.debug("Plugin loaded in ${text()}.") }
+	}.run { componentLogger.info("Plugin loaded in ${text()}.") }
 	
 	override fun onDisable() = measureTime {
+		Hooks.manager.manageDisable()
 		packetEvents.terminate()
 		pluginScope.cancel(CancellationException("Plugin has been disabled."))
-	}.run { componentLogger.debug("Plugin disabled in ${text()}.") }
+	}.run { componentLogger.info("Plugin disabled in ${text()}.") }
 	
 	private fun checkNBTAPI() {
 		if (NBT.preloadApi()) return
