@@ -18,8 +18,8 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 		scope = CoroutineScope(HooksHandler.scope.coroutineContext + Job(HooksHandler.scope.coroutineContext.job))
 		managed = scope.launch {
 			hooks.forEach { hook ->
-				val instance = HooksHandler.hooks.keys.find {
-					it.name == hook.name && it.requirements == hook.requirements
+				val instance = HooksHandler.hooks.keys.find { (name, requirements) ->
+					name == hook.name && requirements == hook.requirements
 				}?.also { addManagerToInstance(this@HooksManager, it) } ?: HookInstance(hook).also {
 					launch { HooksHandler.addInstance(it, this@HooksManager) }
 				}
