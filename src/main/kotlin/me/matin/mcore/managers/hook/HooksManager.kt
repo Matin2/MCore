@@ -2,7 +2,6 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.*
 import me.matin.mcore.MCore
-import me.matin.mcore.managers.hook.HooksHandler.addManagerToInstance
 import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
@@ -12,20 +11,12 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 	val hooks: MutableSet<Hook> = hooks.toMutableSet()
 	lateinit var scope: CoroutineScope
 	private val config = Config { plugin.componentLogger.info(it) }.apply(config)
-	private lateinit var managed: Job
 	
 	fun manageEnable() {
 		scope = CoroutineScope(HooksHandler.scope.coroutineContext + Job(HooksHandler.scope.coroutineContext.job))
-		managed = scope.launch {
-			hooks.forEach { hook ->
-				val instance = HooksHandler.hooks.keys.find { (name, requirements) ->
-					name == hook.name && requirements == hook.requirements
-				}?.also { addManagerToInstance(this@HooksManager, it) } ?: HookInstance(hook).also {
-					launch { HooksHandler.addInstance(it, this@HooksManager) }
-				}
-				hook.instance = instance
-				launch { hook.init(plugin) }
-			}
+		scope.launch {
+			launch { manageHooks() }.join()
+			onCheck(true)
 		}
 	}
 	
@@ -38,9 +29,18 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 		}
 	}
 	
+	private suspend fun manageHooks() = hooks.forEach { hook ->
+		val instance = HooksHandler.hooks.keys.find { (name, requirements) ->
+			name == hook.name && requirements == hook.requirements
+		}?.also { HooksHandler.addManagerToInstance(this, it) } ?: HookInstance(hook).also {
+			HooksHandler.addInstance(it, this)
+		}
+		hook.instance = instance
+		hook.init(plugin)
+	}
+	
 	internal suspend fun onCheck(initial: Boolean): Unit = coroutineScope {
 		launch {
-			managed.join()
 			checkRequired()
 		}
 		hooks.forEach {

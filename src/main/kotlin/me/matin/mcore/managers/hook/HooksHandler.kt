@@ -39,7 +39,6 @@ internal object HooksHandler: Listener {
 	suspend fun addInstance(instance: HookInstance, manager: HooksManager) {
 		mutex.withLock { hooks[instance] = setOf(manager) }
 		instance.check(true)
-		manager.onCheck(true)
 	}
 	
 	@JvmStatic
