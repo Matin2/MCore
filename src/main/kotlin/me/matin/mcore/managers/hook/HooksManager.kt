@@ -2,7 +2,7 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.*
 import me.matin.mcore.MCore
-import me.matin.mcore.managers.hook.HooksHandler.addManager
+import me.matin.mcore.managers.hook.HooksHandler.addManagerToInstance
 import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
@@ -20,10 +20,9 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 			hooks.forEach { hook ->
 				val instance = HooksHandler.hooks.keys.find {
 					it.name == hook.name && it.requirements == hook.requirements
-				}?.apply {
-					addHook(hook)
-					addManager(this@HooksManager)
-				} ?: HookInstance(hook).also { HooksHandler.addInstance(it, this@HooksManager) }
+				}?.also { addManagerToInstance(this@HooksManager, it) } ?: HookInstance(hook).also {
+					launch { HooksHandler.addInstance(it, this@HooksManager) }
+				}
 				hook.instance = instance
 				launch { hook.init(plugin) }
 			}
@@ -31,11 +30,12 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 	}
 	
 	fun manageDisable() {
-		if (config.enable_plugin_on_all_required_rehooked) scope.launch { HooksHandler.removeManager(this@HooksManager) }
-			.invokeOnCompletion {
-				it?.let { error -> throw error }
-					?: scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
-			}
+		if (config.enable_plugin_on_all_required_rehooked) scope.launch {
+			HooksHandler.removeManager(this@HooksManager)
+		}.invokeOnCompletion {
+			it?.let { throw it }
+			scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
+		}
 	}
 	
 	internal suspend fun onCheck(initial: Boolean): Unit = coroutineScope {

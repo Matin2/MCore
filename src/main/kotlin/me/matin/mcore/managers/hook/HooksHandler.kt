@@ -26,27 +26,20 @@ internal object HooksHandler: Listener {
 	private val mutex = Mutex()
 	
 	@JvmStatic
-	suspend infix fun HookInstance.addManager(manager: HooksManager) {
-		mutex.withLock { this@HooksHandler.hooks[this] = this@HooksHandler.hooks[this]!!.plus(manager) }
+	suspend fun addManagerToInstance(manager: HooksManager, instance: HookInstance) {
+		mutex.withLock { hooks[instance] = hooks[instance]!!.plus(manager) }
 	}
 	
 	@JvmStatic
 	suspend fun removeManager(manager: HooksManager) = hooks.forEach { (hook, managers) ->
-		mutex.withLock { this@HooksHandler.hooks[hook] = managers - manager }
+		mutex.withLock { hooks[hook] = managers - manager }
 	}
 	
 	@JvmStatic
 	suspend fun addInstance(instance: HookInstance, manager: HooksManager) {
 		mutex.withLock { hooks[instance] = setOf(manager) }
-	}
-	
-	fun init() = scope.launch {
-		for ((hook, managers) in hooks) {
-			launch {
-				hook.check(true)
-				managers.forEach { it.onCheck(true) }
-			}
-		}
+		instance.check(true)
+		manager.onCheck(true)
 	}
 	
 	@JvmStatic

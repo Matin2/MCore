@@ -25,7 +25,6 @@ class MCore: JavaPlugin() {
 			eventManager.registerListeners(InventoryTitle)
 		}
 		registerListeners(HooksHandler)
-		HooksHandler.init()
 		Hooks.manager.manageEnable()
 	}.run { componentLogger.info("Plugin enabled in ${text()}.") }
 	
