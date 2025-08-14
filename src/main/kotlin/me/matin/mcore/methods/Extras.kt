@@ -2,6 +2,9 @@
 
 package me.matin.mcore.methods
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.InternalForInheritanceCoroutinesApi
+import kotlinx.coroutines.Job
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
@@ -34,3 +37,16 @@ var Plugin.enabled: Boolean
 	}
 
 fun ItemStack?.checkEmpty(): ItemStack? = takeUnless { it?.isEmpty == true }
+
+@Suppress("OVERRIDE_DEPRECATION")
+@OptIn(InternalForInheritanceCoroutinesApi::class)
+val Job.readOnly: Job
+	get() = object: Job by this {
+		override fun cancel(cause: CancellationException?) = Unit
+		
+		@Deprecated("Since 1.2.0, binary compatibility with versions <= 1.1.x", level = DeprecationLevel.HIDDEN)
+		override fun cancel() = Unit
+		
+		@Deprecated("Since 1.2.0, binary compatibility with versions <= 1.1.x", level = DeprecationLevel.HIDDEN)
+		override fun cancel(cause: Throwable?): Boolean = false
+	}
