@@ -24,7 +24,8 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 	fun manageEnable() {
 		scope = CoroutineScope(HooksHandler.scope.coroutineContext + Job(HooksHandler.scope.coroutineContext.job))
 		scope.launch {
-			launch { manageHooks() }.join()
+			launch { manageHooks() }
+			hooks.map { it.initialCheck }.joinAll()
 			onCheck(true)
 		}
 	}
@@ -38,23 +39,17 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 	}
 	
 	private suspend fun manageHooks() = hooks.forEach { hook ->
-		val instance = HooksHandler.hooks.find { (name, requirements) ->
+		hook.instance = HooksHandler.hooks.find { (name, requirements) ->
 			name == hook.name && requirements == hook.requirements
 		}?.also { it.addManager(this) } ?: HookInstance(hook, this).also {
 			HooksHandler.addInstance(it)
 		}
-		hook.instance = instance
 		hook.init(plugin)
 	}
 	
 	internal suspend fun onCheck(initial: Boolean): Unit = coroutineScope {
 		launch { checkRequired() }
-		hooks.forEach {
-			launch {
-				if (initial) it.initialCheck.join()
-				it.logState(initial)
-			}
-		}
+		hooks.forEach { launch { it.logState(initial) } }
 	}
 	
 	internal fun checkRequired() {
@@ -70,13 +65,14 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 		pluginEnabled = false
 	}
 	
-	private fun Hook.logState(initial: Boolean) {
+	private suspend fun Hook.logState(initial: Boolean) {
 		val log = when {
 			initial && isHooked -> config.logs.successful_hook(this)
 			initial -> config.logs.fail_hook(this)
 			isHooked -> config.logs.successful_rehook(this)
 			else -> config.logs.successful_unhook(this)
 		}
+		if (initial) initialCheck.join()
 		if (log != Component.empty()) config.infoLogger(log)
 	}
 	
