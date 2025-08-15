@@ -19,35 +19,30 @@ internal object HooksHandler: Listener {
 	val scope = CoroutineScope(pluginScope.coroutineContext + SupervisorJob(pluginScope.coroutineContext.job))
 	
 	@JvmStatic
-	val hooks: Map<HookInstance, Set<HooksManager>>
-		field: MutableMap<HookInstance, Set<HooksManager>> = mutableMapOf()
+	val hooks: Set<HookInstance>
+		field: MutableSet<HookInstance> = mutableSetOf()
 	
 	@JvmStatic
 	private val mutex = Mutex()
 	
 	@JvmStatic
-	suspend fun addManagerToInstance(manager: HooksManager, instance: HookInstance) {
-		mutex.withLock { hooks[instance] = hooks[instance]!!.plus(manager) }
+	suspend fun removeManager(manager: HooksManager) = hooks.forEach {
+		it.removeManager(manager)
 	}
 	
 	@JvmStatic
-	suspend fun removeManager(manager: HooksManager) = hooks.forEach { (hook, managers) ->
-		mutex.withLock { hooks[hook] = managers - manager }
-	}
-	
-	@JvmStatic
-	suspend fun addInstance(instance: HookInstance, manager: HooksManager) {
-		mutex.withLock { hooks[instance] = setOf(manager) }
+	suspend fun addInstance(instance: HookInstance) {
+		mutex.withLock { hooks += instance }
 		instance.check(true)
 	}
 	
 	@JvmStatic
 	private fun check(plugin: Plugin) = scope.launch {
-		for ((hook, managers) in hooks) {
+		for (hook in hooks) {
 			if (hook.plugin != plugin) continue
 			launch {
 				hook.check(false)
-				managers.forEach { it.onCheck(false) }
+				hook.managers.forEach { it.onCheck(false) }
 			}
 		}
 	}

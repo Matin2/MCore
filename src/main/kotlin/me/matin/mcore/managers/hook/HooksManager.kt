@@ -38,10 +38,10 @@ open class HooksManager(internal val plugin: Plugin, vararg hooks: Hook, config:
 	}
 	
 	private suspend fun manageHooks() = hooks.forEach { hook ->
-		val instance = HooksHandler.hooks.keys.find { (name, requirements) ->
+		val instance = HooksHandler.hooks.find { (name, requirements) ->
 			name == hook.name && requirements == hook.requirements
-		}?.also { HooksHandler.addManagerToInstance(this, it) } ?: HookInstance(hook).also {
-			HooksHandler.addInstance(it, this)
+		}?.also { it.addManager(this) } ?: HookInstance(hook, this).also {
+			HooksHandler.addInstance(it)
 		}
 		hook.instance = instance
 		hook.init(plugin)
