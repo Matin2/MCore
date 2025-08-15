@@ -31,13 +31,11 @@ open class Hook(
 	protected open suspend fun onInitialCheck() {}
 	
 	internal suspend fun init(plugin: Plugin) = coroutineScope {
+		instance.initialCheck.join()
 		_stateChanges = instance.stateChanges.asSharedFlow()
 		_initialCheck = instance.initialCheck.readOnly
 		launch { instance.stateChanges.collect { onStateChange() } }
-		launch {
-			instance.initialCheck.join()
-			onInitialCheck()
-		}
+		launch { onInitialCheck() }
 		Bukkit.getPluginManager().registerEvents(this@Hook, plugin)
 	}
 }
