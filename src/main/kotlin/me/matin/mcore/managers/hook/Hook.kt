@@ -21,14 +21,18 @@ open class Hook(
 	
 	val plugin get() = instance.plugin
 	val isHooked: Hooked get() = instance.stateChanges.value
-	val stateChanges: SharedFlow<Hooked> get() = instance.stateChanges.asSharedFlow()
-	val initialCheck: Job get() = instance.initialCheck.readOnly
+	val stateChanges: SharedFlow<Hooked> get() = _stateChanges
+	val initialCheck: Job get() = _initialCheck
+	private lateinit var _stateChanges: SharedFlow<Hooked>
+	private lateinit var _initialCheck: Job
 	internal lateinit var instance: HookInstance
 	
 	protected open suspend fun onStateChange() {}
 	protected open suspend fun onInitialCheck() {}
 	
 	internal suspend fun init(plugin: Plugin) = coroutineScope {
+		_stateChanges = instance.stateChanges.asSharedFlow()
+		_initialCheck = instance.initialCheck.readOnly
 		launch { instance.stateChanges.collect { onStateChange() } }
 		launch {
 			instance.initialCheck.join()
