@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "NOTHING_TO_INLINE")
 
 package me.matin.mcore.methods
 
@@ -24,11 +24,11 @@ inline val <T: Number> T.ticks: Duration get() = toDouble().ticks
 /** Converts this double to server ticks ([Duration]). */
 inline val Double.ticks: Duration get() = div(20).toDuration(SECONDS)
 
-fun Plugin.registerListeners(vararg listeners: Listener) = listeners.forEach {
+inline fun Plugin.registerListeners(vararg listeners: Listener) = listeners.forEach {
 	server.pluginManager.registerEvents(it, this)
 }
 
-var Plugin.enabled: Boolean
+inline var Plugin.enabled: Boolean
 	get() = isEnabled
 	set(value) = when (value) {
 		isEnabled -> Unit
@@ -36,7 +36,7 @@ var Plugin.enabled: Boolean
 		false -> server.pluginManager.disablePlugin(this)
 	}
 
-fun ItemStack?.checkEmpty(): ItemStack? = takeUnless { it?.isEmpty == true }
+inline fun ItemStack?.checkEmpty(): ItemStack? = takeUnless { it?.isEmpty == true }
 
 @Suppress("OVERRIDE_DEPRECATION")
 @OptIn(InternalForInheritanceCoroutinesApi::class)
