@@ -6,27 +6,23 @@ import de.tr7zw.changeme.nbtapi.NBT
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
 import kotlinx.coroutines.*
 import me.matin.mcore.managers.InventoryTitle
-import me.matin.mcore.managers.hook.HooksHandler
+import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.methods.enabled
 import me.matin.mcore.methods.registerListeners
 import me.matin.mlib.text
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.concurrent.Executor
 import kotlin.time.measureTime
 
 class MCore: JavaPlugin() {
 	
 	override fun onEnable() = measureTime {
-		instance = this
-		pluginScope = CoroutineScope(CoroutineName("MCoreScope") + SupervisorJob() + Dispatchers.Default)
-		checkNBTAPI()
-		packetEvents = PacketEvents.getAPI().apply {
-			init()
-			eventManager.registerListeners(InventoryTitle)
-		}
-		registerListeners(HooksHandler)
-		Hooks.manager.manageEnable()
-	}.run { componentLogger.info("Plugin enabled in ${text()}.") }
+		init()
+		packetEvents.eventManager.registerListeners(InventoryTitle)
+		registerListeners(HooksManager)
+		Hooks.init()
+		componentLogger.info("Plugin is successfully enabled.")
+	}.run { componentLogger.debug("Took ${text()} to enable.") }
 	
 	@Suppress("UnstableApiUsage")
 	override fun onLoad() = measureTime {
@@ -35,17 +31,27 @@ class MCore: JavaPlugin() {
 			settings.reEncodeByDefault(false).checkForUpdates(false)
 			load()
 		}
-	}.run { componentLogger.info("Plugin loaded in ${text()}.") }
+	}.run { componentLogger.debug("Plugin is successfully loaded in ${text()}.") }
 	
 	override fun onDisable() = measureTime {
-		Hooks.manager.manageDisable()
 		packetEvents.terminate()
-		pluginScope.cancel(CancellationException("Plugin has been disabled."))
-	}.run { componentLogger.info("Plugin disabled in ${text()}.") }
+		val cancellationException = CancellationException("Plugin has been disabled.")
+		serverDispatcher.cancel(cancellationException)
+		pluginScope.cancel(cancellationException)
+		componentLogger.info("Plugin is disabled.")
+	}.run { componentLogger.debug("Took ${text()} to disable.") }
+	
+	private fun init() {
+		instance = this
+		serverDispatcher = Bukkit.getScheduler().getMainThreadExecutor(instance).asCoroutineDispatcher()
+		pluginScope = CoroutineScope(CoroutineName("MCore") + SupervisorJob() + Dispatchers.Default)
+		packetEvents = PacketEvents.getAPI().apply { init() }
+		checkNBTAPI()
+	}
 	
 	private fun checkNBTAPI() {
 		if (NBT.preloadApi()) return
-		componentLogger.error("NBT-API wasn't initialized properly, disabling the plugin.")
+		componentLogger.error("NBT-API wasn't properly loaded, disabling the plugin.")
 		enabled = false
 	}
 	
@@ -59,8 +65,8 @@ class MCore: JavaPlugin() {
 		
 		@JvmStatic
 		lateinit var instance: MCore private set
+		
+		@JvmStatic
+		lateinit var serverDispatcher: CoroutineDispatcher private set
 	}
 }
-
-@Suppress("unused")
-val serverDispatcher = Executor { it.run() }.asCoroutineDispatcher()
