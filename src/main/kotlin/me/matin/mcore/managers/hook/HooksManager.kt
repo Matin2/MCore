@@ -47,7 +47,7 @@ internal object HooksManager: Listener {
 	
 	@JvmStatic
 	private fun check(plugin: Plugin, onEnable: Boolean) {
-		handlers.filter { it.plugin == plugin }.forEach { it.checkPluginState(onEnable) }
+		handlers.find { it.plugin == plugin }?.onPluginStateChange(!onEnable)
 		scope.launch {
 			launch { hookInstances.filter { it.plugin == plugin }.forEach { launch { it.check(false) } } }
 			launch { handlers.forEach { launch { it.onCheck(false) } } }
