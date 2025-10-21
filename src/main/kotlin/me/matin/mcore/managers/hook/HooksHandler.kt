@@ -11,15 +11,11 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 	
 	val hooks: MutableSet<Hook> = mutableSetOf()
 	lateinit var scope: CoroutineScope private set
-	private var logger = Logger { plugin.componentLogger.info(it) }
+	internal var logger = Logger { plugin.componentLogger.info(it) }
+		private set
 	
 	fun configureLogger(config: Logger.() -> Unit) {
 		logger = logger.apply(config)
-	}
-	
-	internal suspend fun onCheck(initial: Boolean): Unit = coroutineScope {
-		launch { checkRequired() }
-		hooks.forEach { launch { logger.log(it, initial) } }
 	}
 	
 	internal fun onPluginStateChange(onDisable: Boolean) {
@@ -31,8 +27,20 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		scope = CoroutineScope(HooksManager.scope.coroutineContext + Job(HooksManager.scope.coroutineContext.job))
 		scope.launch {
 			launch { manageHooks() }.join()
-			onCheck(true)
+			checkRequired()
 		}
+	}
+	
+	internal fun checkRequired() {
+		val unavailable = hooks
+			.filter { it.required }
+			.ifEmpty { return }
+			.filterNot { it.isHooked }
+			.ifEmpty { return }
+			.joinToString(prefix = "[", postfix = "]") { it.name }
+		val log = "The following dependencies are required by ${plugin.name} but are not available: $unavailable"
+		MCore.instance.componentLogger.error(log)
+		plugin.enabled = false
 	}
 	
 	private suspend fun manageHooks() = hooks.forEach { hook ->
@@ -43,26 +51,17 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		hook.init(plugin)
 	}
 	
-	private fun checkRequired() {
-		val unavailable = hooks.filter { it.required }.ifEmpty { return }.filterNot { it.isHooked }.ifEmpty { return }
-		val unavailableNames = unavailable.joinToString(prefix = "[", postfix = "]") { it.name }
-		val log = "The following dependencies are required by ${plugin.name} but are not available: $unavailableNames"
-		MCore.instance.componentLogger.error(log)
-		plugin.enabled = false
-	}
-	
 	class Logger internal constructor(var logger: (Component) -> Unit) {
 		
 		val messages = Messages()
 		
-		internal suspend fun log(hook: Hook, initial: Boolean) {
+		internal fun log(hook: Hook, initial: Boolean) {
 			val log = when {
 				initial && hook.isHooked -> messages.successful_hook(hook)
 				initial -> messages.fail_hook(hook)
 				hook.isHooked -> messages.successful_rehook(hook)
 				else -> messages.successful_unhook(hook)
 			}
-			if (initial) hook.initialCheck.join()
 			if (log != Component.empty()) logger(log)
 		}
 		

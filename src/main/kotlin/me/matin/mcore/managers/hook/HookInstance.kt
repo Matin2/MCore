@@ -13,7 +13,8 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	var plugin: Plugin? = null
 	val stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
 	val initialCheck = Job()
-	private val handlers: MutableSet<HooksHandler> = mutableSetOf()
+	val handlers: Set<HooksHandler>
+		field : MutableSet<HooksHandler> = mutableSetOf()
 	private val mutex = Mutex()
 	
 	constructor(hook: Hook): this(hook.name, hook.requirements)
@@ -33,5 +34,9 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 			if (initial) initialCheck.complete()
 			enabled
 		}
+		handlers.forEach { log(it, initial) }
 	}
+	
+	internal fun log(handler: HooksHandler, initial: Boolean) =
+		handler.hooks.filter { it.instance == this }.forEach { handler.logger.log(it, initial) }
 }
