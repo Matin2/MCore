@@ -13,8 +13,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	var plugin: Plugin? = null
 	val stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
 	val initialCheck = Job()
-	val handlers: Set<HooksHandler>
-		field: MutableSet<HooksHandler> = mutableSetOf()
+	private val handlers: MutableSet<HooksHandler> = mutableSetOf()
 	private val mutex = Mutex()
 	
 	constructor(hook: Hook): this(hook.name, hook.requirements)
