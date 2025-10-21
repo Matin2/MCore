@@ -39,6 +39,7 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		hook.instance = HooksManager.hookInstances.find { (name, requirements) ->
 			name == hook.name && requirements == hook.requirements
 		} ?: HookInstance(hook).also { HooksManager += it }
+		hook.instance += this
 		hook.init(plugin)
 	}
 	

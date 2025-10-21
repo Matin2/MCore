@@ -36,6 +36,9 @@ internal object HooksManager: Listener {
 	}
 	
 	@JvmStatic
+	suspend operator fun minusAssign(instance: HookInstance) = hooksMutex.withLock { hookInstances -= instance }
+	
+	@JvmStatic
 	inline operator fun plusAssign(handler: HooksHandler) {
 		handlers += handler
 	}
@@ -43,6 +46,7 @@ internal object HooksManager: Listener {
 	@JvmStatic
 	inline operator fun minusAssign(handler: HooksHandler) {
 		handlers -= handler
+		scope.launch { hooksMutex.withLock { hookInstances.forEach { it -= handler } } }
 	}
 	
 	@JvmStatic
