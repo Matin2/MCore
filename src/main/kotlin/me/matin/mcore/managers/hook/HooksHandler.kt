@@ -6,16 +6,45 @@ import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
-@Suppress("unused")
+@Suppress("unused", "NOTHING_TO_INLINE")
 class HooksHandler private constructor(internal val plugin: Plugin) {
 	
-	val hooks: MutableSet<Hook> = mutableSetOf()
+	val hooks: Set<Hook>
+		field : MutableSet<Hook> = mutableSetOf()
 	lateinit var scope: CoroutineScope private set
 	internal var logger = Logger { plugin.componentLogger.info(it) }
 		private set
 	
 	fun configureLogger(config: Logger.() -> Unit) {
 		logger = logger.apply(config)
+	}
+	
+	fun register(hook: Hook): Boolean {
+		if (hooks.any { it.name == hook.name }) return false
+		return hooks.add(hook)
+	}
+	
+	inline fun register(vararg hooks: Hook): Boolean = hooks.all { register(it) }
+	inline fun register(hooks: Iterable<Hook>): Boolean = hooks.all { register(it) }
+	
+	inline operator fun plusAssign(hook: Hook) {
+		register(hook)
+	}
+	
+	inline operator fun plusAssign(hooks: Iterable<Hook>) {
+		register(hooks)
+	}
+	
+	fun unregister(hook: Hook) = hooks.remove(hook)
+	inline fun unregister(vararg hooks: Hook): Boolean = hooks.all { unregister(it) }
+	inline fun unregister(hooks: Iterable<Hook>): Boolean = hooks.all { unregister(it) }
+	
+	inline operator fun minusAssign(hook: Hook) {
+		unregister(hook)
+	}
+	
+	inline operator fun minusAssign(hooks: Iterable<Hook>) {
+		unregister(hooks)
 	}
 	
 	internal fun onPluginStateChange(onDisable: Boolean) {

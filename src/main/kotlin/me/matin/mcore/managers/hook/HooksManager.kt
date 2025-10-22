@@ -50,11 +50,9 @@ internal object HooksManager: Listener {
 	private fun check(plugin: Plugin, onEnable: Boolean) {
 		handlers.find { it.plugin == plugin }?.onPluginStateChange(!onEnable)
 		scope.launch {
-			hookInstances.filter { it.plugin == plugin }.forEach { hook ->
-				launch {
-					hook.check(false)
-					hook.handlers.forEach { it.checkRequired() }
-				}
+			hookInstances.find { it.plugin == plugin }?.apply {
+				check(false)
+				handlers.forEach { launch { it.checkRequired() } }
 			}
 		}
 	}

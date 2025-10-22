@@ -42,5 +42,5 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	}
 	
 	private fun log(handler: HooksHandler, initial: Boolean) =
-		handler.hooks.filter { it.instance == this }.forEach { handler.logger.log(it, initial) }
+		handler.hooks.find { it.instance == this }?.let { handler.logger.log(it, initial) } ?: Unit
 }
