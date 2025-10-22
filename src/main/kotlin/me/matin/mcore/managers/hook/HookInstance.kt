@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin
 
 internal data class HookInstance(val name: String, val requirements: (Plugin) -> Boolean) {
 	
+	@Volatile
 	var plugin: Plugin? = null
 	val stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
 	val initialCheck = Job()

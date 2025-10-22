@@ -1,11 +1,9 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.matin.mcore.MCore
 import me.matin.mcore.methods.readOnly
@@ -31,15 +29,20 @@ open class Hook(
 	internal lateinit var instance: HookInstance
 	protected open suspend fun onInitialCheck() {}
 	
-	internal suspend fun init(plugin: Plugin) {
+	context(handler: HooksHandler)
+	internal suspend fun init() {
+		withContext(MCore.serverDispatcher) { handler.plugin.registerListeners(this@Hook) }
+		setInstance(handler)
 		_stateChanges = instance.stateChanges.asSharedFlow()
 		_initialCheck = instance.initialCheck.readOnly
-		coroutineScope {
-			launch {
-				_initialCheck.join()
-				launch { onInitialCheck() }
-				withContext(MCore.serverDispatcher) { plugin.registerListeners(this@Hook) }
-			}
-		}
+		_initialCheck.join()
+		onInitialCheck()
+	}
+	
+	private suspend fun setInstance(handler: HooksHandler) {
+		instance = HooksManager.hookInstances.find {
+			it.name == name && it.requirements == requirements
+		} ?: HookInstance(this@Hook).also { HooksManager += it }
+		instance += handler
 	}
 }

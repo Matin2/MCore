@@ -26,12 +26,12 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		}
 		scope = CoroutineScope(HooksManager.scope.coroutineContext + Job(HooksManager.scope.coroutineContext.job))
 		scope.launch {
-			launch { manageHooks() }.join()
+			manageHooks()
 			checkRequired()
 		}
 	}
 	
-	internal fun checkRequired() {
+	internal suspend fun checkRequired() {
 		val unavailable = hooks
 			.filter { it.required }
 			.ifEmpty { return }
@@ -39,16 +39,14 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 			.ifEmpty { return }
 			.joinToString(prefix = "[", postfix = "]") { it.name }
 		val log = "The following dependencies are required by ${plugin.name} but are not available: $unavailable"
-		MCore.instance.componentLogger.error(log)
-		plugin.enabled = false
+		withContext(MCore.serverDispatcher) {
+			MCore.instance.componentLogger.error(log)
+			plugin.enabled = false
+		}
 	}
 	
-	private suspend fun manageHooks() = hooks.forEach { hook ->
-		hook.instance = HooksManager.hookInstances.find { (name, requirements) ->
-			name == hook.name && requirements == hook.requirements
-		} ?: HookInstance(hook).also { HooksManager += it }
-		hook.instance += this
-		hook.init(plugin)
+	private suspend fun manageHooks() = coroutineScope {
+		hooks.forEach { launch { it.init() } }
 	}
 	
 	class Logger internal constructor(var logger: (Component) -> Unit) {
