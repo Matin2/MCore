@@ -42,8 +42,6 @@ open class Hook(
 	private suspend fun setInstance(handler: HooksHandler) {
 		instance = HooksManager.hookInstances.find {
 			it.name == name && it.requirements == requirements
-		} ?: HookInstance(this@Hook).also { HooksManager += it }
-		instance += handler
-		instance.check(true)
+		}?.also { it += handler } ?: HookInstance(this@Hook, handler).also { HooksManager += it }
 	}
 }
