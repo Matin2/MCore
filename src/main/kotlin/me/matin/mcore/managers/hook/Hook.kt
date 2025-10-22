@@ -44,5 +44,6 @@ open class Hook(
 			it.name == name && it.requirements == requirements
 		} ?: HookInstance(this@Hook).also { HooksManager += it }
 		instance += handler
+		instance.check(true)
 	}
 }

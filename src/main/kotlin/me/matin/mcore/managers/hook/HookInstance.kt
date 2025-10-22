@@ -2,7 +2,6 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.bukkit.Bukkit
@@ -11,7 +10,8 @@ import org.bukkit.plugin.Plugin
 internal data class HookInstance(val name: String, val requirements: (Plugin) -> Boolean) {
 	
 	@Volatile
-	var plugin: Plugin? = null
+	private var _plugin: Plugin? = null
+	val plugin get() = _plugin?.takeIf(requirements)
 	val stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
 	val initialCheck = Job()
 	val handlers: Set<HooksHandler>
@@ -28,13 +28,10 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	}
 	
 	fun check(initial: Boolean) {
-		plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf { requirements(it) }
+		_plugin = Bukkit.getPluginManager().getPlugin(name)
 		val enabled = plugin?.isEnabled == true
-		stateChanges.update {
-			if (it == enabled) return
-			if (initial) initialCheck.complete()
-			enabled
-		}
+		stateChanges.value = enabled
+		if (initial) initialCheck.complete()
 		handlers.forEach { log(it, initial) }
 	}
 	

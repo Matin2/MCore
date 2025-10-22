@@ -30,10 +30,7 @@ internal object HooksManager: Listener {
 	val handlers: MutableSet<HooksHandler> = mutableSetOf()
 	
 	@JvmStatic
-	suspend operator fun plusAssign(instance: HookInstance) {
-		hooksMutex.withLock { hookInstances += instance }
-		instance.check(true)
-	}
+	suspend operator fun plusAssign(instance: HookInstance) = hooksMutex.withLock { hookInstances += instance }
 	
 	@JvmStatic
 	suspend operator fun minusAssign(instance: HookInstance) = hooksMutex.withLock { hookInstances -= instance }
