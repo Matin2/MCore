@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.internal.config.LanguageFeature
 plugins {
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
+	alias(libs.plugins.kotlinx.atmoicfu)
 	alias(libs.plugins.shadow)
 	`version-catalog`
 	`maven-publish`
@@ -73,6 +74,8 @@ tasks {
 			"kotlin" to libs.versions.kotlin.get(),
 			"coroutines" to libs.versions.kotlinx.coroutines.get(),
 			"serialization" to libs.versions.kotlinx.serialization.get(),
+			"atmoicfu" to libs.versions.kotlinx.atomicfu.get(),
+			"immutables" to libs.versions.kotlinx.immutable.collections.get(),
 			"exposed" to libs.versions.exposed.get(),
 			"mysql" to libs.versions.mysql.get()
 		)
