@@ -1,5 +1,9 @@
 package me.matin.mcore.managers.hook
 
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.*
 import me.matin.mcore.MCore
 import me.matin.mcore.methods.enabled
@@ -9,8 +13,8 @@ import org.bukkit.plugin.Plugin
 @Suppress("unused", "NOTHING_TO_INLINE")
 class HooksHandler private constructor(internal val plugin: Plugin) {
 	
-	val hooks: Set<Hook>
-		field : MutableSet<Hook> = mutableSetOf()
+	private val _hooks = atomic(persistentSetOf<Hook>())
+	val hooks: Set<Hook> by _hooks
 	lateinit var scope: CoroutineScope private set
 	internal var logger = Logger { plugin.componentLogger.info(it) }
 		private set
@@ -20,31 +24,25 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 	}
 	
 	fun register(hook: Hook): Boolean {
-		if (hooks.any { it.name == hook.name }) return false
-		return hooks.add(hook)
+		if (_hooks.value.any { it.name == hook.name }) return false
+		_hooks.update { it.mutate { hooks -> hooks += hook } }
+		return true
 	}
 	
-	inline fun register(vararg hooks: Hook): Boolean = hooks.all { register(it) }
-	inline fun register(hooks: Iterable<Hook>): Boolean = hooks.all { register(it) }
+	fun registerAll(hooks: Iterable<Hook>): Boolean {
+		val newHooks = hooks.filter { hook -> hook.name in _hooks.value.map { it.name } }.ifEmpty { return false }
+		_hooks.update { it.mutate { hooks -> hooks += newHooks } }
+		return true
+	}
+	
+	inline fun registerAll(vararg hooks: Hook): Boolean = registerAll(hooks.toList())
 	
 	inline operator fun plusAssign(hook: Hook) {
 		register(hook)
 	}
 	
 	inline operator fun plusAssign(hooks: Iterable<Hook>) {
-		register(hooks)
-	}
-	
-	fun unregister(hook: Hook) = hooks.remove(hook)
-	inline fun unregister(vararg hooks: Hook): Boolean = hooks.all { unregister(it) }
-	inline fun unregister(hooks: Iterable<Hook>): Boolean = hooks.all { unregister(it) }
-	
-	inline operator fun minusAssign(hook: Hook) {
-		unregister(hook)
-	}
-	
-	inline operator fun minusAssign(hooks: Iterable<Hook>) {
-		unregister(hooks)
+		registerAll(hooks)
 	}
 	
 	internal fun onPluginStateChange(onDisable: Boolean) {
@@ -67,9 +65,9 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 			.filterNot { it.isHooked }
 			.ifEmpty { return }
 			.joinToString(prefix = "[", postfix = "]") { it.name }
-		val log = "The following dependencies are required by ${plugin.name} but are not available: $unavailable"
+			.let { "The following dependencies are required by ${plugin.name} but are not available: $it" }
 		withContext(MCore.serverDispatcher) {
-			MCore.instance.componentLogger.error(log)
+			MCore.instance.componentLogger.error(unavailable)
 			plugin.enabled = false
 		}
 	}
