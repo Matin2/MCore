@@ -4,6 +4,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.matin.mcore.MCore
 import me.matin.mcore.methods.readOnly
@@ -35,8 +36,10 @@ open class Hook(
 		setInstance(handler)
 		_stateChanges = instance.stateChanges.asSharedFlow()
 		_initialCheck = instance.initialCheck.readOnly
-		_initialCheck.join()
-		onInitialCheck()
+		handler.scope.launch {
+			_initialCheck.join()
+			onInitialCheck()
+		}
 	}
 	
 	private suspend fun setInstance(handler: HooksHandler) {

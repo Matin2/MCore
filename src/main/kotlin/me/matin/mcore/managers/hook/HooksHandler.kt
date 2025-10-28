@@ -30,7 +30,7 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 	}
 	
 	fun registerAll(hooks: Iterable<Hook>): Boolean {
-		val newHooks = hooks.filter { hook -> hook.name in _hooks.value.map { it.name } }.ifEmpty { return false }
+		val newHooks = hooks.filter { it.name in _hooks.value.map(Hook::name) }.ifEmpty { return false }
 		_hooks.update { it.mutate { hooks -> hooks += newHooks } }
 		return true
 	}
