@@ -2,7 +2,6 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,10 +22,10 @@ open class Hook(
 	
 	val plugin get() = instance.plugin
 	val isHooked: Hooked get() = instance.stateChanges.value
-	val stateChanges: Flow<Hooked> get() = _stateChanges
-	val initialCheck: Job get() = _initialCheck
-	private lateinit var _stateChanges: SharedFlow<Hooked>
-	private lateinit var _initialCheck: Job
+	val stateChanges: Flow<Hooked> get() = instance.stateChanges.asSharedFlow()
+	val initialCheck: Job get() = instance.initialCheck.readOnly
+	
+	@Volatile
 	internal lateinit var instance: HookInstance
 	protected open suspend fun onInitialCheck() {}
 	
@@ -34,10 +33,8 @@ open class Hook(
 	internal suspend fun init() {
 		withContext(MCore.serverDispatcher) { handler.plugin.registerListeners(this@Hook) }
 		setInstance(handler)
-		_stateChanges = instance.stateChanges.asSharedFlow()
-		_initialCheck = instance.initialCheck.readOnly
 		handler.scope.launch {
-			_initialCheck.join()
+			instance.initialCheck.join()
 			onInitialCheck()
 		}
 	}
