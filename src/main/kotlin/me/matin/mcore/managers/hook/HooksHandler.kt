@@ -80,22 +80,18 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		
 		val messages = Messages()
 		
-		internal fun log(hook: Hook, initial: Boolean) {
-			val log = when {
-				initial && hook.isHooked -> messages.successful_hook(hook)
-				initial -> messages.fail_hook(hook)
-				hook.isHooked -> messages.successful_rehook(hook)
-				else -> messages.successful_unhook(hook)
-			}
-			if (log != Component.empty()) logger(log)
-		}
+		internal fun log(hook: Hook, initial: Boolean) = when {
+			initial && hook.isHooked -> messages.hooked(hook)
+			initial -> messages.hookFailed(hook)
+			hook.isHooked -> messages.rehooked(hook)
+			else -> messages.unhooked(hook)
+		}.takeUnless { it == Component.empty() }?.let { logger(it) } ?: Unit
 		
-		@Suppress("PropertyName")
 		data class Messages(
-			var successful_hook: (Hook) -> Component = { Component.text("Successfully hooked to ${it.name}.") },
-			var fail_hook: (Hook) -> Component = { Component.text("Failed to hook to ${it.name}.") },
-			var successful_unhook: (Hook) -> Component = { Component.text("Successfully unhooked from ${it.name}.") },
-			var successful_rehook: (Hook) -> Component = { Component.text("Successfully rehooked to ${it.name}.") },
+			var hooked: (Hook) -> Component = { Component.text("Successfully hooked to ${it.name}.") },
+			var hookFailed: (Hook) -> Component = { Component.text("Failed to hook to ${it.name}.") },
+			var unhooked: (Hook) -> Component = { Component.text("Unhooked from ${it.name}.") },
+			var rehooked: (Hook) -> Component = { Component.text("Rehooked to ${it.name}.") },
 		)
 	}
 	
