@@ -2,19 +2,20 @@
 #plugins
 shadow-plugin = "9.1.0"
 #kotlin
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 kotlinx-atomicfu = "0.30.0-beta"
 kotlinx-immutable-collections = "0.4.0"
 #orm
-exposed = "1.0.0-rc-2"
+exposed = "1.0.0-rc-4"
 mysql = "1.4.1"
+postgres = "1.1.1.RELEASE"
 #minecraft
 paper = "1.21.10-R0.1-SNAPSHOT"
-packetevents = "2.10.0"
-nbtapi = "2.15.3"
-skinsrestorer = "15.8.2"
+packetevents = "2.11.1"
+nbtapi = "2.15.5"
+skinsrestorer = "15.9.1"
 
 [libraries]
 #kotlinx
@@ -28,6 +29,7 @@ exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = 
 exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
 exposed-crypt = { module = "org.jetbrains.exposed:exposed-crypt", version.ref = "exposed" }
 mysql = { module = "io.asyncer:r2dbc-mysql", version.ref = "mysql" }
+postgres = { module = "org.postgresql:r2dbc-postgresql", version.ref = "postgres" }
 #minecraft
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
@@ -42,6 +44,6 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow-plugin" }
 
 [bundles]
 kotlinx = ["kotlinx-coroutines", "kotlinx-serialization", "kotlinx-atmoicfu", "kotlinx-immutable-collections"]
-orm = ["exposed-core", "exposed-r2dbc", "exposed-json", "exposed-crypt", "mysql"]
+orm = ["exposed-core", "exposed-r2dbc", "exposed-json", "exposed-crypt", "mysql", "postgres"]
 
 
