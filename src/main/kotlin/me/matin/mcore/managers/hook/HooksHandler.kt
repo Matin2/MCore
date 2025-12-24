@@ -76,7 +76,7 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		hooks.forEach { launch { it.init() } }
 	}
 	
-	class Logger internal constructor(var logger: (Component) -> Unit) {
+	class Logger internal constructor(var enabled: Boolean = true, var logger: (Component) -> Unit) {
 		
 		val messages = Messages()
 		

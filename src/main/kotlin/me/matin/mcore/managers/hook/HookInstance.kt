@@ -38,7 +38,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 		val enabled = plugin?.isEnabled == true
 		stateChanges.value = enabled
 		if (initial) initialCheck.complete()
-		else handlers.forEach { log(it, initial) }
+		else handlers.filter { it.logger.enabled }.forEach { log(it, initial) }
 	}
 	
 	private fun log(handler: HooksHandler, initial: Boolean) =
