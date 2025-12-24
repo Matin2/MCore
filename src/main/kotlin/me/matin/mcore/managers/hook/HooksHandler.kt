@@ -1,9 +1,5 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.update
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.*
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
@@ -14,8 +10,8 @@ import org.bukkit.plugin.Plugin
 @Suppress("unused", "NOTHING_TO_INLINE")
 class HooksHandler internal constructor(internal val plugin: Plugin) {
 	
-	private val _hooks = atomic(persistentSetOf<Hook>())
-	val hooks: Set<Hook> by _hooks
+	val hooks: Set<Hook>
+		field: MutableSet<Hook> = mutableSetOf()
 	lateinit var scope: CoroutineScope private set
 	internal var logger = Logger { plugin.componentLogger.info(it) }
 		private set
@@ -25,15 +21,13 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 	}
 	
 	fun register(hook: Hook): Boolean {
-		if (_hooks.value.any { it.name == hook.name }) return false
-		_hooks.update { it.mutate { hooks -> hooks += hook } }
-		return true
+		if (hooks.any { it.name == hook.name }) return false
+		return hooks.add(hook)
 	}
 	
 	fun registerAll(hooks: Iterable<Hook>): Boolean {
-		val newHooks = hooks.filter { it.name in _hooks.value.map(Hook::name) }.ifEmpty { return false }
-		_hooks.update { it.mutate { hooks -> hooks += newHooks } }
-		return true
+		val hookNames = hooks.map { it.name }
+		return hooks.filter { it.name in hookNames }.ifEmpty { return false }.let { this.hooks.addAll(it) }
 	}
 	
 	inline fun registerAll(vararg hooks: Hook): Boolean = registerAll(hooks.toList())

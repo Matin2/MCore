@@ -1,7 +1,6 @@
 package me.matin.mcore
 
 import me.matin.mcore.managers.hook.Hook
-import me.matin.mcore.managers.hook.HooksHandler.Companion.hooksHandler
 
 internal object Hooks {
 	

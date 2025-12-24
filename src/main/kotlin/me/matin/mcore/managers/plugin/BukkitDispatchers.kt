@@ -35,6 +35,7 @@ class BukkitDispatchers internal constructor(private val plugin: Plugin) {
 	}
 }
 
+@JvmName("delayTicksReceiver")
 suspend fun Plugin.delayTicks(delay: Long) = suspendCancellableCoroutine { cont ->
 	val task = Bukkit.getScheduler().runTaskLater(this, Runnable { cont.resume(Unit) }, delay)
 	cont.invokeOnCancellation { task.cancel() }
