@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.matin.mcore.MCore
-import me.matin.mcore.methods.readOnly
 import me.matin.mcore.methods.registerListeners
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
@@ -23,7 +22,7 @@ open class Hook(
 	val plugin get() = instance.plugin
 	val isHooked: Hooked get() = instance.stateChanges.value
 	val stateChanges: Flow<Hooked> get() = instance.stateChanges.asSharedFlow()
-	val initialCheck: Job get() = instance.initialCheck.readOnly
+	val initialCheck: Job get() = instance.initialCheck
 	
 	@Volatile
 	internal lateinit var instance: HookInstance
