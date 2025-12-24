@@ -9,14 +9,13 @@ import kotlin.coroutines.CoroutineContext
 
 abstract class KotlinPlugin: JavaPlugin(), CoroutineScope {
 	
-	private val _dispatcher = lazy { BukkitDispatcher(this) }
-	val dispatcher by _dispatcher
+	val dispatchers = BukkitDispatchers(this)
 	internal val job = SupervisorJob()
-	override val coroutineContext: CoroutineContext = CoroutineName(name) + job + BukkitDispatcher(this).main
+	override val coroutineContext: CoroutineContext = CoroutineName(name) + job + dispatchers.main
 	
 	override fun onDisable() {
 		val exception = CancellationException("Plugin has been disabled.")
 		job.cancel(exception)
-		if (_dispatcher.isInitialized()) dispatcher.cancel(exception)
+		dispatchers.cancel(exception)
 	}
 }

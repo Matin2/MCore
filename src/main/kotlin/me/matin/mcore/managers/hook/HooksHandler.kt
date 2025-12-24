@@ -5,7 +5,7 @@ import kotlinx.atomicfu.update
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.*
-import me.matin.mcore.dispatcher
+import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
@@ -67,7 +67,7 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 			.ifEmpty { return }
 			.joinToString(prefix = "[", postfix = "]") { it.name }
 			.let { "The following dependencies are required by ${plugin.name} but are not available: $it" }
-		withContext(dispatcher.main) {
+		withContext(dispatchers.main) {
 			mcore.componentLogger.error(unavailable)
 			plugin.enabled = false
 		}

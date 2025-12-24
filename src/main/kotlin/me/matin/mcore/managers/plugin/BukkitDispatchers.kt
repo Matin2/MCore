@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 
-class BukkitDispatcher internal constructor(private val plugin: Plugin) {
+class BukkitDispatchers internal constructor(private val plugin: Plugin) {
 	
 	val main = object: CoroutineDispatcher() {
 		override fun dispatch(context: CoroutineContext, block: Runnable) {
@@ -36,12 +36,8 @@ class BukkitDispatcher internal constructor(private val plugin: Plugin) {
 }
 
 suspend fun Plugin.delayTicks(delay: Long) = suspendCancellableCoroutine { cont ->
-	val task = Bukkit.getScheduler().runTaskLater(this, Runnable {
-		cont.resume(Unit)
-	}, delay)
-	cont.invokeOnCancellation {
-		task.cancel()
-	}
+	val task = Bukkit.getScheduler().runTaskLater(this, Runnable { cont.resume(Unit) }, delay)
+	cont.invokeOnCancellation { task.cancel() }
 }
 
 suspend inline fun delayTicks(plugin: Plugin, delay: Long) = plugin.delayTicks(delay)

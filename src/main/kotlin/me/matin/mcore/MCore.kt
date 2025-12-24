@@ -14,7 +14,7 @@ import kotlin.time.measureTime
 
 lateinit var mcore: MCore
 	private set
-val dispatcher by mcore::dispatcher
+val dispatchers by mcore::dispatchers
 
 class MCore: KotlinPlugin() {
 	
