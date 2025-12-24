@@ -14,10 +14,9 @@ import org.bukkit.event.server.PluginEnableEvent
 import org.bukkit.plugin.Plugin
 
 @Suppress("NOTHING_TO_INLINE")
-internal object HooksManager: Listener {
+internal object HooksManager: Listener, CoroutineScope {
 	
-	@JvmStatic
-	val scope = CoroutineScope(mcore.coroutineContext + SupervisorJob(mcore.job) + dispatchers.async)
+	override val coroutineContext = mcore.coroutineContext + SupervisorJob(mcore.job) + dispatchers.async
 	
 	@JvmStatic
 	val hookInstances: Set<HookInstance>
@@ -43,23 +42,20 @@ internal object HooksManager: Listener {
 	@JvmStatic
 	inline operator fun minusAssign(handler: HooksHandler) {
 		handlers -= handler
-		scope.launch { hooksMutex.withLock { hookInstances.forEach { it -= handler } } }
+		launch { hooksMutex.withLock { hookInstances.forEach { it -= handler } } }
 	}
 	
 	@JvmStatic
-	private fun check(plugin: Plugin, onEnable: Boolean) {
-		handlers.find { it.plugin == plugin }?.onPluginStateChange(!onEnable)
-		scope.launch {
-			hookInstances.find { it.plugin == plugin }?.apply {
-				check(false)
-				handlers.forEach { launch { it.checkRequired() } }
-			}
+	private fun check(plugin: Plugin) = launch {
+		hookInstances.find { it.plugin == plugin }?.apply {
+			check(false)
+			handlers.forEach { launch { it.checkRequired() } }
 		}
-	}
+	}.let {}
 	
 	@EventHandler
-	fun PluginEnableEvent.onPluginEnable() = check(plugin, true)
+	fun PluginEnableEvent.onPluginEnable() = check(plugin)
 	
 	@EventHandler
-	fun PluginDisableEvent.onPluginDisable() = check(plugin, false)
+	fun PluginDisableEvent.onPluginDisable() = check(plugin)
 }

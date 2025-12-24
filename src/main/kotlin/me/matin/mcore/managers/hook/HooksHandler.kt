@@ -12,7 +12,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
 @Suppress("unused", "NOTHING_TO_INLINE")
-class HooksHandler private constructor(internal val plugin: Plugin) {
+class HooksHandler internal constructor(internal val plugin: Plugin) {
 	
 	private val _hooks = atomic(persistentSetOf<Hook>())
 	val hooks: Set<Hook> by _hooks
@@ -46,17 +46,17 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 		registerAll(hooks)
 	}
 	
-	internal fun onPluginStateChange(onDisable: Boolean) {
-		if (onDisable) {
-			HooksManager -= this
-			scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
-			return
-		}
-		scope = CoroutineScope(HooksManager.scope.coroutineContext + Job(HooksManager.scope.coroutineContext.job))
+	internal fun onEnable() {
+		scope = CoroutineScope(HooksManager.coroutineContext + Job(HooksManager.coroutineContext.job))
 		scope.launch {
 			manageHooks()
 			checkRequired()
 		}
+	}
+	
+	internal fun onDisable() {
+		HooksManager -= this
+		scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
 	}
 	
 	internal suspend fun checkRequired() {
@@ -94,12 +94,5 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 			var unhooked: (Hook) -> Component = { Component.text("Unhooked from ${it.name}.") },
 			var rehooked: (Hook) -> Component = { Component.text("Rehooked to ${it.name}.") },
 		)
-	}
-	
-	companion object {
-		
-		@JvmStatic
-		val Plugin.hooksHandler
-			get() = HooksManager.handlers.find { it.plugin == this } ?: HooksHandler(this).also { HooksManager += it }
 	}
 }

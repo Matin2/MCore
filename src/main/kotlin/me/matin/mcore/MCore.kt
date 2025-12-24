@@ -22,6 +22,7 @@ class MCore: KotlinPlugin() {
 		private set
 	
 	override fun onEnable() = measureTime {
+		super.onEnable()
 		mcore = this
 		checkNBTAPI()
 		packetEventsAPI.init()
