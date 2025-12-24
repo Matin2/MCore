@@ -5,7 +5,8 @@ import kotlinx.atomicfu.update
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.*
-import me.matin.mcore.MCore
+import me.matin.mcore.dispatcher
+import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
@@ -66,8 +67,8 @@ class HooksHandler private constructor(internal val plugin: Plugin) {
 			.ifEmpty { return }
 			.joinToString(prefix = "[", postfix = "]") { it.name }
 			.let { "The following dependencies are required by ${plugin.name} but are not available: $it" }
-		withContext(MCore.serverDispatcher) {
-			MCore.instance.componentLogger.error(unavailable)
+		withContext(dispatcher.main) {
+			mcore.componentLogger.error(unavailable)
 			plugin.enabled = false
 		}
 	}

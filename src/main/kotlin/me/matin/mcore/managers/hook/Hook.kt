@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.matin.mcore.MCore
+import me.matin.mcore.dispatcher
 import me.matin.mcore.methods.registerListeners
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
@@ -30,7 +30,7 @@ open class Hook(
 	
 	context(handler: HooksHandler)
 	internal suspend fun init() {
-		withContext(MCore.serverDispatcher) { handler.plugin.registerListeners(this@Hook) }
+		withContext(dispatcher.main) { handler.plugin.registerListeners(this@Hook) }
 		setInstance(handler)
 		handler.scope.launch {
 			instance.initialCheck.join()

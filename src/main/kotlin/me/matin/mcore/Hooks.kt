@@ -8,6 +8,6 @@ internal object Hooks {
 	val skinsRestorer = Hook("SkinsRestorer", false)
 	
 	fun init() {
-		MCore.instance.hooksHandler += skinsRestorer
+		mcore.hooksHandler += skinsRestorer
 	}
 }

@@ -2,11 +2,11 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import me.matin.mcore.MCore.Companion.pluginScope
+import me.matin.mcore.dispatcher
+import me.matin.mcore.mcore
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
@@ -17,7 +17,7 @@ import org.bukkit.plugin.Plugin
 internal object HooksManager: Listener {
 	
 	@JvmStatic
-	val scope = CoroutineScope(pluginScope.coroutineContext + SupervisorJob(pluginScope.coroutineContext.job))
+	val scope = CoroutineScope(mcore.coroutineContext + SupervisorJob(mcore.job) + dispatcher.async)
 	
 	@JvmStatic
 	val hookInstances: Set<HookInstance>

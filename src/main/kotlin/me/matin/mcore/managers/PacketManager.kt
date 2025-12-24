@@ -9,7 +9,8 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOp
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
 import kotlinx.coroutines.launch
-import me.matin.mcore.MCore
+import me.matin.mcore.dispatcher
+import me.matin.mcore.mcore
 import net.kyori.adventure.text.Component
 import org.bukkit.Material.TOTEM_OF_UNDYING
 import org.bukkit.entity.Player
@@ -24,10 +25,10 @@ object PacketManager {
 		get() = InventoryTitle.openWindows[player]?.title
 		set(value) {
 			value ?: return
-			MCore.pluginScope.launch {
+			mcore.launch(dispatcher.async) {
 				val user = player as Player
 				val wrapper = InventoryTitle.openWindows[user]?.apply { title = value } ?: return@launch
-				MCore.packetEvents.playerManager.sendPacket(user, wrapper)
+				mcore.packetEventsAPI.playerManager.sendPacket(user, wrapper)
 				user.updateInventory()
 				InventoryTitle.openWindows[user] = wrapper
 			}
@@ -53,7 +54,7 @@ object PacketManager {
 	
 	@JvmStatic
 	private fun Player.sendTotemPacket() =
-		MCore.packetEvents.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
+		mcore.packetEventsAPI.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 
 internal object InventoryTitle: PacketListenerAbstract(NORMAL) {
