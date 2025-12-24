@@ -21,17 +21,21 @@ open class Hook(
 	
 	val plugin get() = instance.plugin
 	val isHooked: Hooked get() = instance.stateChanges.value
-	val stateChanges: Flow<Hooked> get() = instance.stateChanges.asSharedFlow()
+	val stateChanges: Flow<Hooked> get() = _stateChanges
 	val initialCheck: Job get() = instance.initialCheck
 	
 	@Volatile
 	internal lateinit var instance: HookInstance
+	
+	@Volatile
+	private lateinit var _stateChanges: Flow<Hooked>
 	protected open suspend fun onInitialCheck() {}
 	
 	context(handler: HooksHandler)
 	internal suspend fun init() {
 		withContext(dispatchers.main) { handler.plugin.registerListeners(this@Hook) }
 		setInstance(handler)
+		_stateChanges = instance.stateChanges.asSharedFlow()
 		handler.scope.launch {
 			instance.initialCheck.join()
 			onInitialCheck()
