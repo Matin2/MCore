@@ -9,13 +9,6 @@ libraries:
 - org.jetbrains.kotlin:kotlin-reflect:${kotlin}
 - org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}
 - org.jetbrains.kotlinx:kotlinx-serialization-json:${serialization}
-- org.jetbrains.kotlinx:atomicfu-gradle-plugin:${atomicfu}
-- org.jetbrains.kotlinx:kotlinx-collections-immutable:${immutables}
-- org.jetbrains.exposed:exposed-core:${exposed}
-- org.jetbrains.exposed:exposed-r2dbc:${exposed}
-- org.jetbrains.exposed:exposed-json:${exposed}
-- org.jetbrains.exposed:exposed-crypt:${exposed}
-- io.asyncer:r2dbc-mysql:${mysql}
 softdepend:
 - ProtocolLib
 - ProtocolSupport
