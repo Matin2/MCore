@@ -50,7 +50,7 @@ data class DialogTemplate(
 		return builder.type(type.paperType).base(paperBase)
 	}
 	
-	fun buildDialog() = Dialog.create { applyTo(it.empty()) }
+	fun buildDialog(): Dialog = Dialog.create { applyTo(it.empty()) }
 }
 
 enum class DialogAfterAction(val paperAfterAction: DialogBase.DialogAfterAction) {

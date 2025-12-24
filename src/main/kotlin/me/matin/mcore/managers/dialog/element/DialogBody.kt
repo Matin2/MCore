@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.inventory.ItemStack
 import io.papermc.paper.registry.data.dialog.body.DialogBody as PaperBody
 
-@Suppress("UnstableApiUsage", "unused")
+@Suppress("unused")
 sealed class DialogBody(val value: PaperBody): DialogElement {
 	
 	data class Message(val message: Component, val width: Int = 200): DialogBody(PaperBody.plainMessage(message, width))
