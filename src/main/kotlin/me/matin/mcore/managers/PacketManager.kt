@@ -25,7 +25,7 @@ object PacketManager {
 		get() = InventoryTitle.openWindows[player]?.title
 		set(value) {
 			value ?: return
-			mcore.launch(dispatchers.async) {
+			mcore.scope.launch(dispatchers.async) {
 				val user = player as Player
 				val wrapper = InventoryTitle.openWindows[user]?.apply { title = value } ?: return@launch
 				mcore.packetEventsAPI.playerManager.sendPacket(user, wrapper)

@@ -12,18 +12,16 @@ import me.matin.mcore.methods.registerListeners
 import me.matin.mlib.text
 import kotlin.time.measureTime
 
-lateinit var mcore: MCore
-	private set
-val dispatchers by mcore::dispatchers
+lateinit var mcore: MCore private set
+inline val dispatchers get() = mcore.dispatchers
 
 class MCore: KotlinPlugin() {
 	
-	lateinit var packetEventsAPI: PacketEventsAPI<*>
-		private set
+	lateinit var packetEventsAPI: PacketEventsAPI<*> private set
 	
 	override fun onEnable() = measureTime {
-		super.onEnable()
 		mcore = this
+		super.onEnable()
 		checkNBTAPI()
 		packetEventsAPI.init()
 		packetEventsAPI.eventManager.registerListeners(InventoryTitle)

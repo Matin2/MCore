@@ -2,6 +2,7 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -16,7 +17,8 @@ import org.bukkit.plugin.Plugin
 @Suppress("NOTHING_TO_INLINE")
 internal object HooksManager: Listener, CoroutineScope {
 	
-	override val coroutineContext = mcore.coroutineContext + SupervisorJob(mcore.job) + dispatchers.async
+	override val coroutineContext =
+		mcore.scope.coroutineContext + SupervisorJob(mcore.scope.coroutineContext.job) + dispatchers.async
 	
 	@JvmStatic
 	val hookInstances: Set<HookInstance>
