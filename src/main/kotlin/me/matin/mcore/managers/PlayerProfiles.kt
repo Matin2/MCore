@@ -1,8 +1,10 @@
 package me.matin.mcore.managers
 
 import com.destroystokyo.paper.profile.PlayerProfile
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import me.matin.mcore.Hooks
-import net.skinsrestorer.api.Base64Utils.decode
 import net.skinsrestorer.api.PropertyUtils
 import net.skinsrestorer.api.SkinsRestorerProvider
 import org.bukkit.Bukkit.createProfile
@@ -14,22 +16,27 @@ import java.util.*
 @Suppress("unused")
 object PlayerProfiles {
 	
+	private typealias Base64 = String
+	
+	private inline val Base64.url
+		get() = Json.parseToJsonElement(this)
+			.jsonObject["textures"]!!
+			.jsonObject["SKIN"]!!
+			.jsonObject["url"]!!
+			.jsonPrimitive.content
+	
 	/**
 	 * @param player Player witch you want the profile of.
 	 * @return [PlayerProfile] of the player with SkinsRestorer support.
 	 */
 	@JvmStatic
-	operator fun get(player: OfflinePlayer, model: SkinModel? = null): PlayerProfile {
-		if (!Hooks.skinsRestorer.isHooked) return player.playerProfile
-		val skin = runCatching {
-			SkinsRestorerProvider.get().playerStorage.getSkinForPlayer(player.uniqueId, player.name).get()
-		}.getOrNull() ?: return player.playerProfile
-		return get(
-			PropertyUtils.getSkinTextureUrl(skin),
-			false,
-			model ?: SkinModel.valueOf(PropertyUtils.getSkinVariant(skin).name)
-		)
-	}
+	operator fun get(player: OfflinePlayer) =
+		if (Hooks.skinsRestorer.isHooked) SkinsRestorerProvider.get().playerStorage
+			.runCatching { getSkinForPlayer(player.uniqueId, player.name).get() }
+			.map { PropertyUtils.getSkinTextureUrl(it) }
+			.map { get(it, false, SkinModel.valueOf(PropertyUtils.getSkinVariant(it).name)) }
+			.getOrDefault(player.playerProfile)
+		else player.playerProfile
 	
 	/**
 	 * @param value URL or Base64 of the skin for the profile.
@@ -42,9 +49,7 @@ object PlayerProfiles {
 		value: String,
 		base64: Boolean,
 		model: SkinModel = SkinModel.CLASSIC,
-	): PlayerProfile = createProfile(UUID.randomUUID()).apply {
-		runCatching {
-			URI(if (base64) PropertyUtils.getSkinTextureUrl(decode(value)) else value).toURL()
-		}.getOrNull()?.let { textures.apply { setSkin(it, model) } }
+	) = createProfile(UUID.randomUUID()).apply {
+		runCatching { URI(if (base64) value.url else value).toURL() }.onSuccess { textures.setSkin(it, model) }
 	}
 }
