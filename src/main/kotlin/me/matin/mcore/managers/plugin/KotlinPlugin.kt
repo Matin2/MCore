@@ -18,9 +18,7 @@ abstract class KotlinPlugin: JavaPlugin() {
 	}
 	
 	override fun onDisable() {
-		val exception = CancellationException("Plugin has been disabled.")
-		scope.cancel(exception)
-		dispatchers.cancel(exception)
+		scope.cancel(CancellationException("Plugin has been disabled."))
 		if (_hooksHandler.isInitialized()) hooksHandler.disable()
 	}
 }

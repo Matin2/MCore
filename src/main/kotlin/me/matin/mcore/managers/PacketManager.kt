@@ -21,18 +21,17 @@ import org.bukkit.inventory.ItemStack
 object PacketManager {
 	
 	@JvmStatic
-	var InventoryView.displayTitle: Component?
-		get() = InventoryTitle.openWindows[player]?.title
-		set(value) {
-			value ?: return
-			mcore.scope.launch(dispatchers.async) {
-				val user = player as Player
-				val wrapper = InventoryTitle.openWindows[user]?.apply { title = value } ?: return@launch
-				mcore.packetEventsAPI.playerManager.sendPacket(user, wrapper)
+	var InventoryView.displayTitle: Component
+		get() = InventoryTitle.openWindows[player]?.title ?: title()
+		set(value) = mcore.scope.launch(dispatchers.async) {
+			val user = player as Player
+			InventoryTitle.openWindows[user]?.let {
+				it.title = value
+				mcore.packetEventsAPI.playerManager.sendPacket(user, it)
 				user.updateInventory()
-				InventoryTitle.openWindows[user] = wrapper
+				InventoryTitle.openWindows[user] = it
 			}
-		}
+		}.let {}
 	
 	/**
 	 * Shows totem animation to the selected player.
@@ -42,7 +41,7 @@ object PacketManager {
 	 */
 	@JvmStatic
 	fun Player.showTotem(model: CustomModelData? = null) {
-		model ?: run { sendTotemPacket(); return }
+		model ?: return sendTotemPacket()
 		val item = inventory.itemInOffHand
 		val totem = ItemStack.of(TOTEM_OF_UNDYING).apply {
 			setData(DataComponentTypes.CUSTOM_MODEL_DATA, model)
@@ -53,7 +52,8 @@ object PacketManager {
 	}
 	
 	@JvmStatic
-	private fun Player.sendTotemPacket() =
+	@Suppress("NOTHING_TO_INLINE")
+	private inline fun Player.sendTotemPacket() =
 		mcore.packetEventsAPI.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 

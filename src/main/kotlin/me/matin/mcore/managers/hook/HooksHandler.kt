@@ -25,10 +25,8 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 		return hooks.add(hook)
 	}
 	
-	fun registerAll(hooks: Iterable<Hook>): Boolean {
-		val hookNames = hooks.map { it.name }
-		return hooks.filter { it.name in hookNames }.ifEmpty { return false }.let { this.hooks.addAll(it) }
-	}
+	fun registerAll(hooks: Iterable<Hook>): Boolean =
+		hooks.filter { it.name in hooks.map(Hook::name) }.ifEmpty { return false }.let { this.hooks.addAll(it) }
 	
 	inline fun registerAll(vararg hooks: Hook): Boolean = registerAll(hooks.toList())
 	

@@ -9,7 +9,6 @@ import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.managers.plugin.KotlinPlugin
 import me.matin.mcore.methods.enabled
 import me.matin.mcore.methods.registerListeners
-import me.matin.mlib.text
 import kotlin.time.measureTime
 
 lateinit var mcore: MCore private set
@@ -28,7 +27,7 @@ class MCore: KotlinPlugin() {
 		registerListeners(HooksManager)
 		Hooks.init()
 		componentLogger.info("Plugin is successfully enabled.")
-	}.run { componentLogger.debug("Took ${text()} to enable.") }
+	}.let { componentLogger.debug("Took $it to enable.") }
 	
 	@Suppress("UnstableApiUsage")
 	override fun onLoad() = measureTime {
@@ -37,13 +36,13 @@ class MCore: KotlinPlugin() {
 			settings.reEncodeByDefault(false).checkForUpdates(false)
 			load()
 		}
-	}.run { componentLogger.debug("Plugin is successfully loaded in ${text()}.") }
+	}.let { componentLogger.debug("Plugin is successfully loaded in $it.") }
 	
 	override fun onDisable() = measureTime {
 		super.onDisable()
 		packetEventsAPI.terminate()
 		componentLogger.info("Plugin is disabled.")
-	}.run { componentLogger.debug("Took ${text()} to disable.") }
+	}.let { componentLogger.debug("Took $it to disable.") }
 	
 	private fun checkNBTAPI() {
 		if (NBT.preloadApi()) return
