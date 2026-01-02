@@ -10,18 +10,21 @@ import org.bukkit.plugin.Plugin
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 
-class BukkitDispatchers internal constructor(private val plugin: Plugin) {
+class BukkitDispatchers(private val plugin: Plugin) {
 	
-	val main = object: CoroutineDispatcher() {
+	val main by lazy { Main(plugin) }
+	val async by lazy { Async(plugin) }
+	
+	class Main(private val plugin: Plugin): CoroutineDispatcher() {
+		
 		override fun dispatch(context: CoroutineContext, block: Runnable) {
-			if (Bukkit.isPrimaryThread()) {
-				block.run()
-				return
-			}
-			Bukkit.getScheduler().runTask(plugin, block)
+			if (Bukkit.isPrimaryThread()) block.run()
+			else Bukkit.getScheduler().runTask(plugin, block)
 		}
 	}
-	val async = object: CoroutineDispatcher() {
+	
+	class Async(private val plugin: Plugin): CoroutineDispatcher() {
+		
 		override fun dispatch(context: CoroutineContext, block: Runnable) {
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, block)
 		}
@@ -29,6 +32,13 @@ class BukkitDispatchers internal constructor(private val plugin: Plugin) {
 }
 
 suspend fun delayTicks(plugin: Plugin, delay: Long) = suspendCancellableCoroutine { cont ->
-	val task = Bukkit.getScheduler().runTaskLater(plugin, Runnable { cont.resume(Unit) }, delay)
-	cont.invokeOnCancellation { task.cancel() }
+	Bukkit.getScheduler().runTaskLater(plugin, Runnable { cont.resume(Unit) }, delay).run {
+		cont.invokeOnCancellation { cancel() }
+	}
+}
+
+suspend fun delayTicksAsync(plugin: Plugin, delay: Long) = suspendCancellableCoroutine { cont ->
+	Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable { cont.resume(Unit) }, delay).run {
+		cont.invokeOnCancellation { cancel() }
+	}
 }

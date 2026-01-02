@@ -13,7 +13,7 @@ abstract class KotlinPlugin: JavaPlugin() {
 	
 	override fun onEnable() {
 		dispatchers = BukkitDispatchers(this)
-		scope = CoroutineScope(CoroutineName(name) + SupervisorJob() + dispatchers.main)
+		scope = CoroutineScope(CoroutineName(name) + SupervisorJob() + BukkitDispatchers.Main(this))
 		_hooksHandler = lazy { HooksHandler(this).also(HooksHandler::init) }
 	}
 	
