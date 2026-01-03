@@ -6,7 +6,6 @@ import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import kotlin.time.Duration
-import kotlin.time.DurationUnit.SECONDS
 
 /** Converts this [Duration] to server ticks. */
 inline val Duration.inTicks: Double get() = toDouble(SECONDS) * 20

@@ -59,20 +59,22 @@ tasks.shadowJar {
 tasks.build { dependsOn(tasks.shadowJar) }
 
 tasks.processResources {
-	val versions = mapOf(
+	mapOf(
 		"version" to version.toString().replaceAfter('-', "SNAPSHOT"),
 		"kotlin" to libs.versions.kotlin.get(),
 		"coroutines" to libs.versions.kotlinx.coroutines.get(),
 		"serialization" to libs.versions.kotlinx.serialization.get()
-	)
-	inputs.properties(versions)
-	filteringCharset = "UTF-8"
-	filesMatching("plugin.yml") { expand(versions) }
+	).let {
+		inputs.properties(it)
+		filteringCharset = "UTF-8"
+		filesMatching("plugin.yml") { expand(it) }
+	}
 }
 
 kotlin {
 	jvmToolchain(javaVersion)
 	val features = setOf(
+		LanguageFeature.ContextSensitiveResolutionUsingExpectedType,
 		LanguageFeature.ExplicitBackingFields,
 		LanguageFeature.ContextParameters
 	)
@@ -81,14 +83,10 @@ kotlin {
 	}
 }
 
-publishing {
-	publications {
-		create<MavenPublication>("maven") {
-			groupId = project.group.toString()
-			artifactId = project.name
-			version = project.version.toString()
-			
-			from(components["java"])
-		}
-	}
+publishing.publications.create<MavenPublication>("maven") {
+	groupId = project.group.toString()
+	artifactId = project.name
+	version = project.version.toString()
+	
+	from(components["java"])
 }

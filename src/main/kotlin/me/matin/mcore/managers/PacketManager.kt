@@ -1,7 +1,6 @@
 package me.matin.mcore.managers
 
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
-import com.github.retrooper.packetevents.event.PacketListenerPriority.NORMAL
 import com.github.retrooper.packetevents.event.PacketSendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
@@ -12,7 +11,6 @@ import kotlinx.coroutines.launch
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import net.kyori.adventure.text.Component
-import org.bukkit.Material.TOTEM_OF_UNDYING
 import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
@@ -36,8 +34,8 @@ object PacketManager {
 	/**
 	 * Shows totem animation to the selected player.
 	 *
-	 * @param model (Optional) CustomModelData for the totem
-	 * @receiver Selected player
+	 * @param model (Optional) CustomModelData for the totem. default to `null`
+	 * @receiver Selected [Player].
 	 */
 	@JvmStatic
 	fun Player.showTotem(model: CustomModelData? = null) {

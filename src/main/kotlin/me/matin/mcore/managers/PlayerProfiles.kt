@@ -30,25 +30,26 @@ object PlayerProfiles {
 	 * @return [PlayerProfile] of the player with SkinsRestorer support.
 	 */
 	@JvmStatic
-	operator fun get(player: OfflinePlayer) =
-		if (Hooks.skinsRestorer.isHooked) SkinsRestorerProvider.get().playerStorage
-			.runCatching { getSkinForPlayer(player.uniqueId, player.name).get() }
-			.map { PropertyUtils.getSkinTextureUrl(it) }
-			.map { get(it, false, SkinModel.valueOf(PropertyUtils.getSkinVariant(it).name)) }
-			.getOrDefault(player.playerProfile)
-		else player.playerProfile
+	operator fun get(player: OfflinePlayer) = if (Hooks.skinsRestorer.isHooked) SkinsRestorerProvider.get()
+		.playerStorage
+		.runCatching { getSkinForPlayer(player.uniqueId, player.name).get() }
+		.map { PropertyUtils.getSkinTextureUrl(it) }
+		.map { get(it, model = SkinModel.valueOf(PropertyUtils.getSkinVariant(it).name)) }
+		.getOrDefault(player.playerProfile)
+	else player.playerProfile
 	
 	/**
 	 * @param value URL or Base64 of the skin for the profile.
-	 * @param base64 Whether [value] is Base64 or URL.
-	 * @param model (Optional) Model of the skin.
+	 * @param base64 (Optional) Whether [value] is Base64. defaults to `false`
+	 * @param model (Optional) Model of the skin. defaults to
+	 *    [SkinModel.CLASSIC]
 	 * @return [PlayerProfile] from the given url.
 	 */
 	@JvmStatic
 	operator fun get(
 		value: String,
-		base64: Boolean,
-		model: SkinModel = SkinModel.CLASSIC,
+		base64: Boolean = false,
+		model: SkinModel = CLASSIC,
 	) = createProfile(UUID.randomUUID()).apply {
 		runCatching { URI(if (base64) value.url else value).toURL() }.onSuccess { textures.setSkin(it, model) }
 	}
