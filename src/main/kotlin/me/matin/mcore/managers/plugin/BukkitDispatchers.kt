@@ -2,9 +2,7 @@
 
 package me.matin.mcore.managers.plugin
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import kotlin.coroutines.CoroutineContext
@@ -12,8 +10,15 @@ import kotlin.coroutines.resume
 
 class BukkitDispatchers(private val plugin: Plugin) {
 	
-	val main by lazy { Main(plugin) }
-	val async by lazy { Async(plugin) }
+	private val _main = lazy { Main(plugin) }
+	private val _async = lazy { Async(plugin) }
+	val main by _main
+	val async by _async
+	
+	fun cancel(exception: CancellationException? = null) {
+		if (_main.isInitialized()) main.cancel(exception)
+		if (_async.isInitialized()) async.cancel(exception)
+	}
 	
 	class Main(private val plugin: Plugin): CoroutineDispatcher() {
 		
