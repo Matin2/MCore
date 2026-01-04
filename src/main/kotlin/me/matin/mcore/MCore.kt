@@ -9,7 +9,6 @@ import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.managers.plugin.KotlinPlugin
 import me.matin.mcore.methods.enabled
 import me.matin.mcore.methods.registerListeners
-import kotlin.time.measureTime
 
 lateinit var mcore: MCore private set
 inline val dispatchers get() = mcore.dispatchers
@@ -19,7 +18,7 @@ class MCore: KotlinPlugin() {
 	lateinit var packetEventsAPI: PacketEventsAPI<*> private set
 	internal lateinit var hooksManager: HooksManager private set
 	
-	override fun onEnable() = measureTime {
+	override fun onEnable() {
 		mcore = this
 		super.onEnable()
 		checkNBTAPI()
@@ -27,23 +26,23 @@ class MCore: KotlinPlugin() {
 		packetEventsAPI.eventManager.registerListeners(InventoryTitle)
 		hooksManager = HooksManager(this).also { registerListeners(it) }
 		Hooks.init()
-		componentLogger.info("Plugin is successfully enabled.")
-	}.let { componentLogger.debug("Took $it to enable.") }
+		componentLogger.info("Plugin enabled successfully.")
+	}
 	
-	@Suppress("UnstableApiUsage")
-	override fun onLoad() = measureTime {
+	override fun onLoad() {
 		PacketEvents.setAPI(build(this))
 		packetEventsAPI = PacketEvents.getAPI().apply {
+			@Suppress("UnstableApiUsage")
 			settings.reEncodeByDefault(false).checkForUpdates(false)
 			load()
 		}
-	}.let { componentLogger.debug("Plugin is successfully loaded in $it.") }
+	}
 	
-	override fun onDisable() = measureTime {
+	override fun onDisable() {
 		super.onDisable()
 		packetEventsAPI.terminate()
-		componentLogger.info("Plugin is disabled.")
-	}.let { componentLogger.debug("Took $it to disable.") }
+		componentLogger.info("Plugin got disabled.")
+	}
 	
 	private fun checkNBTAPI() {
 		if (NBT.preloadApi()) return
