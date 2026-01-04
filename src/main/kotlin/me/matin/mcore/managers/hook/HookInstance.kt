@@ -2,8 +2,11 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
@@ -20,7 +23,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	
 	constructor(hook: Hook, handler: HooksHandler): this(hook.name, hook.requirements) {
 		handlers += handler
-		check(true)
+		mcore.launch { check(true) }
 		log(handler, true)
 	}
 	
@@ -34,10 +37,9 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 		if (handlers.isEmpty()) mcore.hooksManager -= this
 	}
 	
-	fun check(initial: Boolean) {
-		plugin = Bukkit.getPluginManager().getPlugin(name)?.takeIf(requirements)
-		val enabled = plugin?.isEnabled == true
-		stateChanges.value = enabled
+	suspend fun check(initial: Boolean) {
+		plugin = withContext(dispatchers.main) { Bukkit.getPluginManager().getPlugin(name)?.takeIf(requirements) }
+		stateChanges.value = plugin?.isEnabled == true
 		if (initial) initialCheck.complete()
 		else handlers.filter { it.logger.enabled }.forEach { log(it, initial) }
 	}
