@@ -17,6 +17,7 @@ inline val dispatchers get() = mcore.dispatchers
 class MCore: KotlinPlugin() {
 	
 	lateinit var packetEventsAPI: PacketEventsAPI<*> private set
+	internal lateinit var hooksManager: HooksManager private set
 	
 	override fun onEnable() = measureTime {
 		mcore = this
@@ -24,7 +25,7 @@ class MCore: KotlinPlugin() {
 		checkNBTAPI()
 		packetEventsAPI.init()
 		packetEventsAPI.eventManager.registerListeners(InventoryTitle)
-		registerListeners(HooksManager)
+		hooksManager = HooksManager(this).also { registerListeners(it) }
 		Hooks.init()
 		componentLogger.info("Plugin is successfully enabled.")
 	}.let { componentLogger.debug("Took $it to enable.") }

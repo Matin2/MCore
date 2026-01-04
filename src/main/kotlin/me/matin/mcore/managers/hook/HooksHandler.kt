@@ -39,8 +39,8 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 	}
 	
 	internal fun init() {
-		HooksManager += this
-		scope = CoroutineScope(HooksManager.coroutineContext + Job(HooksManager.coroutineContext.job))
+		mcore.hooksManager += this
+		scope = CoroutineScope(mcore.coroutineContext + SupervisorJob() + dispatchers.async)
 		scope.launch {
 			manageHooks()
 			checkRequired()
@@ -48,7 +48,7 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 	}
 	
 	internal fun disable() {
-		HooksManager -= this
+		mcore.hooksManager -= this
 		scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
 	}
 	

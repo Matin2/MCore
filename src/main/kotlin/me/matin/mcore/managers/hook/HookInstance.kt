@@ -4,6 +4,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import me.matin.mcore.mcore
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 
@@ -30,7 +31,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	
 	suspend operator fun minusAssign(handler: HooksHandler) {
 		mutex.withLock { handlers -= handler }
-		if (handlers.isEmpty()) HooksManager -= this
+		if (handlers.isEmpty()) mcore.hooksManager -= this
 	}
 	
 	fun check(initial: Boolean) {
