@@ -21,7 +21,7 @@ object PacketManager {
 	@JvmStatic
 	var InventoryView.displayTitle: Component
 		get() = InventoryTitle.openWindows[player]?.title ?: title()
-		set(value) = mcore.scope.launch(dispatchers.async) {
+		set(value) = mcore.launch(dispatchers.async) {
 			val user = player as Player
 			InventoryTitle.openWindows[user]?.let {
 				it.title = value

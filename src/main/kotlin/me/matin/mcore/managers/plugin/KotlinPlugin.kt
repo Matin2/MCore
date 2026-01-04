@@ -1,19 +1,22 @@
 package me.matin.mcore.managers.plugin
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import me.matin.mcore.managers.hook.HooksHandler
 import org.bukkit.plugin.java.JavaPlugin
 
-abstract class KotlinPlugin: JavaPlugin() {
+abstract class KotlinPlugin: JavaPlugin(), CoroutineScope {
 	
-	lateinit var scope: CoroutineScope private set
-	lateinit var dispatchers: BukkitDispatchers private set
-	val hooksHandler by _hooksHandler
+	private val job = SupervisorJob()
 	private lateinit var _hooksHandler: Lazy<HooksHandler>
+	val hooksHandler by _hooksHandler
+	lateinit var dispatchers: BukkitDispatchers private set
+	override val coroutineContext get() = CoroutineName(name) + job + BukkitDispatchers.Main(this)
 	
 	override fun onEnable() {
 		dispatchers = BukkitDispatchers(this)
-		scope = CoroutineScope(CoroutineName(name) + SupervisorJob() + BukkitDispatchers.Main(this))
 		_hooksHandler = lazy { HooksHandler(this).also(HooksHandler::init) }
 	}
 	
