@@ -3,20 +3,28 @@
 package me.matin.mcore.methods
 
 import org.bukkit.event.Listener
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import kotlin.time.Duration
 
 /** Converts this [Duration] to server ticks. */
-inline val Duration.inTicks: Double get() = toDouble(SECONDS) * 20
+inline val Duration.inTicks get() = toLong(SECONDS) * 20
 
-/** Converts this [Duration] to server ticks. */
-inline val Duration.inWholeTicks: Long get() = inTicks.toLong()
-
+/**
+ * Registers all the events in all the given listener classes.
+ *
+ * @param listeners Listeners to register
+ * @receiver Plugin to register
+ */
 inline fun Plugin.registerListeners(vararg listeners: Listener) = listeners.forEach {
 	server.pluginManager.registerEvents(it, this)
 }
 
+/**
+ * Returns a value indicating whether this plugin is currently enabled and
+ * allows you to enable or disable it.
+ *
+ * @receiver Plugin to evaluate state of
+ */
 inline var Plugin.enabled: Boolean
 	get() = isEnabled
 	set(value) = when (value) {
@@ -24,5 +32,3 @@ inline var Plugin.enabled: Boolean
 		true -> server.pluginManager.enablePlugin(this)
 		false -> server.pluginManager.disablePlugin(this)
 	}
-
-inline fun ItemStack.checkEmpty(): ItemStack? = takeUnless { it.isEmpty }

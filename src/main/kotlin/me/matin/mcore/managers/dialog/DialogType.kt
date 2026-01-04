@@ -5,7 +5,7 @@ import io.papermc.paper.registry.RegistryKey
 import io.papermc.paper.registry.set.RegistrySet
 import io.papermc.paper.registry.data.dialog.type.DialogType as PaperDialogType
 
-@Suppress("unused")
+@Suppress("unused", "UnstableApiUsage")
 sealed class DialogType(internal val paperType: PaperDialogType) {
 	
 	data class Notice(val button: DialogButton): DialogType(PaperDialogType.notice(button.paperButton))
