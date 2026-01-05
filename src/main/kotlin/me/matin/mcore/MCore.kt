@@ -8,7 +8,6 @@ import me.matin.mcore.managers.InventoryTitle
 import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.managers.plugin.KotlinPlugin
 import me.matin.mcore.methods.enabled
-import me.matin.mcore.methods.registerListeners
 
 lateinit var mcore: MCore private set
 inline val dispatchers get() = mcore.dispatchers
@@ -24,7 +23,7 @@ class MCore: KotlinPlugin() {
 		checkNBTAPI()
 		packetEventsAPI.init()
 		packetEventsAPI.eventManager.registerListeners(InventoryTitle)
-		hooksManager = HooksManager(this).also { registerListeners(it) }
+		hooksManager = HooksManager(this)
 		Hooks.init()
 		componentLogger.info("Plugin enabled successfully.")
 	}
