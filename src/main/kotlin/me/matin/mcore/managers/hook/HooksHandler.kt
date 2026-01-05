@@ -6,12 +6,13 @@ import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
 import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
+import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("unused", "NOTHING_TO_INLINE")
 class HooksHandler internal constructor(internal val plugin: Plugin) {
 	
 	val hooks: Set<Hook>
-		field: MutableSet<Hook> = mutableSetOf()
+		field: MutableSet<Hook> = ConcurrentHashMap.newKeySet()
 	lateinit var scope: CoroutineScope private set
 	internal var logger = Logger { plugin.componentLogger.info(it) }
 		private set

@@ -15,13 +15,18 @@ import org.bukkit.plugin.Plugin
 internal class HooksManager(private val scope: CoroutineScope): Listener {
 	
 	val hookInstances: Set<HookInstance>
-		field: MutableSet<HookInstance> = mutableSetOf()
-	private val hooksMutex = Mutex()
+		field: MutableSet<HookInstance> = ConcurrentHashMap.newKeySet()
 	val handlers: MutableSet<HooksHandler> = mutableSetOf()
 	
 	suspend operator fun plusAssign(instance: HookInstance) = hooksMutex.withLock { hookInstances += instance }
 	
-	suspend operator fun minusAssign(instance: HookInstance) = hooksMutex.withLock { hookInstances -= instance }
+	operator fun plusAssign(instance: HookInstance) {
+		hookInstances += instance
+	}
+	
+	operator fun minusAssign(instance: HookInstance) {
+		hookInstances -= instance
+	}
 	
 	inline operator fun plusAssign(handler: HooksHandler) {
 		handlers += handler
@@ -29,7 +34,7 @@ internal class HooksManager(private val scope: CoroutineScope): Listener {
 	
 	inline operator fun minusAssign(handler: HooksHandler) {
 		handlers -= handler
-		scope.launch(dispatchers.async) { hooksMutex.withLock { hookInstances.forEach { it -= handler } } }
+		hookInstances.forEach { it -= handler }
 	}
 	
 	private fun check(plugin: Plugin) = scope.launch(dispatchers.async) {

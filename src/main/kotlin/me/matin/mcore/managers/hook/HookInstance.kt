@@ -3,13 +3,12 @@ package me.matin.mcore.managers.hook
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
+import java.util.concurrent.ConcurrentHashMap
 
 internal data class HookInstance(val name: String, val requirements: (Plugin) -> Boolean) {
 	
@@ -18,8 +17,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	val stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
 	val initialCheck = Job()
 	val handlers: Set<HooksHandler>
-		field : MutableSet<HooksHandler> = mutableSetOf()
-	private val mutex = Mutex()
+		field : MutableSet<HooksHandler> = ConcurrentHashMap.newKeySet()
 	
 	constructor(hook: Hook, handler: HooksHandler): this(hook.name, hook.requirements) {
 		handlers += handler
@@ -27,13 +25,13 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 		log(handler, true)
 	}
 	
-	suspend operator fun plusAssign(handler: HooksHandler) {
-		mutex.withLock { handlers += handler }
+	operator fun plusAssign(handler: HooksHandler) {
+		handlers += handler
 		log(handler, true)
 	}
 	
-	suspend operator fun minusAssign(handler: HooksHandler) {
-		mutex.withLock { handlers -= handler }
+	operator fun minusAssign(handler: HooksHandler) {
+		handlers -= handler
 		if (handlers.isEmpty()) mcore.hooksManager -= this
 	}
 	

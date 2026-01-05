@@ -44,7 +44,7 @@ open class Hook(
 	}
 	
 	context(handler: HooksHandler)
-	private suspend fun setInstance() {
+	private fun setInstance() {
 		instance = mcore.hooksManager.hookInstances.find {
 			it.name == name && it.requirements == requirements
 		}?.also { it += handler } ?: HookInstance(this, handler).also { mcore.hooksManager += it }
