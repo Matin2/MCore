@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.matin.mcore.managers.hook.HooksHandler
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
 abstract class KotlinPlugin: JavaPlugin(), CoroutineScope {
@@ -24,6 +25,7 @@ abstract class KotlinPlugin: JavaPlugin(), CoroutineScope {
 		val exception = CancellationException("Plugin has been disabled.")
 		job.cancel(exception)
 		dispatchers.cancel(exception)
+		Bukkit.getScheduler().cancelTasks(this)
 		if (_hooksHandler.isInitialized()) hooksHandler.disable()
 	}
 }
