@@ -1,7 +1,6 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
@@ -19,7 +18,6 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	
 	constructor(hook: Hook, handler: HooksHandler): this(hook.name, hook.requirements) {
 		handlers += handler
-		mcore.launch { check(true) }
 		log(handler, true)
 	}
 	
