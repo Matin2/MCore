@@ -1,6 +1,5 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -14,8 +13,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	
 	@Volatile
 	var plugin: Plugin? = null
-	val stateChanges: MutableStateFlow<Boolean> = MutableStateFlow(false)
-	val initialCheck = Job()
+	val stateChanges: MutableStateFlow<Boolean?> = MutableStateFlow(null)
 	val handlers: Set<HooksHandler>
 		field : MutableSet<HooksHandler> = ConcurrentHashMap.newKeySet()
 	
@@ -38,8 +36,7 @@ internal data class HookInstance(val name: String, val requirements: (Plugin) ->
 	suspend fun check(initial: Boolean) {
 		plugin = withContext(dispatchers.main) { Bukkit.getPluginManager().getPlugin(name)?.takeIf(requirements) }
 		stateChanges.value = plugin?.isEnabled == true
-		if (initial) initialCheck.complete()
-		else handlers.filter { it.logger.enabled }.forEach { log(it, initial) }
+		if (!initial) handlers.filter { it.logger.enabled }.forEach { log(it, initial) }
 	}
 	
 	private fun log(handler: HooksHandler, initial: Boolean) =

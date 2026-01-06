@@ -11,9 +11,8 @@ internal object Hooks {
 		var api: SkinsRestorer? = null
 			private set
 		
-		override suspend fun onInitialCheck() {
-			if (isHooked) api = SkinsRestorerProvider.get()
-			stateChanges.collect { api = if (it) SkinsRestorerProvider.get() else null }
+		override suspend fun onInitialCheck(initialState: Hooked) = stateChanges.collect {
+			api = if (it) SkinsRestorerProvider.get() else null
 		}
 	}
 	
