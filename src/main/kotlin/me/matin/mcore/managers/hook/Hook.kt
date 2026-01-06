@@ -7,8 +7,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
-import me.matin.mcore.methods.registerListeners
-import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
 @Suppress("unused")
@@ -16,14 +14,13 @@ open class Hook(
 	val name: String,
 	val required: Boolean,
 	open val requirements: (Plugin) -> Boolean = { true },
-): Listener {
+) {
 	
 	typealias Hooked = Boolean
 	
 	val plugin get() = instance.plugin
 	val isHooked: Hooked get() = instance.stateChanges.value
 	val stateChanges: Flow<Hooked> get() = _stateChanges
-	val initialCheck: Job get() = instance.initialCheck
 	
 	@Volatile
 	internal lateinit var instance: HookInstance
@@ -34,7 +31,6 @@ open class Hook(
 	
 	context(handler: HooksHandler)
 	internal suspend fun init() {
-		withContext(dispatchers.main) { handler.plugin.registerListeners(this@Hook) }
 		setInstance()
 		_stateChanges = instance.stateChanges.asSharedFlow()
 		handler.scope.launch {
