@@ -8,7 +8,7 @@ internal object Hooks {
 	var skinsRestorer: SkinsRestorer? = null
 		private set
 	
-	suspend fun initSkinsRestorer(): Unit = mcore.hooksHandler.hook("SkinsRestorer").collect {
+	suspend fun initSkinsRestorer(): Unit = mcore.hooksHandler.observeHook("SkinsRestorer").collect {
 		skinsRestorer = if (it) SkinsRestorerProvider.get() else null
 	}
 }

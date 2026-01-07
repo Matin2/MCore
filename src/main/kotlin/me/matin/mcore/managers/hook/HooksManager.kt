@@ -13,7 +13,6 @@ import org.bukkit.event.server.PluginEnableEvent
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.ConcurrentHashMap
 
-@Suppress("NOTHING_TO_INLINE")
 internal class HooksManager(private val mcore: MCore) {
 	
 	val hooks: MutableSet<Hook> = ConcurrentHashMap.newKeySet()

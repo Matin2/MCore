@@ -14,8 +14,7 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 	private val hooks: MutableMap<Hook, Boolean> = mutableMapOf()
 	lateinit var scope: CoroutineScope private set
 	
-	@Suppress("unused")
-	fun hook(
+	fun observeHook(
 		name: String,
 		required: Boolean = false,
 		requirements: (Plugin) -> Boolean = { true },
