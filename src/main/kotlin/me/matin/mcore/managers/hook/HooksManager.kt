@@ -1,5 +1,6 @@
 package me.matin.mcore.managers.hook
 
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import me.matin.mcore.MCore
@@ -9,22 +10,25 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
+import org.bukkit.plugin.Plugin
 import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("NOTHING_TO_INLINE")
 internal class HooksManager(private val mcore: MCore) {
 	
-	val hookInstances: Set<HookInstance>
-		field: MutableSet<HookInstance> = ConcurrentHashMap.newKeySet()
-	val handlers: MutableSet<HooksHandler> = mutableSetOf()
+	val hooks: MutableSet<Hook> = ConcurrentHashMap.newKeySet()
 	private val pluginsEventFlow = callbackFlow {
 		val pluginEnableListener = object: Listener {
 			@EventHandler
-			fun PluginEnableEvent.onPluginEnable() = trySend(plugin).let {}
+			fun PluginEnableEvent.handle() {
+				trySend(plugin to true)
+			}
 		}
 		val pluginDisableListener = object: Listener {
 			@EventHandler
-			fun PluginDisableEvent.onPluginEnable() = trySend(plugin).let {}
+			fun PluginDisableEvent.handle() {
+				trySend(plugin to false)
+			}
 		}
 		mcore.registerListeners(pluginEnableListener, pluginDisableListener)
 		awaitClose {
@@ -34,29 +38,16 @@ internal class HooksManager(private val mcore: MCore) {
 	}
 	
 	init {
-		pluginsEventFlow
-			.mapNotNull { plugin -> hookInstances.find { plugin == it.plugin } }
-			.buffer(3)
-			.onEach { instance ->
-				instance.check(false)
-				instance.handlers.forEach { it.checkRequired() }
-			}.flowOn(dispatchers.async).launchIn(mcore)
+		pluginsEventFlow.buffer(Channel.UNLIMITED).mapNotNull { (plugin, onEnable) ->
+			hooks.find { plugin.name == it.name }?.let { it to onEnable }
+		}.onEach { (hook, onEnable) ->
+			hook.check()
+			if (!onEnable) hook.handlers.forEach { it.checkRequired(hook) }
+		}.flowOn(dispatchers.async).launchIn(mcore)
 	}
 	
-	operator fun plusAssign(instance: HookInstance) {
-		hookInstances += instance
-	}
-	
-	operator fun minusAssign(instance: HookInstance) {
-		hookInstances -= instance
-	}
-	
-	inline operator fun plusAssign(handler: HooksHandler) {
-		handlers += handler
-	}
-	
-	inline operator fun minusAssign(handler: HooksHandler) {
-		handlers -= handler
-		hookInstances.forEach { it -= handler }
-	}
+	context(handler: HooksHandler)
+	operator fun get(name: String, requirements: (Plugin) -> Boolean): Hook = hooks.find {
+		it.name == name && it.requirements == requirements
+	}?.also { it.handlers += handler } ?: Hook(name, requirements, handler).also { hooks += it }
 }

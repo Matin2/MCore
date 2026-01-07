@@ -1,86 +1,50 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
-import net.kyori.adventure.text.Component
 import org.bukkit.plugin.Plugin
 
-@Suppress("unused", "NOTHING_TO_INLINE")
+typealias Hooked = Boolean
+
 class HooksHandler internal constructor(internal val plugin: Plugin) {
 	
-	val hooks: Set<Hook>
-		field: MutableSet<Hook> = mutableSetOf()
+	private val hooks: MutableMap<Hook, Boolean> = mutableMapOf()
 	lateinit var scope: CoroutineScope private set
-	internal var logger = Logger { plugin.componentLogger.info(it) }
-		private set
 	
-	fun configureLogger(config: Logger.() -> Unit) {
-		logger = logger.apply(config)
-	}
-	
-	fun register(hook: Hook): Boolean {
-		if (hooks.any { it.name == hook.name }) return false
-		return hooks.add(hook)
-	}
-	
-	fun registerAll(hooks: Iterable<Hook>): Boolean =
-		hooks.filter { it.name in hooks.map(Hook::name) }.ifEmpty { return false }.let { this.hooks.addAll(it) }
-	
-	inline fun registerAll(vararg hooks: Hook): Boolean = registerAll(hooks.toList())
-	
-	inline operator fun plusAssign(hook: Hook) {
-		register(hook)
-	}
-	
-	inline operator fun plusAssign(hooks: Iterable<Hook>) {
-		registerAll(hooks)
-	}
+	@Suppress("unused")
+	fun hook(
+		name: String,
+		required: Boolean = false,
+		requirements: (Plugin) -> Boolean = { true },
+	): StateFlow<Hooked> = mcore.hooksManager[name, requirements]
+		.also { hooks[it] = required }
+		.stateChanges
+		.filterNotNull()
+		.stateIn(scope, SharingStarted.Eagerly, false)
 	
 	internal fun init() {
-		mcore.hooksManager += this
 		scope = CoroutineScope(mcore.coroutineContext + SupervisorJob() + dispatchers.async)
-		scope.launch {
-			hooks.forEach { it.init() }
-			checkRequired()
-		}
+		scope.launch { checkRequired() }
 	}
 	
 	internal fun disable() {
-		mcore.hooksManager -= this
+		hooks.keys.forEach {
+			it.handlers -= this
+			it.handlers.ifEmpty { mcore.hooksManager.hooks -= it }
+		}
 		scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
 	}
 	
-	internal suspend fun checkRequired() {
-		val unavailable = hooks
-			.filter { it.required }
-			.ifEmpty { return }
-			.filterNot { it.isHooked }
-			.ifEmpty { return }
-			.joinToString(prefix = "[", postfix = "]") { it.name }
-			.let { "The following dependencies are required by ${plugin.name} but are not available: $it" }
-		withContext(dispatchers.main) {
-			mcore.componentLogger.error(unavailable)
-			plugin.enabled = false
-		}
-	}
-	class Logger internal constructor(var enabled: Boolean = true, var logger: (Component) -> Unit) {
-		
-		val messages = Messages()
-		
-		internal fun log(hook: Hook, initial: Boolean) = when {
-			initial && hook.isHooked -> messages.hooked(hook)
-			initial -> messages.hookFailed(hook)
-			hook.isHooked -> messages.rehooked(hook)
-			else -> messages.unhooked(hook)
-		}.takeUnless { it == Component.empty() }?.let { logger(it) } ?: Unit
-		
-		data class Messages(
-			var hooked: (Hook) -> Component = { Component.text("Successfully hooked to ${it.name}.") },
-			var hookFailed: (Hook) -> Component = { Component.text("Failed to hook to ${it.name}.") },
-			var unhooked: (Hook) -> Component = { Component.text("Unhooked from ${it.name}.") },
-			var rehooked: (Hook) -> Component = { Component.text("Rehooked to ${it.name}.") },
-		)
+	private suspend fun checkRequired(): Unit = hooks
+		.filter { (_, required) -> required }
+		.ifEmpty { return }
+		.filterNot { (hook) -> hook.stateChanges.filterNotNull().first() }
+		.run { if (isNotEmpty()) withContext(dispatchers.main) { plugin.enabled = false } }
+	
+	internal suspend fun checkRequired(hook: Hook) {
+		if (hooks[hook] ?: return) withContext(dispatchers.main) { plugin.enabled = false }
 	}
 }

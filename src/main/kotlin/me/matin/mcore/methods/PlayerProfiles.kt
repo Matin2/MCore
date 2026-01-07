@@ -29,7 +29,7 @@ object PlayerProfiles {
 	 * @receiver Player witch you want the profile of.
 	 */
 	@JvmStatic
-	fun OfflinePlayer.getProfile() = Hooks.SkinsRestorerHook.api
+	fun OfflinePlayer.getProfile() = Hooks.skinsRestorer
 		?.playerStorage
 		?.runCatching { getSkinForPlayer(uniqueId, name).get() }
 		?.map { PropertyUtils.getSkinTextureUrl(it) }
