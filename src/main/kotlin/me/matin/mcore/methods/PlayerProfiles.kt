@@ -10,14 +10,15 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.profile.PlayerTextures
 import java.net.URI
 import java.util.*
+import kotlin.io.encoding.Base64
 
 @Suppress("unused")
 object PlayerProfiles {
 	
-	private typealias Base64 = String
+	private typealias Base64Profile = String
 	
-	private inline val Base64.url
-		get() = Json.parseToJsonElement(this)
+	private inline val Base64Profile.url
+		get() = Json.parseToJsonElement(Base64.UrlSafe.decode(this).decodeToString())
 			.jsonObject["textures"]!!
 			.jsonObject["SKIN"]!!
 			.jsonObject["url"]!!
