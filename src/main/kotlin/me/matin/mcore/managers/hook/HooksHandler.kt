@@ -1,13 +1,13 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
 import org.bukkit.plugin.Plugin
-
-typealias Hooked = Boolean
 
 class HooksHandler internal constructor(internal val plugin: Plugin) {
 	
@@ -18,16 +18,15 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 		name: String,
 		required: Boolean = false,
 		requirements: (Plugin) -> Boolean = { true },
-	): StateFlow<Hooked> = mcore.hooksManager[name, requirements]
-		.also {
-			hooks[it] = required
-			scope.launch {
-				it.stateChanges.filterNotNull().first()
-				checkRequired(it)
-			}
-		}.stateChanges
-		.filterNotNull()
-		.stateIn(scope, SharingStarted.Eagerly, false)
+		modifyFlow: Flow<Boolean>.() -> Flow<Boolean> = { this },
+	) = mcore.hooksManager[name, requirements].let {
+		hooks[it] = required
+		scope.launch {
+			it.stateChanges.filterNotNull().first()
+			checkRequired(it)
+		}
+		HookStateFlow(it, modifyFlow)
+	}
 	
 	internal fun init() {
 		scope = CoroutineScope(mcore.coroutineContext + SupervisorJob() + dispatchers.async)
