@@ -19,14 +19,18 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 		required: Boolean = false,
 		requirements: (Plugin) -> Boolean = { true },
 	): StateFlow<Hooked> = mcore.hooksManager[name, requirements]
-		.also { hooks[it] = required }
-		.stateChanges
+		.also {
+			hooks[it] = required
+			scope.launch {
+				it.stateChanges.filterNotNull().first()
+				checkRequired(it)
+			}
+		}.stateChanges
 		.filterNotNull()
 		.stateIn(scope, SharingStarted.Eagerly, false)
 	
 	internal fun init() {
 		scope = CoroutineScope(mcore.coroutineContext + SupervisorJob() + dispatchers.async)
-		scope.launch { checkRequired() }
 	}
 	
 	internal fun disable() {
@@ -36,12 +40,6 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 		}
 		scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
 	}
-	
-	private suspend fun checkRequired(): Unit = hooks
-		.filter { (_, required) -> required }
-		.ifEmpty { return }
-		.filterNot { (hook) -> hook.stateChanges.filterNotNull().first() }
-		.run { if (isNotEmpty()) withContext(dispatchers.main) { plugin.enabled = false } }
 	
 	internal suspend fun checkRequired(hook: Hook) {
 		if (hooks[hook] ?: return) withContext(dispatchers.main) { plugin.enabled = false }

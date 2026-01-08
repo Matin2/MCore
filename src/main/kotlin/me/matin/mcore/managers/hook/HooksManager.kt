@@ -19,15 +19,11 @@ internal class HooksManager(private val mcore: MCore) {
 	private val pluginsEventFlow = callbackFlow {
 		val pluginEnableListener = object: Listener {
 			@EventHandler
-			fun PluginEnableEvent.handle() {
-				trySend(plugin to true)
-			}
+			fun PluginEnableEvent.handle(): Unit = run { trySend(plugin to true) }
 		}
 		val pluginDisableListener = object: Listener {
 			@EventHandler
-			fun PluginDisableEvent.handle() {
-				trySend(plugin to false)
-			}
+			fun PluginDisableEvent.handle(): Unit = run { trySend(plugin to false) }
 		}
 		mcore.registerListeners(pluginEnableListener, pluginDisableListener)
 		awaitClose {
