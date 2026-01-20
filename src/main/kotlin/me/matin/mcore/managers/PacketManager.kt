@@ -7,10 +7,9 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
-import kotlinx.coroutines.launch
-import me.matin.mcore.dispatchers
 import me.matin.mcore.mcore
 import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
@@ -21,7 +20,7 @@ object PacketManager {
 	@JvmStatic
 	var InventoryView.displayTitle: Component
 		get() = InventoryTitle.openWindows[player]?.title ?: title()
-		set(value) = mcore.launch(dispatchers.async) {
+		set(value) = Bukkit.getAsyncScheduler().runNow(mcore) {
 			val user = player as Player
 			InventoryTitle.openWindows[user]?.let {
 				it.title = value
