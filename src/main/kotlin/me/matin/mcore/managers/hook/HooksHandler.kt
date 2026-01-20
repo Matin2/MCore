@@ -4,7 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import me.matin.mcore.dispatchers
+import me.matin.mcore.managers.plugin.MainBukkitDispatcher
 import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
 import org.bukkit.plugin.Plugin
@@ -29,7 +29,7 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 	}
 	
 	internal fun init() {
-		scope = CoroutineScope(mcore.coroutineContext + SupervisorJob() + dispatchers.async)
+		scope = CoroutineScope(mcore.lifecycleScope.coroutineContext + SupervisorJob() + Dispatchers.Default)
 	}
 	
 	internal fun disable() {
@@ -41,6 +41,6 @@ class HooksHandler internal constructor(internal val plugin: Plugin) {
 	}
 	
 	internal suspend fun checkRequired(hook: Hook) {
-		if (hooks[hook] ?: return) withContext(dispatchers.main) { plugin.enabled = false }
+		if (hooks[hook] ?: return) withContext(MainBukkitDispatcher) { plugin.enabled = false }
 	}
 }

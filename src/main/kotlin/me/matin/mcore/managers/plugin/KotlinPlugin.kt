@@ -1,32 +1,23 @@
 package me.matin.mcore.managers.plugin
 
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import me.matin.mcore.managers.hook.HooksHandler
-import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
-abstract class KotlinPlugin : JavaPlugin(), CoroutineScope {
+abstract class KotlinPlugin : JavaPlugin() {
 	
-	private val job = SupervisorJob()
 	private lateinit var _hooksHandler: Lazy<HooksHandler>
+	private lateinit var _lifecycleScope: CoroutineScope
+	val lifecycleScope: CoroutineScope get() = _lifecycleScope
 	val hooksHandler by _hooksHandler
-	lateinit var dispatchers: BukkitDispatchers private set
-	override val coroutineContext get() = CoroutineName(name) + job + BukkitDispatchers.Main(this)
 	
 	override fun onEnable() {
-		dispatchers = BukkitDispatchers(this)
+		_lifecycleScope = CoroutineScope(CoroutineName(name) + SupervisorJob() + Dispatchers.Default)
 		_hooksHandler = lazy { HooksHandler(this).also(HooksHandler::init) }
 	}
 	
 	override fun onDisable() {
-		val exception = CancellationException("Plugin has been disabled.")
-		job.cancel(exception)
-		dispatchers.cancel(exception)
-		Bukkit.getScheduler().cancelTasks(this)
-		Bukkit.getAsyncScheduler().cancelTasks(this)
+		_lifecycleScope.cancel(CancellationException("Plugin has been disabled."))
 		if (_hooksHandler.isInitialized()) hooksHandler.disable()
 	}
 }

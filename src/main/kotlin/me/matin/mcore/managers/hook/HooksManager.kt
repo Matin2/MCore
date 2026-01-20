@@ -1,10 +1,10 @@
 package me.matin.mcore.managers.hook
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import me.matin.mcore.MCore
-import me.matin.mcore.dispatchers
 import me.matin.mcore.methods.registerListeners
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -38,7 +38,7 @@ internal class HooksManager(private val mcore: MCore) {
 		}.onEach { (hook, onEnable) ->
 			hook.check()
 			if (!onEnable) hook.handlers.forEach { it.checkRequired(hook) }
-		}.flowOn(dispatchers.async).launchIn(mcore)
+		}.flowOn(Dispatchers.Default).launchIn(mcore.lifecycleScope)
 	}
 	
 	context(handler: HooksHandler)

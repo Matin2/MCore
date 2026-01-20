@@ -11,7 +11,6 @@ import me.matin.mcore.managers.plugin.KotlinPlugin
 import me.matin.mcore.methods.enabled
 
 lateinit var mcore: MCore private set
-inline val dispatchers get() = mcore.dispatchers
 
 class MCore : KotlinPlugin() {
 	
@@ -25,7 +24,7 @@ class MCore : KotlinPlugin() {
 		packetEventsAPI.init()
 		packetEventsAPI.eventManager.registerListeners(InventoryTitle)
 		hooksManager = HooksManager(this)
-		launch { Hooks.initSkinsRestorer() }
+		lifecycleScope.launch { Hooks.initSkinsRestorer() }
 		componentLogger.info("Plugin enabled successfully.")
 	}
 	

@@ -3,7 +3,7 @@ package me.matin.mcore.managers.hook
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.matin.mcore.dispatchers
+import me.matin.mcore.managers.plugin.MainBukkitDispatcher
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 
@@ -16,7 +16,7 @@ internal class Hook(val name: String, val requirements: (Plugin) -> Boolean, han
 		handler.scope.launch { check() }
 	}
 	
-	suspend fun check() = withContext(dispatchers.main) {
+	suspend fun check() = withContext(MainBukkitDispatcher) {
 		Bukkit.getPluginManager().getPlugin(name)?.takeIf(requirements)?.isEnabled == true
 	}.let { stateChanges.value = it }
 }
