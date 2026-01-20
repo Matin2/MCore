@@ -7,7 +7,7 @@ import org.bukkit.plugin.Plugin
 import kotlin.time.Duration
 
 /** Converts this [Duration] to server ticks. */
-inline val Duration.inTicks get() = toLong(SECONDS) * 20
+inline val Duration.inTicks get() = toLong(MILLISECONDS) / 50
 
 /**
  * Registers all the events in all the given listener classes.
@@ -32,3 +32,5 @@ inline var Plugin.enabled: Boolean
 		true -> server.pluginManager.enablePlugin(this)
 		false -> server.pluginManager.disablePlugin(this)
 	}
+
+inline infix fun <A, B, C> Pair<A, B>.and(third: C) = Triple(first, second, third)
