@@ -26,6 +26,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope {
 		job.cancel(exception)
 		dispatchers.cancel(exception)
 		Bukkit.getScheduler().cancelTasks(this)
+		Bukkit.getAsyncScheduler().cancelTasks(this)
 		if (_hooksHandler.isInitialized()) hooksHandler.disable()
 	}
 }
