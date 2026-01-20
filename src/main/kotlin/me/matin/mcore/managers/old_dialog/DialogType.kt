@@ -1,4 +1,4 @@
-package me.matin.mcore.managers.dialog
+package me.matin.mcore.managers.old_dialog
 
 import io.papermc.paper.dialog.Dialog
 import io.papermc.paper.registry.RegistryKey

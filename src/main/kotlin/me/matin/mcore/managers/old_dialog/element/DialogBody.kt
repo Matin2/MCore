@@ -1,4 +1,4 @@
-package me.matin.mcore.managers.dialog.element
+package me.matin.mcore.managers.old_dialog.element
 
 import net.kyori.adventure.text.Component
 import org.bukkit.inventory.ItemStack

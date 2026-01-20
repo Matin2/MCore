@@ -1,4 +1,4 @@
-package me.matin.mcore.managers.dialog.element
+package me.matin.mcore.managers.old_dialog.element
 
 import io.papermc.paper.dialog.DialogResponseView
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput

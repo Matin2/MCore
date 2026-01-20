@@ -1,13 +1,13 @@
 @file:Suppress("UnstableApiUsage", "unused")
 
-package me.matin.mcore.managers.dialog
+package me.matin.mcore.managers.old_dialog
 
 import io.papermc.paper.dialog.Dialog
 import io.papermc.paper.registry.data.dialog.DialogBase
 import io.papermc.paper.registry.data.dialog.DialogRegistryEntry
-import me.matin.mcore.managers.dialog.element.DialogBody
-import me.matin.mcore.managers.dialog.element.DialogElement
-import me.matin.mcore.managers.dialog.element.DialogInput
+import me.matin.mcore.managers.old_dialog.element.DialogBody
+import me.matin.mcore.managers.old_dialog.element.DialogElement
+import me.matin.mcore.managers.old_dialog.element.DialogInput
 import net.kyori.adventure.text.Component
 
 data class DialogTemplate(
