@@ -20,7 +20,7 @@ class BukkitDispatchers(private val plugin: Plugin) {
 		if (_async.isInitialized()) async.cancel(exception)
 	}
 	
-	class Main(private val plugin: Plugin): CoroutineDispatcher() {
+	class Main(private val plugin: Plugin) : CoroutineDispatcher() {
 		
 		override fun dispatch(context: CoroutineContext, block: Runnable) {
 			if (Bukkit.isPrimaryThread()) block.run()
@@ -28,7 +28,7 @@ class BukkitDispatchers(private val plugin: Plugin) {
 		}
 	}
 	
-	class Async(private val plugin: Plugin): CoroutineDispatcher() {
+	class Async(private val plugin: Plugin) : CoroutineDispatcher() {
 		
 		override fun dispatch(context: CoroutineContext, block: Runnable) {
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, block)

@@ -13,7 +13,7 @@ import me.matin.mcore.methods.enabled
 lateinit var mcore: MCore private set
 inline val dispatchers get() = mcore.dispatchers
 
-class MCore: KotlinPlugin() {
+class MCore : KotlinPlugin() {
 	
 	lateinit var packetEventsAPI: PacketEventsAPI<*> private set
 	internal lateinit var hooksManager: HooksManager private set

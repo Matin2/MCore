@@ -8,7 +8,7 @@ import me.matin.mcore.managers.hook.HooksHandler
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
-abstract class KotlinPlugin: JavaPlugin(), CoroutineScope {
+abstract class KotlinPlugin : JavaPlugin(), CoroutineScope {
 	
 	private val job = SupervisorJob()
 	private lateinit var _hooksHandler: Lazy<HooksHandler>

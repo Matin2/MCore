@@ -55,7 +55,7 @@ object PacketManager {
 		mcore.packetEventsAPI.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 
-internal object InventoryTitle: PacketListenerAbstract(NORMAL) {
+internal object InventoryTitle : PacketListenerAbstract(NORMAL) {
 	
 	@JvmStatic
 	val openWindows: MutableMap<Player, WrapperPlayServerOpenWindow> = mutableMapOf()

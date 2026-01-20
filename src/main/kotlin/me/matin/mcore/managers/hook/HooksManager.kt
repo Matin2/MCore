@@ -17,11 +17,11 @@ internal class HooksManager(private val mcore: MCore) {
 	
 	val hooks: MutableSet<Hook> = ConcurrentHashMap.newKeySet()
 	private val pluginsEventFlow = callbackFlow {
-		val pluginEnableListener = object: Listener {
+		val pluginEnableListener = object : Listener {
 			@EventHandler
 			fun PluginEnableEvent.handle(): Unit = run { trySend(plugin to true) }
 		}
-		val pluginDisableListener = object: Listener {
+		val pluginDisableListener = object : Listener {
 			@EventHandler
 			fun PluginDisableEvent.handle(): Unit = run { trySend(plugin to false) }
 		}
