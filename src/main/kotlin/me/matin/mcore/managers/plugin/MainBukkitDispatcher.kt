@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.matin.mcore.managers.plugin
 
 import kotlinx.coroutines.CoroutineDispatcher
@@ -9,7 +7,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import me.matin.mcore.mcore
 import me.matin.mcore.methods.inTicks
 import org.bukkit.Bukkit
-import org.bukkit.plugin.Plugin
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.time.Duration
@@ -26,12 +23,11 @@ object MainBukkitDispatcher : CoroutineDispatcher() {
 	override fun isDispatchNeeded(context: CoroutineContext) = !Bukkit.isPrimaryThread()
 }
 
-suspend fun delayTicks(plugin: Plugin, delay: Long) = suspendCancellableCoroutine { cont ->
-	Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-		cont.resume(Unit)
-	}, delay).run {
+suspend fun delayTicks(ticks: Long) = suspendCancellableCoroutine { cont ->
+	Bukkit.getScheduler().runTaskLater(mcore, Runnable { cont.resume(Unit) }, ticks).run {
 		cont.invokeOnCancellation { cancel() }
 	}
 }
 
-suspend inline fun delayTicks(plugin: Plugin, delay: Duration) = delayTicks(plugin, delay.inTicks)
+@Suppress("unused")
+suspend inline fun delayTicks(duration: Duration) = delayTicks(duration.inTicks)
