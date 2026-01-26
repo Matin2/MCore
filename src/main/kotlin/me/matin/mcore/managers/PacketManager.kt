@@ -9,7 +9,6 @@ import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
 import me.matin.mcore.mcore
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
@@ -20,15 +19,16 @@ object PacketManager {
 	@JvmStatic
 	var InventoryView.displayTitle: Component
 		get() = InventoryTitle.openWindows[player]?.title ?: title()
-		set(value) = Bukkit.getAsyncScheduler().runNow(mcore) {
+		set(value) {
 			val user = player as Player
 			InventoryTitle.openWindows[user]?.let {
 				it.title = value
-				mcore.packetEventsAPI.playerManager.sendPacket(user, it)
+				mcore.getOrNull()?.packetEventsAPI?.playerManager?.sendPacket(user, it)
 				user.updateInventory()
 				InventoryTitle.openWindows[user] = it
 			}
-		}.let {}
+		}
+	
 	
 	/**
 	 * Shows totem animation to the selected player.
@@ -50,8 +50,10 @@ object PacketManager {
 	
 	@JvmStatic
 	@Suppress("NOTHING_TO_INLINE")
-	private inline fun Player.sendTotemPacket() =
-		mcore.packetEventsAPI.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
+	private inline fun Player.sendTotemPacket() = mcore.getOrNull()
+		?.packetEventsAPI
+		?.playerManager
+		?.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35)) ?: Unit
 }
 
 internal object InventoryTitle : PacketListenerAbstract(NORMAL) {

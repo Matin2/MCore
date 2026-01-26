@@ -14,7 +14,7 @@ import me.matin.mcore.managers.plugin.MainBukkitDispatcher
 import me.matin.mcore.methods.enabled
 import org.bukkit.Bukkit
 
-lateinit var mcore: MCore private set
+val mcore by KotlinPlugin.get<MCore>()
 
 class MCore : KotlinPlugin() {
 	
@@ -22,7 +22,6 @@ class MCore : KotlinPlugin() {
 	internal lateinit var hooksManager: HooksManager private set
 	
 	override fun onEnable() {
-		mcore = this
 		super.onEnable()
 		MainBukkitDispatcher.dispatcher = Bukkit.getScheduler().getMainThreadExecutor(this).asCoroutineDispatcher()
 		checkNBTAPI()
