@@ -4,9 +4,9 @@ import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.PacketEventsAPI
 import de.tr7zw.changeme.nbtapi.NBT
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
+import me.matin.mcore.Hooks.observeHooks
 import me.matin.mcore.managers.InventoryTitle
 import me.matin.mcore.managers.hook.HooksManager
 import me.matin.mcore.managers.plugin.KotlinPlugin
@@ -28,7 +28,7 @@ class MCore : KotlinPlugin() {
 		packetEventsAPI.init()
 		packetEventsAPI.eventManager.registerListeners(InventoryTitle)
 		hooksManager = HooksManager(this)
-		lifecycleScope.launch { Hooks.initSkinsRestorer() }
+		hooksHandler.observeHooks()
 		componentLogger.info("Plugin enabled successfully.")
 	}
 	
