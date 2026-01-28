@@ -4,12 +4,12 @@ shadow-plugin = "9.1.0"
 #kotlin
 kotlin = "2.3.0"
 kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.9.0"
+kotlinx-serialization = "1.10.0"
 #minecraft
-paper = "1.21.10-R0.1-SNAPSHOT"
-packetevents = "2.11.1"
+paper = "1.21.11-R0.1-SNAPSHOT"
+packetevents = "2.11.2"
 nbtapi = "2.15.5"
-skinsrestorer = "15.9.1"
+skinsrestorer = "15.9.3"
 
 [libraries]
 #kotlinx
