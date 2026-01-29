@@ -14,6 +14,19 @@ object MainBukkitDispatcher : CoroutineDispatcher(), Delay {
 	
 	internal lateinit var dispatcher: CoroutineDispatcher
 	
+	val immediate: CoroutineDispatcher
+		get() = object : CoroutineDispatcher(), Delay {
+			
+			override fun dispatch(context: CoroutineContext, block: Runnable) = dispatcher.dispatch(context, block)
+			
+			override fun isDispatchNeeded(context: CoroutineContext) = !Bukkit.isPrimaryThread()
+			
+			override fun scheduleResumeAfterDelay(
+				timeMillis: Long,
+				continuation: CancellableContinuation<Unit>
+			) = this@MainBukkitDispatcher.scheduleResumeAfterDelay(timeMillis, continuation)
+		}
+	
 	override fun dispatch(context: CoroutineContext, block: Runnable) = dispatcher.dispatch(context, block)
 	
 	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
