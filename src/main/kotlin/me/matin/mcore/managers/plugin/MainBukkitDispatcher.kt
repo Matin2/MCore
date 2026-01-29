@@ -6,6 +6,7 @@ import kotlinx.coroutines.*
 import me.matin.mcore.mcore
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
+import java.util.concurrent.Executor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 
@@ -13,23 +14,22 @@ import kotlin.coroutines.resume
 @OptIn(InternalCoroutinesApi::class)
 object MainBukkitDispatcher : CoroutineDispatcher(), Delay {
 	
-	private lateinit var dispatcher: CoroutineDispatcher
+	private lateinit var executor: Executor
 	private lateinit var plugin: Plugin
 	
-	val immediate: CoroutineDispatcher
-		get() = object : CoroutineDispatcher(), Delay {
-			
-			override fun dispatch(context: CoroutineContext, block: Runnable) = dispatcher.dispatch(context, block)
-			
-			override fun isDispatchNeeded(context: CoroutineContext) = !Bukkit.isPrimaryThread()
-			
-			override fun scheduleResumeAfterDelay(
-				timeMillis: Long,
-				continuation: CancellableContinuation<Unit>
-			) = this@MainBukkitDispatcher.scheduleResumeAfterDelay(timeMillis, continuation)
-		}
+	val immediate: CoroutineDispatcher = object : CoroutineDispatcher(), Delay {
+		
+		override fun dispatch(context: CoroutineContext, block: Runnable) = executor.execute(block)
+		
+		override fun isDispatchNeeded(context: CoroutineContext) = !Bukkit.isPrimaryThread()
+		
+		override fun scheduleResumeAfterDelay(
+			timeMillis: Long,
+			continuation: CancellableContinuation<Unit>
+		) = this@MainBukkitDispatcher.scheduleResumeAfterDelay(timeMillis, continuation)
+	}
 	
-	override fun dispatch(context: CoroutineContext, block: Runnable) = dispatcher.dispatch(context, block)
+	override fun dispatch(context: CoroutineContext, block: Runnable) = executor.execute(block)
 	
 	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
 		val ticks = (timeMillis / 50).coerceAtLeast(1)
@@ -41,7 +41,7 @@ object MainBukkitDispatcher : CoroutineDispatcher(), Delay {
 	context(plugin: Plugin)
 	internal fun init() {
 		this.plugin = plugin
-		dispatcher = Bukkit.getScheduler().getMainThreadExecutor(plugin).asCoroutineDispatcher()
+		executor = Bukkit.getScheduler().getMainThreadExecutor(plugin)
 	}
 	
 	internal fun close() {
