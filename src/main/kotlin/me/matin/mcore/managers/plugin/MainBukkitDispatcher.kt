@@ -50,8 +50,8 @@ object MainBukkitDispatcher : CoroutineDispatcher(), Delay {
 	}
 }
 
-suspend fun delayTicks(ticks: Long) = suspendCancellableCoroutine { cont ->
+suspend fun tickDelay(timeTicks: Long) = suspendCancellableCoroutine { continuation ->
 	Bukkit.getScheduler()
-		.runTaskLater(mcore.getOrThrow(), Runnable { cont.resume(Unit) }, ticks)
-		.run { cont.invokeOnCancellation { cancel() } }
+		.runTaskLater(mcore.getOrThrow(), Runnable { continuation.resume(Unit) }, timeTicks)
+		.run { continuation.invokeOnCancellation { cancel() } }
 }
