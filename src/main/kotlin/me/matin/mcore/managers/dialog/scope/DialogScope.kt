@@ -122,6 +122,7 @@ sealed class DialogScope(internal var titleProperty: Component) {
 		return DialogInputValue(key, clazz)
 	}
 	
+	@JvmName("enumOptionInput")
 	inline fun <reified T : Enum<T>> optionInput(
 		key: String,
 		label: Component,
