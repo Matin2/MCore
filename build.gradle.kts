@@ -1,9 +1,11 @@
+import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
 import org.jetbrains.kotlin.gradle.internal.config.LanguageFeature
 
 plugins {
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.shadow)
+	alias(libs.plugins.paperweight)
 	`version-catalog`
 	`maven-publish`
 	idea
@@ -22,7 +24,7 @@ repositories {
 }
 
 dependencies {
-	compileOnly(libs.paper)
+	paperweight.paperDevBundle(libs.versions.paper.get())
 	compileOnly(libs.skinsrestorer)
 	
 	api(fileTree("libs"))
@@ -83,6 +85,10 @@ kotlin {
 	compilerOptions {
 		sourceSets.all { features.forEach { languageSettings.enableLanguageFeature(it.name) } }
 	}
+}
+
+paperweight {
+	reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
 }
 
 publishing {
