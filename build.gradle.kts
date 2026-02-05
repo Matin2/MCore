@@ -9,7 +9,7 @@ plugins {
 	idea
 }
 
-group = "com.github.Matin2"
+group = "me.matin"
 version = "1.2.9"
 
 repositories {
@@ -33,17 +33,19 @@ dependencies {
 	compileOnly(kotlin("reflect"))
 	compileOnly(libs.bundles.kotlinx)
 }
+
 val javaVersion = 21
+
 tasks.compileJava {
 	options.encoding = "UTF-8"
 	options.release.set(javaVersion)
 }
 
-tasks.jar { manifest { attributes["paperweight-mappings-namespace"] = "mojang" } }
+tasks.jar { enabled = false }
 
 tasks.shadowJar {
-	archiveClassifier = null
-	manifest.inheritFrom(tasks.jar.get().manifest)
+	archiveClassifier = ""
+	archiveVersion = ""
 	val relocations = mapOf(
 		"me.matin.mlib" to "mlib",
 		"de.tr7zw.changeme.nbtapi" to "nbtapi",
@@ -83,10 +85,14 @@ kotlin {
 	}
 }
 
-publishing.publications.create<MavenPublication>("maven") {
-	groupId = project.group.toString()
-	artifactId = project.name
-	version = project.version.toString()
-	
-	from(components["java"])
+publishing {
+	publications {
+		create<MavenPublication>("shadow") {
+			from(components["shadow"])
+			
+			groupId = "com.github.Matin2"
+			artifactId = project.name
+			version = project.version.toString()
+		}
+	}
 }

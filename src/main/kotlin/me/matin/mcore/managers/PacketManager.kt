@@ -62,7 +62,7 @@ internal object InventoryTitle : PacketListenerAbstract(NORMAL) {
 	val openWindows: MutableMap<Player, WrapperPlayServerOpenWindow> = mutableMapOf()
 	
 	override fun onPacketSend(event: PacketSendEvent) {
-		val player: Player = event.getPlayer() ?: return
+		val player: Player = event.getPlayer()
 		when (event.packetType) {
 			Play.Server.OPEN_WINDOW -> openWindows[player] = WrapperPlayServerOpenWindow(event)
 			Play.Server.CLOSE_WINDOW -> openWindows.remove(player)
