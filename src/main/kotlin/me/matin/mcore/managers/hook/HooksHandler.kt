@@ -29,7 +29,7 @@ class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	}
 	
 	internal fun close() {
-		HooksManager.handlers += this
+		HooksManager.handlers -= this
 	}
 	
 	internal fun checkRequired() {
