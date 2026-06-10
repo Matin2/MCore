@@ -30,9 +30,9 @@ sealed class DialogScope(internal var initialTitle: Component) {
 	var afterAction: DialogBase.DialogAfterAction = CLOSE
 	
 	val body: List<DialogBody>
-		field : MutableList<DialogBody> = mutableListOf()
+		field : MutableList<DialogBody> = []
 	val inputs: List<DialogInput>
-		field : MutableList<DialogInput> = mutableListOf()
+		field : MutableList<DialogInput> = []
 	
 	internal abstract val type: DialogType
 	internal val base: DialogBase

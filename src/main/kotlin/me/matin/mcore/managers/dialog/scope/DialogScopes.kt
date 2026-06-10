@@ -36,7 +36,7 @@ class ServerLinksDialogScope(title: Component) : DialogScope(title) {
 
 class ListDialogScope(title: Component) : DialogScope(title) {
 	
-	val dialogs: MutableList<Dialog> = mutableListOf()
+	val dialogs: MutableList<Dialog> = []
 	lateinit var exitButton: ActionButton
 	var columns: Int = 2
 	var buttonWidth: Int = 150
@@ -50,7 +50,7 @@ class ListDialogScope(title: Component) : DialogScope(title) {
 
 class MultiActionDialogScope(title: Component) : DialogScope(title) {
 	
-	val buttons: MutableList<ActionButton> = mutableListOf()
+	val buttons: MutableList<ActionButton> = []
 	lateinit var exitButton: ActionButton
 	var columns: Int = 2
 	
