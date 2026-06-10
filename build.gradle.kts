@@ -1,6 +1,3 @@
-import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
-import org.jetbrains.kotlin.gradle.internal.config.LanguageFeature
-
 plugins {
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
@@ -8,7 +5,6 @@ plugins {
 	alias(libs.plugins.paperweight)
 	`version-catalog`
 	`maven-publish`
-	idea
 }
 
 group = "me.matin"
@@ -17,7 +13,6 @@ version = "1.2.9"
 repositories {
 	mavenCentral()
 	gradlePluginPortal()
-	flatDir { dirs("libs") }
 	maven("https://repo.papermc.io/repository/maven-public/")
 	maven("https://repo.codemc.io/repository/maven-public/")
 	maven("https://jitpack.io")
@@ -27,7 +22,6 @@ dependencies {
 	paperweight.paperDevBundle(libs.versions.paper.get())
 	compileOnly(libs.skinsrestorer)
 	
-	api(fileTree("libs"))
 	api(libs.nbtapi)
 	api(libs.packetevents)
 	
@@ -35,15 +29,6 @@ dependencies {
 	compileOnly(kotlin("reflect"))
 	compileOnly(libs.bundles.kotlinx)
 }
-
-val javaVersion = 21
-
-tasks.compileJava {
-	options.encoding = "UTF-8"
-	options.release.set(javaVersion)
-}
-
-tasks.jar { enabled = false }
 
 tasks.shadowJar {
 	archiveClassifier = ""
@@ -76,19 +61,13 @@ tasks.processResources {
 }
 
 kotlin {
-	jvmToolchain(javaVersion)
-	val features = setOf(
-		LanguageFeature.ContextSensitiveResolutionUsingExpectedType,
-		LanguageFeature.ExplicitBackingFields,
-		LanguageFeature.ContextParameters
+	jvmToolchain(libs.versions.java.get().toInt())
+	compilerOptions.freeCompilerArgs.addAll(
+		"-Xexplicit-type-arguments",
+		"-Xcollection-literals",
+		"-Xcontext-sensitive-resolution",
+		"-Xname-based-destructuring=complete"
 	)
-	compilerOptions {
-		sourceSets.all { features.forEach { languageSettings.enableLanguageFeature(it.name) } }
-	}
-}
-
-paperweight {
-	reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
 }
 
 publishing {
