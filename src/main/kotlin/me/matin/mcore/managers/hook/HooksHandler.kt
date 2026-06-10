@@ -2,40 +2,35 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.*
 import me.matin.mcore.managers.plugin.KotlinPlugin
-import me.matin.mcore.mcore
 import me.matin.mcore.methods.enabled
 import kotlin.properties.ReadOnlyProperty
 
-class HooksHandler internal constructor(internal val plugin: KotlinPlugin) {
+@Suppress("unused")
+class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	
-	private val hooks: MutableMap<Hook, Boolean> = mutableMapOf()
-	lateinit var scope: CoroutineScope private set
+	val hooks: MutableSet<Hook> = mutableSetOf()
+	var scope = CoroutineScope(plugin.coroutineContext + SupervisorJob(plugin.coroutineContext.job))
 	
-	fun observeHook(
-		name: String,
-		required: Boolean = false,
-		onEnable: Hook.StateAction? = null,
-		onDisable: Hook.StateAction? = null,
-		requirements: Hook.Requirements? = null,
-	): ReadOnlyProperty<Any?, Boolean> = mcore.getOrThrow().hooksManager[name, requirements, onEnable, onDisable].let {
-		hooks[it] = required
-		checkRequired(it)
-		ReadOnlyProperty { _, _ -> it.isHooked }
+	fun handle(name: String, required: Boolean = false, handler: Hook.() -> Unit = {}) {
+		hooks += Hook(name, required).apply(handler)
+		checkRequired()
 	}
 	
-	internal fun init() {
-		scope = CoroutineScope(plugin.lifecycleScope.coroutineContext + SupervisorJob() + Dispatchers.Default)
+	operator fun get(name: String) = hooks.find { it.name == name }?.hooked ?: false
+	
+	fun bind(name: String) = ReadOnlyProperty<Any?, Boolean> { _, _ ->
+		get(name)
+	}
+	
+	fun <T> bind(name: String, binder: () -> T) = ReadOnlyProperty<Any?, T?> { _, _ ->
+		if (get(name)) binder() else null
 	}
 	
 	internal fun disable() {
-		hooks.forEach { (hook) ->
-			hook.handlers -= this
-			hook.handlers.ifEmpty { mcore.getOrNull()?.hooksManager?.hooks?.remove(hook) }
-		}
 		scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
 	}
 	
-	internal fun checkRequired(hook: Hook) {
-		if (hooks[hook] ?: return) plugin.enabled = false
+	internal fun checkRequired() {
+		plugin.enabled = hooks.any { it.required && !it.hooked }
 	}
 }

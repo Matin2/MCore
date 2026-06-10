@@ -1,21 +1,11 @@
 package me.matin.mcore
 
 import me.matin.mcore.managers.hook.HooksHandler
-import net.skinsrestorer.api.SkinsRestorer
 import net.skinsrestorer.api.SkinsRestorerProvider
 
-internal object Hooks {
+internal class Hooks(private val hooksHandler: HooksHandler) {
 	
-	@JvmStatic
-	var skinsRestorer: SkinsRestorer? = null
-		private set
+	val skinsRestorer by hooksHandler.bind("SkinsRestorer") { SkinsRestorerProvider.get() }
 	
-	@JvmStatic
-	fun HooksHandler.observeHooks() {
-		observeHook(
-			name = "SkinsRestorer",
-			onEnable = { skinsRestorer = SkinsRestorerProvider.get() },
-			onDisable = { skinsRestorer = null },
-		)
-	}
+	fun init() = hooksHandler.handle("SkinsRestorer")
 }

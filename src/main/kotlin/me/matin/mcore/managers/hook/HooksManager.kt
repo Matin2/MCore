@@ -12,11 +12,11 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
-import java.util.concurrent.ConcurrentHashMap
 
 internal class HooksManager(private val mcore: MCore) {
 	
-	val hooks: MutableSet<Hook> = ConcurrentHashMap.newKeySet()
+	val handlers: MutableSet<HooksHandler> = mutableSetOf()
+	
 	private val pluginsEventFlow = callbackFlow {
 		val pluginEnableListener = object : Listener {
 			@EventHandler
@@ -33,26 +33,13 @@ internal class HooksManager(private val mcore: MCore) {
 		}
 	}
 	
-	init {
-		pluginsEventFlow.buffer(Channel.UNLIMITED).mapNotNull { (plugin, onEnable) ->
-			hooks.find { plugin.name == it.name }?.let { it to onEnable }
-		}.onEach { (hook, onEnable) ->
-			hook.check(onEnable)
-			withContext(MainBukkitDispatcher) {
-				if (!onEnable) hook.handlers.forEach { it.checkRequired(hook) }
+	fun init() {
+		pluginsEventFlow.buffer(Channel.UNLIMITED).onEach { [plugin, onEnable] ->
+			val handlers = handlers.mapNotNull { handler ->
+				handler.hooks.find { it.name == plugin.name }?.check(plugin, onEnable) ?: return@mapNotNull null
+				handler
 			}
-		}.flowOn(Dispatchers.Default).launchIn(mcore.lifecycleScope)
+			if (!onEnable) withContext(MainBukkitDispatcher) { handlers.forEach(HooksHandler::checkRequired) }
+		}.flowOn(Dispatchers.Default).launchIn(mcore)
 	}
-	
-	context(handler: HooksHandler)
-	operator fun get(
-		name: String,
-		requirements: Hook.Requirements?,
-		onEnable: Hook.StateAction?,
-		onDisable: Hook.StateAction?,
-	): Hook = hooks.find { it.name == name }?.apply {
-		handlers += handler
-		onEnable?.let { enableActions += it }
-		onDisable?.let { disableActions += it }
-	} ?: Hook(name, requirements, handler, onEnable, onDisable).also { hooks += it }
 }

@@ -1,41 +1,32 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.coroutines.withContext
-import me.matin.mcore.managers.plugin.MainBukkitDispatcher
-import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 
-internal class Hook(
-	val name: String,
-	val requirements: Requirements?,
-	handler: HooksHandler,
-	onEnable: StateAction?,
-	onDisable: StateAction?,
-) {
+@Suppress("unused")
+class Hook(val name: String, val required: Boolean) {
 	
-	typealias Requirements = (Plugin) -> Boolean
-	typealias StateAction = () -> Unit
+	typealias Requirement = (Plugin) -> Boolean
+	typealias Action = () -> Unit
 	
-	val handlers = mutableSetOf(handler)
-	val enableActions: MutableSet<StateAction> = mutableSetOf()
-	val disableActions: MutableSet<StateAction> = mutableSetOf()
-	var isHooked: Boolean = check()
-		private set
+	internal val requirements = mutableSetOf<Requirement>()
+	internal var enableAction: Action? = null
+	internal var disableAction: Action? = null
+	internal var hooked = false
 	
-	init {
-		onEnable?.let {
-			if (isHooked) it()
-			enableActions += it
-		}
-		onDisable?.let { disableActions += it }
+	fun onEnable(block: () -> Unit) {
+		enableAction = block
 	}
 	
-	private fun check() = Bukkit.getPluginManager().getPlugin(name)?.let {
-		it.isEnabled && requirements?.invoke(it) != false
-	} ?: false
+	fun onDisable(block: () -> Unit) {
+		disableAction = block
+	}
 	
-	suspend fun check(onEnable: Boolean) = withContext(MainBukkitDispatcher) {
-		isHooked = check()
-		(if (onEnable) enableActions else disableActions).forEach { action -> action() }
+	fun requirement(block: (Plugin) -> Boolean) {
+		requirements += block
+	}
+	
+	internal fun check(plugin: Plugin, onEnable: Boolean) {
+		hooked = plugin.isEnabled && requirements.all { it(plugin) }
+		if (onEnable) enableAction?.invoke() else disableAction?.invoke()
 	}
 }
