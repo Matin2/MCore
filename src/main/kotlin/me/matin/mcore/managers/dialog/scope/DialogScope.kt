@@ -13,7 +13,6 @@ import io.papermc.paper.registry.data.dialog.type.DialogType
 import me.matin.mcore.managers.FloatProgression
 import me.matin.mcore.managers.dialog.DialogInputValue
 import me.matin.mcore.managers.dialog.DialogOption
-import me.matin.mcore.managers.dialog.EnumDialogOption
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.dialog.DialogLike
 import net.kyori.adventure.text.Component
@@ -21,16 +20,14 @@ import net.kyori.adventure.text.event.ClickCallback
 import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.inventory.ItemStack
 import java.net.URL
-import kotlin.enums.enumEntries
-import kotlin.reflect.KClass
 
 @Suppress("unused", "UnstableApiUsage", "NOTHING_TO_INLINE")
-sealed class DialogScope(internal var titleProperty: Component) {
+sealed class DialogScope(internal var initialTitle: Component) {
 	
-	val title get() = titleProperty
+	val title get() = initialTitle
 	var externalTitle: Component = title
 	var escapeCloses: Boolean = true
-	var afterAction: DialogBase.DialogAfterAction = DialogBase.DialogAfterAction.CLOSE
+	var afterAction: DialogBase.DialogAfterAction = CLOSE
 	
 	val body: List<DialogBody>
 		field : MutableList<DialogBody> = mutableListOf()
@@ -39,18 +36,10 @@ sealed class DialogScope(internal var titleProperty: Component) {
 	
 	internal abstract val type: DialogType
 	internal val base: DialogBase
-		get() = DialogBase.create(
-			title,
-			externalTitle,
-			escapeCloses,
-			false,
-			afterAction,
-			body,
-			inputs
-		)
+		get() = DialogBase.create(title, externalTitle, escapeCloses, false, afterAction, body, inputs)
 	
 	fun messageBody(message: Component, width: Int = 200): PlainMessageDialogBody =
-		DialogBody.plainMessage(message, width).also { body += it }
+		DialogBody.plainMessage(message, width).also(body::add)
 	
 	
 	fun itemBody(
@@ -90,8 +79,8 @@ sealed class DialogScope(internal var titleProperty: Component) {
 	fun optionInput(
 		key: String,
 		label: Component,
-		initial: DialogOption<String>,
-		vararg options: DialogOption<String>,
+		initial: DialogOption,
+		vararg options: DialogOption,
 		width: Int = 200,
 		labelVisible: Boolean = true,
 	): DialogInputValue<String> {
@@ -104,47 +93,6 @@ sealed class DialogScope(internal var titleProperty: Component) {
 		return DialogInputValue(key, String::class)
 	}
 	
-	fun <T : Enum<T>> optionInput(
-		key: String,
-		label: Component,
-		clazz: KClass<T>,
-		initial: DialogOption<T>,
-		vararg options: DialogOption<T>,
-		width: Int = 200,
-		labelVisible: Boolean = true,
-	): DialogInputValue<T> {
-		inputs += DialogInput.singleOption(key, width, buildList {
-			add(SingleOptionDialogInput.OptionEntry.create(initial.id.name, initial.display, true))
-			options.mapTo(this) { (id, display) ->
-				SingleOptionDialogInput.OptionEntry.create(id.name, display, false)
-			}
-		}, label, labelVisible)
-		return DialogInputValue(key, clazz)
-	}
-	
-	@JvmName("enumOptionInput")
-	inline fun <reified T : Enum<T>> optionInput(
-		key: String,
-		label: Component,
-		initial: DialogOption<T>,
-		vararg options: DialogOption<T>,
-		width: Int = 200,
-		labelVisible: Boolean = true,
-	): DialogInputValue<T> =
-		optionInput(key, label, T::class, initial, options = options, width, labelVisible)
-	
-	inline fun <reified T> optionInput(
-		key: String,
-		label: Component,
-		initial: T,
-		width: Int = 200,
-		labelVisible: Boolean = true,
-	): DialogInputValue<T> where T : Enum<T>, T : EnumDialogOption = optionInput(
-		key, label, DialogOption(initial, initial.display),
-		options = enumEntries<T>().map<T, DialogOption<T>> { DialogOption(it, it.display) }.toTypedArray(),
-		width, labelVisible
-	)
-	
 	fun rangeInput(
 		key: String,
 		label: Component,
@@ -155,7 +103,7 @@ sealed class DialogScope(internal var titleProperty: Component) {
 	): DialogInputValue<Float> {
 		inputs += DialogInput.numberRange(
 			key, width, label, labelFormat, range.start, range.endInclusive, initial,
-			(range as? FloatProgression<Float>)?.step
+			(range as? FloatProgression)?.step
 		)
 		return DialogInputValue(key, Float::class)
 	}

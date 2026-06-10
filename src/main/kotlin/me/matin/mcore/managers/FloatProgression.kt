@@ -1,22 +1,48 @@
+@file:Suppress("unused")
+
 package me.matin.mcore.managers
 
-interface FloatProgression<T : Comparable<T>> : ClosedFloatingPointRange<T> {
+
+interface FloatProgression : ClosedFloatingPointRange<Float>, Iterable<Float> {
 	
-	val step: T
+	val step: Float
+}
+
+infix fun ClosedFloatingPointRange<Float>.step(step: Float) = object : FloatProgression {
+	override val step: Float = step
+	override fun lessThanOrEquals(a: Float, b: Float): Boolean = this@step.lessThanOrEquals(a, b)
+	override val start: Float get() = this@step.start
+	override val endInclusive: Float get() = this@step.endInclusive
 	
-	companion object {
+	override fun iterator() = object : Iterator<Float> {
 		
-		@JvmStatic
-		@Suppress("NOTHING_TO_INLINE", "unused")
-		inline infix fun <T : Comparable<T>> ClosedFloatingPointRange<T>.step(step: T) = object : FloatProgression<T> {
-			override val step: T = step
-			override fun lessThanOrEquals(a: T, b: T): Boolean = this@step.lessThanOrEquals(a, b)
-			
-			override val start: T
-				get() = this@step.start
-			override val endInclusive: T
-				get() = this@step.endInclusive
-		}
+		var current = start
+		
+		override fun next() = current.also { current += step }
+		
+		override fun hasNext() = current <= endInclusive
+		
+	}
+}
+
+interface DoubleProgression : ClosedFloatingPointRange<Double>, Iterable<Double> {
+	
+	val step: Double
+}
+
+infix fun ClosedFloatingPointRange<Double>.step(step: Double) = object : DoubleProgression {
+	override val step = step
+	override fun lessThanOrEquals(a: Double, b: Double) = this@step.lessThanOrEquals(a, b)
+	override val start get() = this@step.start
+	override val endInclusive get() = this@step.endInclusive
+	
+	override fun iterator() = object : Iterator<Double> {
+		
+		var current = start
+		
+		override fun next() = current.also { current += step }
+		
+		override fun hasNext() = current <= endInclusive
 		
 	}
 }

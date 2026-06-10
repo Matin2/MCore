@@ -10,7 +10,7 @@ import net.kyori.adventure.text.Component
 value class DialogTemplate<S : DialogScope> private constructor(private val scope: S) {
 	
 	fun modify(title: Component? = null, block: S.() -> Unit) = apply {
-		title?.let { scope.titleProperty = title }
+		title?.let { scope.initialTitle = title }
 		scope.block()
 	}
 	
@@ -40,10 +40,5 @@ value class DialogTemplate<S : DialogScope> private constructor(private val scop
 		@JvmStatic
 		fun multiAction(title: Component, block: MultiActionDialogScope.() -> Unit) =
 			DialogTemplate(MultiActionDialogScope(title).apply(block))
-		
-		@JvmStatic
-		@Suppress("NOTHING_TO_INLINE")
-		inline infix fun DialogRegistryEntry.Builder.applyTemplate(template: DialogTemplate<*>) =
-			template.applyTo(this)
 	}
 }
