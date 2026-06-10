@@ -1,6 +1,5 @@
 package me.matin.mcore.managers.hook
 
-import kotlinx.coroutines.*
 import me.matin.mcore.managers.plugin.KotlinPlugin
 import me.matin.mcore.methods.enabled
 import kotlin.properties.ReadOnlyProperty
@@ -8,8 +7,11 @@ import kotlin.properties.ReadOnlyProperty
 @Suppress("unused")
 class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	
-	val hooks: MutableSet<Hook> = mutableSetOf()
-	var scope = CoroutineScope(plugin.coroutineContext + SupervisorJob(plugin.coroutineContext.job))
+	val hooks: MutableSet<Hook> = []
+	
+	init {
+		HooksManager.handlers += this
+	}
 	
 	fun handle(name: String, required: Boolean = false, handler: Hook.() -> Unit = {}) {
 		hooks += Hook(name, required).apply(handler)
@@ -26,8 +28,8 @@ class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 		if (get(name)) binder() else null
 	}
 	
-	internal fun disable() {
-		scope.cancel(CancellationException("Plugin ${plugin.name} has been disabled."))
+	internal fun close() {
+		HooksManager.handlers += this
 	}
 	
 	internal fun checkRequired() {

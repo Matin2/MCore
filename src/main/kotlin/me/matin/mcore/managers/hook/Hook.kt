@@ -5,28 +5,33 @@ import org.bukkit.plugin.Plugin
 @Suppress("unused")
 class Hook(val name: String, val required: Boolean) {
 	
-	typealias Requirement = (Plugin) -> Boolean
-	typealias Action = () -> Unit
+	typealias Requirement = (plugin: Plugin) -> Boolean
 	
-	internal val requirements = mutableSetOf<Requirement>()
-	internal var enableAction: Action? = null
-	internal var disableAction: Action? = null
+	internal var requirement: Requirement = { true }
+	internal var enableMethod = {}
+	internal var disableMethod = {}
 	internal var hooked = false
 	
 	fun onEnable(block: () -> Unit) {
-		enableAction = block
+		enableMethod = {
+			enableMethod()
+			block()
+		}
 	}
 	
 	fun onDisable(block: () -> Unit) {
-		disableAction = block
+		disableMethod = {
+			disableMethod()
+			block()
+		}
 	}
 	
-	fun requirement(block: (Plugin) -> Boolean) {
-		requirements += block
+	fun requirement(block: Requirement) {
+		requirement = { requirement(it) && block(it) }
 	}
 	
 	internal fun check(plugin: Plugin, onEnable: Boolean) {
-		hooked = plugin.isEnabled && requirements.all { it(plugin) }
-		if (onEnable) enableAction?.invoke() else disableAction?.invoke()
+		hooked = plugin.isEnabled && requirement(plugin)
+		if (onEnable) enableMethod() else disableMethod()
 	}
 }

@@ -7,39 +7,46 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import me.matin.mcore.MCore
 import me.matin.mcore.managers.plugin.BukkitDispatcher
-import me.matin.mcore.methods.registerListeners
+import me.matin.mcore.managers.plugin.pluginKoin
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-internal class HooksManager(private val mcore: MCore) {
+internal object HooksManager : KoinComponent {
 	
-	val handlers: MutableSet<HooksHandler> = mutableSetOf()
-	
-	private val pluginsEventFlow = callbackFlow {
-		val pluginEnableListener = object : Listener {
+	private val mcore: MCore by inject()
+	val handlers: MutableSet<HooksHandler> = []
+	private val pluginEvents = callbackFlow {
+		val listener = object : Listener {
 			@EventHandler
-			fun PluginEnableEvent.handle(): Unit = run { trySend(plugin to true) }
-		}
-		val pluginDisableListener = object : Listener {
+			fun PluginEnableEvent.handle() {
+				trySend(plugin to true)
+			}
+			
 			@EventHandler
-			fun PluginDisableEvent.handle(): Unit = run { trySend(plugin to false) }
+			fun PluginDisableEvent.handle() {
+				trySend(plugin to false)
+			}
 		}
-		mcore.registerListeners(pluginEnableListener, pluginDisableListener)
+		mcore.server.pluginManager.registerEvents(listener, mcore)
 		awaitClose {
-			PluginEnableEvent.getHandlerList().unregister(pluginEnableListener)
-			PluginDisableEvent.getHandlerList().unregister(pluginDisableListener)
+			PluginEnableEvent.getHandlerList().unregister(listener)
+			PluginDisableEvent.getHandlerList().unregister(listener)
 		}
 	}
 	
+	override fun getKoin() = pluginKoin("MCore")
+	
 	fun init() {
-		pluginsEventFlow.buffer(Channel.UNLIMITED).onEach { [plugin, onEnable] ->
+		pluginEvents.buffer(Channel.UNLIMITED).onEach { [plugin, onEnable] ->
 			val handlers = handlers.mapNotNull { handler ->
 				handler.hooks.find { it.name == plugin.name }?.check(plugin, onEnable) ?: return@mapNotNull null
 				handler
 			}
 			if (!onEnable) withContext(BukkitDispatcher) { handlers.forEach(HooksHandler::checkRequired) }
-		}.flowOn(Dispatchers.Default).launchIn(mcore)
+		}.flowOn(Dispatchers.IO).launchIn(mcore)
 	}
 }

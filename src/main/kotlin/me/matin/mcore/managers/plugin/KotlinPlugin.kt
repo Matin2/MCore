@@ -22,7 +22,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	fun enableKoin(vararg modules: Module) {
 		val internal = module {
 			single { this@KotlinPlugin }
-			single { HooksHandler(this@KotlinPlugin) } onClose { it?.disable() }
+			single { HooksHandler(this@KotlinPlugin) } onClose { it?.close() }
 		}
 		koinApp = koinApplication { modules(*modules, internal) }
 		koins[name] = koinApp.koin
