@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import me.matin.mcore.Hooks
+import me.matin.mcore.managers.plugin.pluginKoin
 import net.skinsrestorer.api.PropertyUtils
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
@@ -30,7 +31,7 @@ object PlayerProfiles {
 	 * @receiver Player witch you want the profile of.
 	 */
 	@JvmStatic
-	fun OfflinePlayer.getProfile() = Hooks.skinsRestorer
+	fun OfflinePlayer.getProfile() = pluginKoin("MCore").get<Hooks>().skinsRestorer
 		?.playerStorage
 		?.runCatching { getSkinForPlayer(uniqueId, name).get() }
 		?.map { PropertyUtils.getSkinTextureUrl(it) }

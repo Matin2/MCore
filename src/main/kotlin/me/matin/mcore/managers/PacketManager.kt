@@ -1,5 +1,6 @@
 package me.matin.mcore.managers
 
+import com.github.retrooper.packetevents.PacketEventsAPI
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketSendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play
@@ -7,14 +8,20 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
-import me.matin.mcore.mcore
+import me.matin.mcore.managers.plugin.pluginKoin
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryView
 import org.bukkit.inventory.ItemStack
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @Suppress("unused", "UnstableApiUsage")
-object PacketManager {
+object PacketManager : KoinComponent {
+	
+	val packetEventsAPI: PacketEventsAPI<*> by inject()
+	
+	override fun getKoin() = pluginKoin("MCore")
 	
 	@JvmStatic
 	var InventoryView.displayTitle: Component
@@ -23,7 +30,7 @@ object PacketManager {
 			val user = player as Player
 			InventoryTitle.openWindows[user]?.let {
 				it.title = value
-				mcore.getOrNull()?.packetEventsAPI?.playerManager?.sendPacket(user, it)
+				packetEventsAPI.playerManager.sendPacket(user, it)
 				user.updateInventory()
 				InventoryTitle.openWindows[user] = it
 			}
@@ -50,10 +57,8 @@ object PacketManager {
 	
 	@JvmStatic
 	@Suppress("NOTHING_TO_INLINE")
-	private inline fun Player.sendTotemPacket() = mcore.getOrNull()
-		?.packetEventsAPI
-		?.playerManager
-		?.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35)) ?: Unit
+	private inline fun Player.sendTotemPacket() =
+		packetEventsAPI.playerManager.sendPacket(this, WrapperPlayServerEntityStatus(entityId, 35))
 }
 
 internal object InventoryTitle : PacketListenerAbstract(NORMAL) {
@@ -68,4 +73,5 @@ internal object InventoryTitle : PacketListenerAbstract(NORMAL) {
 			Play.Server.CLOSE_WINDOW -> openWindows.remove(player)
 		}
 	}
+	
 }

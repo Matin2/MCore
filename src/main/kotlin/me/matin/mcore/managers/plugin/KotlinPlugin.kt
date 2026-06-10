@@ -3,36 +3,40 @@ package me.matin.mcore.managers.plugin
 import kotlinx.coroutines.*
 import me.matin.mcore.managers.hook.HooksHandler
 import org.bukkit.plugin.java.JavaPlugin
-import kotlin.properties.ReadOnlyProperty
+import org.koin.core.Koin
+import org.koin.core.KoinApplication
+import org.koin.core.component.KoinComponent
+import org.koin.core.module.Module
+import org.koin.dsl.koinApplication
+import org.koin.dsl.module
+import org.koin.dsl.onClose
 
-abstract class KotlinPlugin : JavaPlugin() {
+abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
-	private lateinit var _hooksHandler: Lazy<HooksHandler>
-	private lateinit var _lifecycleScope: CoroutineScope
-	val lifecycleScope: CoroutineScope get() = _lifecycleScope
-	val hooksHandler by _hooksHandler
+	override val coroutineContext = CoroutineName(name) + SupervisorJob() + Dispatchers.Default
 	
-	override fun onEnable() {
-		_lifecycleScope = CoroutineScope(CoroutineName(name) + SupervisorJob() + Dispatchers.Default)
-		_hooksHandler = lazy { HooksHandler(this).also(HooksHandler::init) }
-		plugins += this
+	private lateinit var koinApp: KoinApplication
+	
+	override fun getKoin() = koinApp.koin
+	
+	fun enableKoin(vararg modules: Module) {
+		val internal = module {
+			single { this@KotlinPlugin }
+			single { HooksHandler(this@KotlinPlugin) } onClose { it?.disable() }
+		}
+		koinApp = koinApplication { modules(*modules, internal) }
+		koins[name] = koinApp.koin
 	}
 	
 	override fun onDisable() {
-		_lifecycleScope.cancel(CancellationException("Plugin has been disabled."))
-		if (_hooksHandler.isInitialized()) hooksHandler.disable()
-		plugins -= this
-	}
-	
-	companion object {
-		
-		@JvmStatic
-		val plugins: List<KotlinPlugin>
-			field : MutableList<KotlinPlugin> = mutableListOf()
-		
-		@JvmStatic
-		inline fun <reified P : KotlinPlugin> get() = ReadOnlyProperty<Any?, Result<P>> { _, _ ->
-			runCatching { plugins.filterIsInstance<P>().first() }
+		if (::koinApp.isInitialized) {
+			koinApp.close()
+			koins.remove(name)
 		}
+		cancel("$name has been disabled.")
 	}
 }
+
+private val koins = mutableMapOf<String, Koin>()
+
+fun pluginKoin(pluginName: String) = koins.getValue(pluginName)
