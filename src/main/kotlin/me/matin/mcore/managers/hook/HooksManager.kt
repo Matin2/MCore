@@ -1,12 +1,13 @@
 package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.matin.mcore.MCore
-import me.matin.mcore.managers.plugin.BukkitDispatcher
+import me.matin.mcore.managers.plugin.Bukkit
 import me.matin.mcore.managers.plugin.pluginKoin
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -41,12 +42,16 @@ internal object HooksManager : KoinComponent {
 	override fun getKoin() = pluginKoin("MCore")
 	
 	fun init() {
-		pluginEvents.buffer(Channel.UNLIMITED).onEach { [plugin, onEnable] ->
-			val handlers = handlers.mapNotNull { handler ->
-				handler.hooks.find { it.name == plugin.name }?.check(plugin, onEnable) ?: return@mapNotNull null
-				handler
+		mcore.launch(Dispatchers.IO) {
+			pluginEvents.buffer().collect { [plugin, onEnable] ->
+				this@launch.launch(Dispatchers.Default) {
+					val handlers = handlers.filter { handler ->
+						handler.hooks.find { it.name == plugin.name }?.check(plugin, onEnable) ?: return@filter false
+						true
+					}
+					if (!onEnable) withContext(Dispatchers.Bukkit) { handlers.forEach(HooksHandler::checkRequired) }
+				}
 			}
-			if (!onEnable) withContext(BukkitDispatcher) { handlers.forEach(HooksHandler::checkRequired) }
-		}.flowOn(Dispatchers.IO).launchIn(mcore)
+		}
 	}
 }
