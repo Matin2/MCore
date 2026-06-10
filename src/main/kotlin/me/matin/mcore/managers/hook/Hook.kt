@@ -9,9 +9,11 @@ class Hook(val name: String, val required: Boolean) {
 	typealias Requirement = (plugin: Plugin) -> Boolean
 	
 	@Volatile
-	internal var hooked = false
-	private var requirement: Requirement = { true }
 	private var requirementMatched: Boolean? = null
+	private var requirement: Requirement = { true }
+	
+	@Volatile
+	internal var hooked = false
 	private var enableMethod = {}
 	private var disableMethod = {}
 	
