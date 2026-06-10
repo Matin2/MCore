@@ -1,19 +1,22 @@
 [versions]
-#plugins
-shadow-plugin = "9.3.1"
-paperweight = "2.0.0-beta.19"
+java = "25"
+shadow = "9.4.2"
 #kotlin
-kotlin = "2.3.10"
-kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.10.0"
+kotlin = "2.4.0"
+kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.11.0"
 #minecraft
-paper = "1.21.11-R0.1-SNAPSHOT"
-packetevents = "2.11.2"
-nbtapi = "2.15.5"
-skinsrestorer = "15.9.3"
+paperweight = "2.0.0-beta.21"
+paper = "26.1.2.build.+"
+packetevents = "2.12.2"
+nbtapi = "2.15.7"
+skinsrestorer = "15.12.2"
+#koin
+koin = "4.2.1"
+koin-plugin = "1.0.0"
 
 [libraries]
-#kotlinx
+koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 #minecraft
@@ -24,10 +27,9 @@ skinsrestorer = { module = "net.skinsrestorer:skinsrestorer-api", version.ref = 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-shadow = { id = "com.gradleup.shadow", version.ref = "shadow-plugin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
+koin = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 
 [bundles]
 kotlinx = ["kotlinx-coroutines", "kotlinx-serialization"]
-
-

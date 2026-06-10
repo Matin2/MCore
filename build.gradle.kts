@@ -3,7 +3,7 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.shadow)
 	alias(libs.plugins.paperweight)
-	`version-catalog`
+	alias(libs.plugins.koin)
 	`maven-publish`
 }
 
@@ -24,6 +24,7 @@ dependencies {
 	
 	api(libs.nbtapi)
 	api(libs.packetevents)
+	api(libs.koin)
 	
 	compileOnly(kotlin("stdlib"))
 	compileOnly(kotlin("reflect"))
@@ -40,6 +41,8 @@ tasks.shadowJar {
 		"assets" to "packetevents.assets",
 		"com.github.retrooper.packetevents" to "packetevents.api",
 		"io.github.retrooper.packetevents" to "packetevents.impl",
+		//Koin
+		"io.koin" to "koin",
 	)
 	dependencies { exclude { it.moduleGroup == "net.kyori" } }
 	relocations.forEach { relocate(it.key, "me.matin.mcore.libs.${it.value}") }
