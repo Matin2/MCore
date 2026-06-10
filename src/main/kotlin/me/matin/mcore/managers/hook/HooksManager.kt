@@ -2,6 +2,7 @@ package me.matin.mcore.managers.hook
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
@@ -24,12 +25,12 @@ internal object HooksManager : KoinComponent {
 		val listener = object : Listener {
 			@EventHandler
 			fun PluginEnableEvent.handle() {
-				trySend(plugin to true)
+				trySendBlocking(plugin to true)
 			}
 			
 			@EventHandler
 			fun PluginDisableEvent.handle() {
-				trySend(plugin to false)
+				trySendBlocking(plugin to false)
 			}
 		}
 		mcore.server.pluginManager.registerEvents(listener, mcore)
@@ -43,13 +44,13 @@ internal object HooksManager : KoinComponent {
 	
 	fun init() {
 		mcore.launch(Dispatchers.IO) {
-			pluginEvents.buffer().collect { [plugin, onEnable] ->
+			pluginEvents.buffer().collect { [plugin, enabled] ->
 				this@launch.launch(Dispatchers.Default) {
 					val handlers = handlers.filter { handler ->
-						handler.hooks.find { it.name == plugin.name }?.check(plugin, onEnable) ?: return@filter false
+						handler.hooks.find { it.name == plugin.name }?.check(plugin, enabled) ?: return@filter false
 						true
 					}
-					if (!onEnable) withContext(Dispatchers.Bukkit) { handlers.forEach(HooksHandler::checkRequired) }
+					if (!enabled) withContext(Dispatchers.Bukkit) { handlers.forEach(HooksHandler::checkRequired) }
 				}
 			}
 		}

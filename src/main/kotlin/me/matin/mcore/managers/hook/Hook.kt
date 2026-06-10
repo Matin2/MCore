@@ -10,9 +10,10 @@ class Hook(val name: String, val required: Boolean) {
 	
 	@Volatile
 	internal var hooked = false
-	internal var requirement: Requirement = { true }
-	internal var enableMethod = {}
-	internal var disableMethod = {}
+	private var requirement: Requirement = { true }
+	private var requirementMatched: Boolean? = null
+	private var enableMethod = {}
+	private var disableMethod = {}
 	
 	fun onEnable(block: () -> Unit) {
 		enableMethod = {
@@ -30,10 +31,14 @@ class Hook(val name: String, val required: Boolean) {
 	
 	fun requirement(block: Requirement) {
 		requirement = { requirement(it) && block(it) }
+		requirementMatched = null
 	}
 	
-	internal fun check(plugin: Plugin, onEnable: Boolean) {
-		hooked = plugin.isEnabled && requirement(plugin)
-		if (onEnable) enableMethod() else disableMethod()
+	internal fun check(plugin: Plugin, enabled: Boolean? = null) {
+		val requirementCheck = requirementMatched ?: requirement(plugin).also { requirementMatched = it }
+		val hooked = enabled ?: plugin.isEnabled && requirementCheck
+		if (hooked == this@Hook.hooked) return
+		this@Hook.hooked = hooked
+		if (hooked) enableMethod() else disableMethod()
 	}
 }

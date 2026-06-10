@@ -2,6 +2,7 @@ package me.matin.mcore.managers.hook
 
 import me.matin.mcore.managers.plugin.KotlinPlugin
 import me.matin.mcore.methods.enabled
+import org.bukkit.Bukkit
 import kotlin.properties.ReadOnlyProperty
 
 @Suppress("unused")
@@ -14,7 +15,10 @@ class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	}
 	
 	fun handle(name: String, required: Boolean = false, handler: Hook.() -> Unit = {}) {
-		hooks += Hook(name, required).apply(handler)
+		hooks += Hook(name, required).apply {
+			handler()
+			Bukkit.getPluginManager().getPlugin(name)?.let { check(it) }
+		}
 		checkRequired()
 	}
 	
