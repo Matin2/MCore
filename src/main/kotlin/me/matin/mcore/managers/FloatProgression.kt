@@ -14,13 +14,21 @@ infix fun ClosedFloatingPointRange<Float>.step(step: Float) = object : FloatProg
 	override val start: Float get() = this@step.start
 	override val endInclusive: Float get() = this@step.endInclusive
 	
-	override fun iterator() = object : Iterator<Float> {
+	override fun iterator() = object : FloatIterator() {
 		
-		var current = start
+		var hasNext = if (step > 0) start <= endInclusive else start >= endInclusive
+		private var next = if (hasNext) start else endInclusive
 		
-		override fun next() = current.also { current += step }
+		override fun nextFloat(): Float {
+			val value = next
+			if (value == endInclusive) {
+				if (!hasNext) throw NoSuchElementException()
+				hasNext = false
+			} else next += step
+			return value
+		}
 		
-		override fun hasNext() = current <= endInclusive
+		override fun hasNext() = hasNext
 		
 	}
 }
@@ -36,13 +44,21 @@ infix fun ClosedFloatingPointRange<Double>.step(step: Double) = object : DoubleP
 	override val start get() = this@step.start
 	override val endInclusive get() = this@step.endInclusive
 	
-	override fun iterator() = object : Iterator<Double> {
+	override fun iterator() = object : DoubleIterator() {
 		
-		var current = start
+		var hasNext = if (step > 0) start <= endInclusive else start >= endInclusive
+		private var next = if (hasNext) start else endInclusive
 		
-		override fun next() = current.also { current += step }
+		override fun nextDouble(): Double {
+			val value = next
+			if (value == endInclusive) {
+				if (!hasNext) throw NoSuchElementException()
+				hasNext = false
+			} else next += step
+			return value
+		}
 		
-		override fun hasNext() = current <= endInclusive
+		override fun hasNext() = hasNext
 		
 	}
 }
