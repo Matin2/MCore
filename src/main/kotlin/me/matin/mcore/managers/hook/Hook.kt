@@ -1,16 +1,18 @@
 package me.matin.mcore.managers.hook
 
 import org.bukkit.plugin.Plugin
+import kotlin.concurrent.Volatile
 
 @Suppress("unused")
 class Hook(val name: String, val required: Boolean) {
 	
 	typealias Requirement = (plugin: Plugin) -> Boolean
 	
+	@Volatile
+	internal var hooked = false
 	internal var requirement: Requirement = { true }
 	internal var enableMethod = {}
 	internal var disableMethod = {}
-	internal var hooked = false
 	
 	fun onEnable(block: () -> Unit) {
 		enableMethod = {
