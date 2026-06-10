@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import me.matin.mcore.MCore
-import me.matin.mcore.managers.plugin.MainBukkitDispatcher
+import me.matin.mcore.managers.plugin.BukkitDispatcher
 import me.matin.mcore.methods.registerListeners
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -39,7 +39,7 @@ internal class HooksManager(private val mcore: MCore) {
 				handler.hooks.find { it.name == plugin.name }?.check(plugin, onEnable) ?: return@mapNotNull null
 				handler
 			}
-			if (!onEnable) withContext(MainBukkitDispatcher) { handlers.forEach(HooksHandler::checkRequired) }
+			if (!onEnable) withContext(BukkitDispatcher) { handlers.forEach(HooksHandler::checkRequired) }
 		}.flowOn(Dispatchers.Default).launchIn(mcore)
 	}
 }

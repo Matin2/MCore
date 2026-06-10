@@ -7,9 +7,9 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import kotlinx.coroutines.cancel
 import me.matin.mcore.managers.InventoryTitle
 import me.matin.mcore.managers.hook.HooksManager
+import me.matin.mcore.managers.plugin.BukkitDispatcher
+import me.matin.mcore.managers.plugin.BukkitDispatcher.initBukkitDispatcher
 import me.matin.mcore.managers.plugin.KotlinPlugin
-import me.matin.mcore.managers.plugin.MainBukkitDispatcher
-import me.matin.mcore.managers.plugin.MainBukkitDispatcher.initBukkitDispatcher
 import me.matin.mcore.methods.enabled
 import org.koin.core.component.inject
 import org.koin.dsl.module
@@ -49,7 +49,7 @@ class MCore : KotlinPlugin() {
 	
 	override fun onDisable() {
 		super.onDisable()
-		MainBukkitDispatcher.cancel()
+		BukkitDispatcher.cancel()
 		packetEventsAPI.terminate()
 		componentLogger.info("Plugin got disabled.")
 	}
