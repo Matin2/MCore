@@ -25,12 +25,12 @@ internal object HooksManager : KoinComponent {
 		val listener = object : Listener {
 			@EventHandler
 			fun PluginEnableEvent.handle() {
-				trySendBlocking(plugin to true)
+				trySendBlocking(plugin)
 			}
 			
 			@EventHandler
 			fun PluginDisableEvent.handle() {
-				trySendBlocking(plugin to false)
+				trySendBlocking(plugin)
 			}
 		}
 		mcore.server.pluginManager.registerEvents(listener, mcore)
@@ -44,13 +44,13 @@ internal object HooksManager : KoinComponent {
 	
 	fun init() {
 		mcore.launch(Dispatchers.IO) {
-			pluginEvents.buffer().collect { [plugin, enabled] ->
+			pluginEvents.buffer().collect { plugin ->
 				this@launch.launch(Dispatchers.Default) {
 					val handlers = handlers.filter { handler ->
-						handler.hooks.find { it.name == plugin.name }?.check(plugin, enabled) ?: return@filter false
+						handler.hooks.find { it.name == plugin.name }?.check(plugin) ?: return@filter false
 						true
 					}
-					if (!enabled) withContext(Dispatchers.Bukkit) { handlers.forEach(HooksHandler::checkRequired) }
+					if (!plugin.isEnabled) withContext(Dispatchers.Bukkit) { handlers.forEach(HooksHandler::checkRequired) }
 				}
 			}
 		}

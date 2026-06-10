@@ -36,9 +36,9 @@ class Hook(val name: String, val required: Boolean) {
 		requirementMatched = null
 	}
 	
-	internal fun check(plugin: Plugin, enabled: Boolean? = null) {
+	internal fun check(plugin: Plugin) {
 		val requirementCheck = requirementMatched ?: requirement(plugin).also { requirementMatched = it }
-		val hooked = enabled ?: plugin.isEnabled && requirementCheck
+		val hooked = plugin.isEnabled && requirementCheck
 		if (hooked == this@Hook.hooked) return
 		this@Hook.hooked = hooked
 		if (hooked) enableMethod() else disableMethod()
