@@ -13,11 +13,8 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import kotlinx.coroutines.cancel
 import org.koin.core.component.inject
 import org.koin.dsl.module
-import org.koin.plugin.module.dsl.single
 
 class MCore : KotlinPlugin() {
-	
-	private val hooksManager: HooksManager by inject()
 	
 	private val hooks: Hooks by inject()
 	
@@ -25,12 +22,9 @@ class MCore : KotlinPlugin() {
 		initBukkitDispatcher()
 		checkNBTAPI()
 		packetEventsAPI!!.init()
-		enableKoin(module {
-			single<HooksManager>()
-			single<Hooks>()
-		})
+		enableKoin(module { single<Hooks> { Hooks(get()) } })
 		packetEventsAPI!!.eventManager.registerListeners(InventoryTitle)
-		hooksManager.init()
+		HooksManager.init()
 		hooks.init()
 		componentLogger.info("Plugin enabled successfully.")
 	}
