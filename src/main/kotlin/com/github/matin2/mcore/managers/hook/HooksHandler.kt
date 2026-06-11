@@ -8,13 +8,13 @@ import kotlin.properties.ReadOnlyProperty
 @Suppress("unused")
 class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	
-	val hooks: MutableSet<Hook> = []
+	internal val hooks: MutableSet<Hook> = []
 	
 	init {
 		HooksManager.handlers += this
 	}
 	
-	fun handle(name: String, required: Boolean = false, handler: Hook.() -> Unit = {}) {
+	fun handle(name: String, required: Boolean, handler: Hook.() -> Unit = {}) {
 		hooks += Hook(name, required).apply {
 			handler()
 			Bukkit.getPluginManager().getPlugin(name)?.let { check(it) }

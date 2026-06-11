@@ -7,5 +7,5 @@ internal class Hooks(private val hooksHandler: HooksHandler) {
 	
 	val skinsRestorer by hooksHandler.bind("SkinsRestorer") { SkinsRestorerProvider.get() }
 	
-	fun init() = hooksHandler.handle("SkinsRestorer")
+	fun init() = hooksHandler.handle("SkinsRestorer", false)
 }
