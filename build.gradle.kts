@@ -47,6 +47,8 @@ tasks.shadowJar {
 	relocations.forEach { relocate(it.key, "me.matin.mcore.libs.${it.value}") }
 }
 
+tasks.jar { enabled = false }
+
 tasks.build { dependsOn(tasks.shadowJar) }
 
 tasks.processResources {
@@ -72,14 +74,7 @@ kotlin {
 	)
 }
 
-publishing {
-	publications {
-		create<MavenPublication>("shadow") {
-			from(components["shadow"])
-			
-			groupId = "com.github.Matin2"
-			artifactId = project.name
-			version = project.version.toString()
-		}
-	}
+publishing.publications.create<MavenPublication>("maven") {
+	from(components["shadow"])
+	groupId = "com.github.Matin2"
 }
