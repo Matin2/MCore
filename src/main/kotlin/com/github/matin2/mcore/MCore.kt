@@ -1,16 +1,16 @@
-package me.matin.mcore
+package com.github.matin2.mcore
 
+import com.github.matin2.mcore.managers.InventoryTitle
+import com.github.matin2.mcore.managers.hook.HooksManager
+import com.github.matin2.mcore.managers.plugin.BukkitDispatcher
+import com.github.matin2.mcore.managers.plugin.BukkitDispatcher.initBukkitDispatcher
+import com.github.matin2.mcore.managers.plugin.KotlinPlugin
+import com.github.matin2.mcore.methods.enabled
 import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.PacketEventsAPI
 import de.tr7zw.changeme.nbtapi.NBT
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder.build
 import kotlinx.coroutines.cancel
-import me.matin.mcore.managers.InventoryTitle
-import me.matin.mcore.managers.hook.HooksManager
-import me.matin.mcore.managers.plugin.BukkitDispatcher
-import me.matin.mcore.managers.plugin.BukkitDispatcher.initBukkitDispatcher
-import me.matin.mcore.managers.plugin.KotlinPlugin
-import me.matin.mcore.methods.enabled
 import org.koin.core.component.inject
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.single

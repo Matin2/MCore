@@ -1,10 +1,10 @@
-package me.matin.mcore.methods
+package com.github.matin2.mcore.methods
 
+import com.github.matin2.mcore.Hooks
+import com.github.matin2.mcore.managers.plugin.pluginKoin
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import me.matin.mcore.Hooks
-import me.matin.mcore.managers.plugin.pluginKoin
 import net.skinsrestorer.api.PropertyUtils
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer

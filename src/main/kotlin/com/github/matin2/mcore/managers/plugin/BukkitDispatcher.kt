@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.matin.mcore.managers.plugin
+package com.github.matin2.mcore.managers.plugin
 
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit

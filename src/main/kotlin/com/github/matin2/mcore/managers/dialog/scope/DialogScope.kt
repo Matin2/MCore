@@ -1,5 +1,8 @@
-package me.matin.mcore.managers.dialog.scope
+package com.github.matin2.mcore.managers.dialog.scope
 
+import com.github.matin2.mcore.managers.FloatProgression
+import com.github.matin2.mcore.managers.dialog.DialogInputValue
+import com.github.matin2.mcore.managers.dialog.DialogOption
 import io.papermc.paper.dialog.DialogResponseView
 import io.papermc.paper.registry.data.dialog.ActionButton
 import io.papermc.paper.registry.data.dialog.DialogBase
@@ -10,9 +13,6 @@ import io.papermc.paper.registry.data.dialog.input.DialogInput
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput
 import io.papermc.paper.registry.data.dialog.input.TextDialogInput
 import io.papermc.paper.registry.data.dialog.type.DialogType
-import me.matin.mcore.managers.FloatProgression
-import me.matin.mcore.managers.dialog.DialogInputValue
-import me.matin.mcore.managers.dialog.DialogOption
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.dialog.DialogLike
 import net.kyori.adventure.text.Component

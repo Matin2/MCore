@@ -1,6 +1,6 @@
-package me.matin.mcore
+package com.github.matin2.mcore
 
-import me.matin.mcore.managers.hook.HooksHandler
+import com.github.matin2.mcore.managers.hook.HooksHandler
 import net.skinsrestorer.api.SkinsRestorerProvider
 
 internal class Hooks(private val hooksHandler: HooksHandler) {

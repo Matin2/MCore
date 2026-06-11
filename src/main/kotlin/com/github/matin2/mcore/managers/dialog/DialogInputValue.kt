@@ -1,6 +1,4 @@
-@file:Suppress("UnstableApiUsage")
-
-package me.matin.mcore.managers.dialog
+package com.github.matin2.mcore.managers.dialog
 
 import io.papermc.paper.dialog.DialogResponseView
 import kotlin.reflect.KClass
@@ -26,5 +24,4 @@ class DialogInputValue<T : Any>(val key: String, private val clazz: KClass<T>) {
 		}
 	
 	override fun toString() = "$($key)"
-	
 }

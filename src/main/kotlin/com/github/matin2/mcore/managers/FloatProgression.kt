@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.matin.mcore.managers
+package com.github.matin2.mcore.managers
 
 
 interface FloatProgression : ClosedFloatingPointRange<Float>, Iterable<Float> {

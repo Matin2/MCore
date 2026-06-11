@@ -1,5 +1,6 @@
-package me.matin.mcore.managers
+package com.github.matin2.mcore.managers
 
+import com.github.matin2.mcore.managers.plugin.pluginKoin
 import com.github.retrooper.packetevents.PacketEventsAPI
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketSendEvent
@@ -8,7 +9,6 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
-import me.matin.mcore.managers.plugin.pluginKoin
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryView

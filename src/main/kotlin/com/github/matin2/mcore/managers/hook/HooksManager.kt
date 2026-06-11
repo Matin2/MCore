@@ -1,5 +1,8 @@
-package me.matin.mcore.managers.hook
+package com.github.matin2.mcore.managers.hook
 
+import com.github.matin2.mcore.MCore
+import com.github.matin2.mcore.managers.plugin.Bukkit
+import com.github.matin2.mcore.managers.plugin.pluginKoin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -7,9 +10,6 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.matin.mcore.MCore
-import me.matin.mcore.managers.plugin.Bukkit
-import me.matin.mcore.managers.plugin.pluginKoin
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent

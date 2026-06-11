@@ -1,6 +1,6 @@
 @file:Suppress("unused", "NOTHING_TO_INLINE")
 
-package me.matin.mcore.methods
+package com.github.matin2.mcore.methods
 
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin

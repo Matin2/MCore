@@ -1,4 +1,4 @@
-package me.matin.mcore.managers.hook
+package com.github.matin2.mcore.managers.hook
 
 import org.bukkit.plugin.Plugin
 import kotlin.concurrent.Volatile

@@ -1,7 +1,7 @@
-package me.matin.mcore.managers.hook
+package com.github.matin2.mcore.managers.hook
 
-import me.matin.mcore.managers.plugin.KotlinPlugin
-import me.matin.mcore.methods.enabled
+import com.github.matin2.mcore.managers.plugin.KotlinPlugin
+import com.github.matin2.mcore.methods.enabled
 import org.bukkit.Bukkit
 import kotlin.properties.ReadOnlyProperty
 

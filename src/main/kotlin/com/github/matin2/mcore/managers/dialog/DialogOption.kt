@@ -1,8 +1,8 @@
 @file:Suppress("NOTHING_TO_INLINE", "unused")
 
-package me.matin.mcore.managers.dialog
+package com.github.matin2.mcore.managers.dialog
 
-import me.matin.mcore.managers.dialog.scope.DialogScope
+import com.github.matin2.mcore.managers.dialog.scope.DialogScope
 import net.kyori.adventure.text.Component
 
 data class DialogOption(val id: String, val display: Component?)

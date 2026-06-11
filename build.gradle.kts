@@ -7,8 +7,8 @@ plugins {
 	`maven-publish`
 }
 
-group = "me.matin"
-version = "1.2.9"
+group = "com.github.matin2"
+version = "1.3.0-dev"
 
 repositories {
 	mavenCentral()
@@ -33,7 +33,6 @@ dependencies {
 
 tasks.shadowJar {
 	archiveClassifier = ""
-	archiveVersion = ""
 	val relocations = mapOf(
 		"me.matin.mlib" to "mlib",
 		"de.tr7zw.changeme.nbtapi" to "nbtapi",
@@ -52,7 +51,7 @@ tasks.build { dependsOn(tasks.shadowJar) }
 
 tasks.processResources {
 	mapOf(
-		"version" to version.toString().replaceAfter('-', "SNAPSHOT"),
+		"version" to version.toString(),
 		"kotlin" to libs.versions.kotlin.get(),
 		"coroutines" to libs.versions.kotlinx.coroutines.get(),
 		"serialization" to libs.versions.kotlinx.serialization.get()

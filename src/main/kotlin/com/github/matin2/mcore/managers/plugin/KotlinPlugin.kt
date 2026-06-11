@@ -1,9 +1,9 @@
-package me.matin.mcore.managers.plugin
+package com.github.matin2.mcore.managers.plugin
 
+import com.github.matin2.mcore.MCore
+import com.github.matin2.mcore.managers.hook.HooksHandler
 import com.github.retrooper.packetevents.PacketEventsAPI
 import kotlinx.coroutines.*
-import me.matin.mcore.MCore
-import me.matin.mcore.managers.hook.HooksHandler
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.Koin
 import org.koin.core.KoinApplication
