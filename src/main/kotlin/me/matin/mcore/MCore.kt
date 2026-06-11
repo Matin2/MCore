@@ -17,8 +17,6 @@ import org.koin.plugin.module.dsl.single
 
 class MCore : KotlinPlugin() {
 	
-	private lateinit var packetEventsAPI: PacketEventsAPI<*>
-	
 	private val hooksManager: HooksManager by inject()
 	
 	private val hooks: Hooks by inject()
@@ -26,13 +24,12 @@ class MCore : KotlinPlugin() {
 	override fun onEnable() {
 		initBukkitDispatcher()
 		checkNBTAPI()
-		packetEventsAPI.init()
+		packetEventsAPI!!.init()
 		enableKoin(module {
-			single { packetEventsAPI }
 			single<HooksManager>()
 			single<Hooks>()
 		})
-		packetEventsAPI.eventManager.registerListeners(InventoryTitle)
+		packetEventsAPI!!.eventManager.registerListeners(InventoryTitle)
 		hooksManager.init()
 		hooks.init()
 		componentLogger.info("Plugin enabled successfully.")
@@ -50,7 +47,8 @@ class MCore : KotlinPlugin() {
 	override fun onDisable() {
 		super.onDisable()
 		BukkitDispatcher.cancel()
-		packetEventsAPI.terminate()
+		packetEventsAPI?.terminate()
+		packetEventsAPI = null
 		componentLogger.info("Plugin got disabled.")
 	}
 	
@@ -58,5 +56,10 @@ class MCore : KotlinPlugin() {
 		if (NBT.preloadApi()) return
 		componentLogger.error("NBT-API wasn't properly loaded, disabling the plugin.")
 		enabled = false
+	}
+	
+	companion object {
+		var packetEventsAPI: PacketEventsAPI<*>? = null
+			private set
 	}
 }

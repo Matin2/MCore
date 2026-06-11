@@ -1,6 +1,8 @@
 package me.matin.mcore.managers.plugin
 
+import com.github.retrooper.packetevents.PacketEventsAPI
 import kotlinx.coroutines.*
+import me.matin.mcore.MCore
 import me.matin.mcore.managers.hook.HooksHandler
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.Koin
@@ -21,8 +23,9 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	fun enableKoin(vararg modules: Module) {
 		val internal = module {
-			single { this@KotlinPlugin }
-			single { HooksHandler(this@KotlinPlugin) } onClose { it?.close() }
+			single<KotlinPlugin> { this@KotlinPlugin }
+			single<PacketEventsAPI<*>> { requireNotNull(MCore.packetEventsAPI) }
+			single<HooksHandler> { HooksHandler(this@KotlinPlugin) } onClose { it?.close() }
 		}
 		koinApp = koinApplication { modules(*modules, internal) }
 		koins[name] = koinApp.koin
