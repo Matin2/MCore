@@ -3,6 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### IntelliJ IDEA ###
+.ed-minecraft-dev
 .idea/
 out/
 *.iws

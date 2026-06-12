@@ -1,13 +1,13 @@
 name: MCore
 version: '${version}'
-main: me.matin.mcore.MCore
+main: com.github.matin2.mcore.MCore
 api-version: '26.1.2'
 author: Matin3000
 libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib:${kotlin}
-  - org.jetbrains.kotlin:kotlin-reflect:${kotlin}
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}
-  - org.jetbrains.kotlinx:kotlinx-serialization-json:${serialization}
+  - 'org.jetbrains.kotlin:kotlin-stdlib:${kotlin}'
+  - 'org.jetbrains.kotlin:kotlin-reflect:${kotlin}'
+  - 'org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}'
+  - 'org.jetbrains.kotlinx:kotlinx-serialization-json:${serialization}'
 softdepend:
   - ProtocolLib
   - ProtocolSupport

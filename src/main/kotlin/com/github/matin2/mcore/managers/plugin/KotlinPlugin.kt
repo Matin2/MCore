@@ -9,6 +9,7 @@ import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.component.KoinComponent
 import org.koin.core.module.Module
+import org.koin.dsl.binds
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -23,7 +24,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	fun enableKoin(vararg modules: Module) {
 		val internal = module {
-			single<KotlinPlugin> { this@KotlinPlugin }
+			single<KotlinPlugin> { this@KotlinPlugin } binds [KotlinPlugin::class, this@KotlinPlugin::class]
 			single<PacketEventsAPI<*>> { requireNotNull(MCore.packetEventsAPI) }
 			single<HooksHandler> { HooksHandler(this@KotlinPlugin) } onClose { it?.close() }
 		}
