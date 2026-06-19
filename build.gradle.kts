@@ -67,6 +67,7 @@ tasks.processResources {
 kotlin {
 	jvmToolchain(libs.versions.java.get().toInt())
 	compilerOptions.freeCompilerArgs.addAll(
+		"-XXLanguage:+CompanionBlocksAndExtensions",
 		"-Xexplicit-type-arguments",
 		"-Xcollection-literals",
 		"-Xcontext-sensitive-resolution",

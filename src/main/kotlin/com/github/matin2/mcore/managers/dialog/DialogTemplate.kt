@@ -19,25 +19,19 @@ value class DialogTemplate<S : DialogScope> private constructor(private val scop
 	
 	inline val dialog: Dialog get() = Dialog.create { applyTo(it.empty()) }
 	
-	companion object {
-		
-		@JvmStatic
+	companion {
 		fun notice(title: Component, block: NoticeDialogScope.() -> Unit) =
 			DialogTemplate(NoticeDialogScope(title).apply(block))
 		
-		@JvmStatic
 		fun confirmation(title: Component, block: ConfirmationDialogScope.() -> Unit) =
 			DialogTemplate(ConfirmationDialogScope(title).apply(block))
 		
-		@JvmStatic
 		fun serverLinks(title: Component, block: ServerLinksDialogScope.() -> Unit) =
 			DialogTemplate(ServerLinksDialogScope(title).apply(block))
 		
-		@JvmStatic
 		fun dialogList(title: Component, block: ListDialogScope.() -> Unit) =
 			DialogTemplate(ListDialogScope(title).apply(block))
 		
-		@JvmStatic
 		fun multiAction(title: Component, block: MultiActionDialogScope.() -> Unit) =
 			DialogTemplate(MultiActionDialogScope(title).apply(block))
 	}

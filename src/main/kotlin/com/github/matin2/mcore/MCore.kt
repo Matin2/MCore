@@ -53,7 +53,7 @@ class MCore : KotlinPlugin() {
 		enabled = false
 	}
 	
-	companion object {
+	companion {
 		var packetEventsAPI: PacketEventsAPI<*>? = null
 			private set
 	}
