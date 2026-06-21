@@ -33,17 +33,21 @@ dependencies {
 tasks.shadowJar {
 	archiveClassifier = ""
 	val relocations = mapOf(
-		"me.matin.mlib" to "mlib",
 		"de.tr7zw.changeme.nbtapi" to "nbtapi",
 		//PacketEvents
 		"assets" to "packetevents.assets",
 		"com.github.retrooper.packetevents" to "packetevents.api",
 		"io.github.retrooper.packetevents" to "packetevents.impl",
 		//Koin
-		"io.koin" to "koin",
-	)
-	dependencies { exclude { it.moduleGroup == "net.kyori" } }
-	relocations.forEach { relocate(it.key, "me.matin.mcore.libs.${it.value}") }
+		"org.koin" to "koin",
+		"co.touchlab" to "koin.touchlab",
+		
+		)
+	dependencies {
+		val exclusions = listOf("net.kyori", "org.jetbrains", "org.jetbrains.kotlin")
+		exclude { it.moduleGroup in exclusions }
+	}
+	relocations.forEach { relocate(it.key, "com.github.matin2.libs.${it.value}") }
 }
 
 tasks.jar { enabled = false }
