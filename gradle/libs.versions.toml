@@ -13,7 +13,6 @@ nbtapi = "2.15.7"
 skinsrestorer = "15.12.2"
 #koin
 koin = "4.2.2"
-koin-plugin = "1.0.1"
 
 [libraries]
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -29,7 +28,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
-koin = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 
 [bundles]
 kotlinx = ["kotlinx-coroutines", "kotlinx-serialization"]

@@ -24,9 +24,9 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	fun enableKoin(vararg modules: Module) {
 		val internal = module {
-			single<KotlinPlugin> { this@KotlinPlugin } binds [KotlinPlugin::class, this@KotlinPlugin::class]
+			single { this@KotlinPlugin } binds [KotlinPlugin::class, this@KotlinPlugin::class]
 			single<PacketEventsAPI<*>> { requireNotNull(MCore.packetEventsAPI) }
-			single<HooksHandler> { HooksHandler(this@KotlinPlugin) } onClose { it?.close() }
+			single { HooksHandler(this@KotlinPlugin) } onClose { it?.close() }
 		}
 		koinApp = koinApplication { modules(*modules, internal) }
 		koins[name] = koinApp.koin

@@ -3,7 +3,6 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.shadow)
 	alias(libs.plugins.paperweight)
-	alias(libs.plugins.koin)
 	`maven-publish`
 }
 
