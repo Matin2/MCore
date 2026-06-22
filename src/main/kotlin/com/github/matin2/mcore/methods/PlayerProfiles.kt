@@ -1,7 +1,7 @@
 package com.github.matin2.mcore.methods
 
 import com.github.matin2.mcore.Hooks
-import com.github.matin2.mcore.managers.plugin.pluginKoin
+import com.github.matin2.mcore.managers.plugin.KotlinPlugin
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -9,12 +9,14 @@ import net.skinsrestorer.api.PropertyUtils
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.profile.PlayerTextures
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.net.URI
 import java.util.*
 import kotlin.io.encoding.Base64
 
 @Suppress("unused")
-object PlayerProfiles {
+object PlayerProfiles : KoinComponent {
 	
 	private typealias Base64Profile = String
 	
@@ -25,13 +27,17 @@ object PlayerProfiles {
 			.jsonObject["url"]!!
 			.jsonPrimitive.content
 	
+	private val hooks: Hooks by inject()
+	
+	override fun getKoin() = KotlinPlugin.getKoin("MCore")
+	
 	/**
 	 * @return [com.destroystokyo.paper.profile.PlayerProfile] of the player
 	 *    with SkinsRestorer support.
 	 * @receiver Player witch you want the profile of.
 	 */
 	@JvmStatic
-	fun OfflinePlayer.getProfile() = pluginKoin("MCore").get<Hooks>().skinsRestorer
+	fun OfflinePlayer.getProfile() = hooks.skinsRestorer
 		?.playerStorage
 		?.runCatching { getSkinForPlayer(uniqueId, name).get() }
 		?.map { PropertyUtils.getSkinTextureUrl(it) }
