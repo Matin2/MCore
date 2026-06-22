@@ -2,7 +2,7 @@ package com.github.matin2.mcore.managers.hook
 
 import com.github.matin2.mcore.MCore
 import com.github.matin2.mcore.managers.plugin.Bukkit
-import com.github.matin2.mcore.managers.plugin.pluginKoin
+import com.github.matin2.mcore.managers.plugin.KotlinPlugin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -40,7 +40,6 @@ internal object HooksManager : KoinComponent {
 		}
 	}
 	
-	override fun getKoin() = pluginKoin("MCore")
 	
 	fun init() {
 		mcore.launch(Dispatchers.IO) {
@@ -53,6 +52,7 @@ internal object HooksManager : KoinComponent {
 					if (!plugin.isEnabled) withContext(Dispatchers.Bukkit) { handlers.forEach(HooksHandler::checkRequired) }
 				}
 			}
+	override fun getKoin() = KotlinPlugin.getKoin("MCore")
 		}
 	}
 }
