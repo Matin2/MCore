@@ -18,21 +18,24 @@ class Hook(val name: String, val required: Boolean) {
 	private var disableMethod = {}
 	
 	fun onEnable(block: () -> Unit) {
+		val previous = enableMethod
 		enableMethod = {
-			enableMethod()
+			previous()
 			block()
 		}
 	}
 	
 	fun onDisable(block: () -> Unit) {
+		val previous = disableMethod
 		disableMethod = {
-			disableMethod()
+			previous()
 			block()
 		}
 	}
 	
 	fun requirement(block: Requirement) {
-		requirement = { requirement(it) && block(it) }
+		val previous = requirement
+		requirement = { previous(it) && block(it) }
 		requirementMatched = null
 	}
 	

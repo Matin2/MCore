@@ -19,7 +19,6 @@ class MCore : KotlinPlugin() {
 		initBukkitDispatcher()
 		checkNBTAPI()
 		enableKoin(module { single { Hooks(get()) } })
-		HooksManager.init()
 		hooks.init()
 		hooks.packetEvents?.eventManager?.registerListeners(InventoryTitle)
 		server.pluginManager.registerEvents(HooksManager, this)
