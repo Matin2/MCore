@@ -20,9 +20,9 @@ repositories {
 dependencies {
 	paperweight.paperDevBundle(libs.versions.paper.get())
 	compileOnly(libs.skinsrestorer)
+	compileOnly(libs.packetevents)
 	
 	api(libs.nbtapi)
-	api(libs.packetevents)
 	api(libs.koin)
 	
 	compileOnly(kotlin("stdlib"))
@@ -34,19 +34,11 @@ tasks.shadowJar {
 	archiveClassifier = ""
 	val relocations = mapOf(
 		"de.tr7zw.changeme.nbtapi" to "nbtapi",
-		//PacketEvents
-		"assets" to "packetevents.assets",
-		"com.github.retrooper.packetevents" to "packetevents.api",
-		"io.github.retrooper.packetevents" to "packetevents.impl",
 		//Koin
 		"org.koin" to "koin",
 		"co.touchlab" to "koin.touchlab",
-		
-		)
-	dependencies {
-		val exclusions = listOf("net.kyori", "org.jetbrains", "org.jetbrains.kotlin")
-		exclude { it.moduleGroup in exclusions }
-	}
+	)
+	dependencies { exclude { it.moduleGroup in listOf("org.jetbrains", "org.jetbrains.kotlin") } }
 	relocations.forEach { relocate(it.key, "com.github.matin2.libs.${it.value}") }
 }
 

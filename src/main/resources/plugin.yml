@@ -9,10 +9,5 @@ libraries:
   - 'org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}'
   - 'org.jetbrains.kotlinx:kotlinx-serialization-json:${serialization}'
 softdepend:
-  - ProtocolLib
-  - ProtocolSupport
-  - ViaVersion
-  - ViaBackwards
-  - ViaRewind
-  - Geyser-Spigot
+  - packetevents
   - SkinsRestorer
