@@ -10,6 +10,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.binds
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import kotlin.reflect.KClass
 
 abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
@@ -41,6 +42,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	companion object {
 		private val koins = mutableMapOf<String, Koin>()
-		fun getKoin(plugin: String) = koins.getValue(plugin)
+		fun <Plugin : KotlinPlugin> getKoin(kClass: KClass<Plugin>) = koins.getValue(kClass.qualifiedName.toString())
+		inline fun <reified Plugin : KotlinPlugin> getKoin() = getKoin(Plugin::class)
 	}
 }

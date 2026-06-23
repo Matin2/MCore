@@ -1,6 +1,7 @@
 package com.github.matin2.mcore.managers
 
 import com.github.matin2.mcore.Hooks
+import com.github.matin2.mcore.MCore
 import com.github.matin2.mcore.managers.plugin.KotlinPlugin
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketSendEvent
@@ -34,7 +35,7 @@ object PacketManager : KoinComponent {
 			}
 		}
 	
-	override fun getKoin() = KotlinPlugin.getKoin("MCore")
+	override fun getKoin() = KotlinPlugin.getKoin<MCore>()
 	
 	/**
 	 * Shows totem animation to the selected player.
