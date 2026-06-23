@@ -1,6 +1,5 @@
 [versions]
 java = "25"
-shadow = "9.4.2"
 #kotlin
 kotlin = "2.4.0"
 kotlinx-coroutines = "1.11.0"
@@ -9,7 +8,6 @@ kotlinx-serialization = "1.11.0"
 paperweight = "2.0.0-beta.21"
 paper = "26.1.2.build.+"
 packetevents = "2.12.2"
-nbtapi = "2.15.7"
 skinsrestorer = "15.12.2"
 #koin
 koin = "4.2.2"
@@ -20,13 +18,11 @@ kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 #minecraft
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
-nbtapi = { module = "de.tr7zw:item-nbt-api", version.ref = "nbtapi" }
 skinsrestorer = { module = "net.skinsrestorer:skinsrestorer-api", version.ref = "skinsrestorer" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
 
 [bundles]

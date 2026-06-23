@@ -1,7 +1,7 @@
 plugins {
+	java
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
-	alias(libs.plugins.shadow)
 	alias(libs.plugins.paperweight)
 	`maven-publish`
 }
@@ -21,42 +21,21 @@ dependencies {
 	paperweight.paperDevBundle(libs.versions.paper.get())
 	compileOnly(libs.skinsrestorer)
 	compileOnly(libs.packetevents)
-	
-	api(libs.nbtapi)
+	api(kotlin("stdlib"))
+	api(kotlin("reflect"))
+	api(libs.bundles.kotlinx)
 	api(libs.koin)
-	
-	compileOnly(kotlin("stdlib"))
-	compileOnly(kotlin("reflect"))
-	compileOnly(libs.bundles.kotlinx)
 }
-
-tasks.shadowJar {
-	archiveClassifier = ""
-	val relocations = mapOf(
-		"de.tr7zw.changeme.nbtapi" to "nbtapi",
-		//Koin
-		"org.koin" to "koin",
-		"co.touchlab" to "koin.touchlab",
-	)
-	dependencies { exclude { it.moduleGroup in listOf("org.jetbrains", "org.jetbrains.kotlin") } }
-	relocations.forEach { relocate(it.key, "com.github.matin2.libs.${it.value}") }
-}
-
-tasks.jar { enabled = false }
-
-tasks.build { dependsOn(tasks.shadowJar) }
 
 tasks.processResources {
-	mapOf(
-		"version" to version.toString(),
-		"kotlin" to libs.versions.kotlin.get(),
-		"coroutines" to libs.versions.kotlinx.coroutines.get(),
-		"serialization" to libs.versions.kotlinx.serialization.get()
-	).let {
-		inputs.properties(it)
-		filteringCharset = "UTF-8"
-		filesMatching("plugin.yml") { expand(it) }
-	}
+	val version = "version" to version.toString()
+	inputs.properties(version)
+	filteringCharset = "UTF-8"
+	filesMatching("paper-plugin.yml") { expand(version) }
+}
+
+java {
+	toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
 kotlin {
@@ -71,6 +50,6 @@ kotlin {
 }
 
 publishing.publications.create<MavenPublication>("maven") {
-	from(components["shadow"])
+	from(components["java"])
 	groupId = "com.github.Matin2"
 }
