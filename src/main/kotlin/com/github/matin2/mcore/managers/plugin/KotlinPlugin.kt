@@ -28,7 +28,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 			single { hooksHandler }
 		}
 		koinApp = koinApplication { modules(*modules, internal) }
-		koins[name] = koinApp.koin
+		koins[this::class.qualifiedName!!] = koinApp.koin
 	}
 	
 	override fun onDisable() {
@@ -42,7 +42,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	companion object {
 		private val koins = mutableMapOf<String, Koin>()
-		fun <Plugin : KotlinPlugin> getKoin(kClass: KClass<Plugin>) = koins.getValue(kClass.qualifiedName.toString())
+		fun <Plugin : KotlinPlugin> getKoin(kClass: KClass<Plugin>) = koins.getValue(kClass.qualifiedName!!)
 		inline fun <reified Plugin : KotlinPlugin> getKoin() = getKoin(Plugin::class)
 	}
 }
