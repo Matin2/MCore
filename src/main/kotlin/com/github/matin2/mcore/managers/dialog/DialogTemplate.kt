@@ -19,7 +19,7 @@ value class DialogTemplate<S : DialogScope> private constructor(private val scop
 	
 	inline val dialog: Dialog get() = Dialog.create { applyTo(it.empty()) }
 	
-	companion {
+	companion object {
 		fun notice(title: Component, block: NoticeDialogScope.() -> Unit) =
 			DialogTemplate(NoticeDialogScope(title).apply(block))
 		

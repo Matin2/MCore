@@ -39,7 +39,7 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 		cancel("$name has been disabled.")
 	}
 	
-	companion {
+	companion object {
 		private val koins = mutableMapOf<String, Koin>()
 		fun getKoin(plugin: String) = koins.getValue(plugin)
 	}
