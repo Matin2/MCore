@@ -42,7 +42,9 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	companion {
 		private val koins = mutableMapOf<String, Koin>()
-		fun <Plugin : KotlinPlugin> getKoin(kClass: KClass<Plugin>) = koins.getValue(kClass.qualifiedName!!)
+		
+		@JvmName("getPluginKoin")
 		inline fun <reified Plugin : KotlinPlugin> getKoin() = getKoin(Plugin::class)
+		fun <Plugin : KotlinPlugin> getKoin(kClass: KClass<Plugin>) = koins.getValue(kClass.qualifiedName!!)
 	}
 }
