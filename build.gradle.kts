@@ -41,6 +41,7 @@ java {
 kotlin {
 	jvmToolchain(libs.versions.java.get().toInt())
 	compilerOptions.freeCompilerArgs.addAll(
+		"-Xcompanion-blocks-and-extensions",
 		"-Xexplicit-type-arguments",
 		"-Xcollection-literals",
 		"-Xcontext-sensitive-resolution",

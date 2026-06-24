@@ -1,7 +1,7 @@
 [versions]
 java = "25"
 #kotlin
-kotlin = "2.4.0"
+kotlin = "2.4.20-Beta1"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 #minecraft
