@@ -9,10 +9,12 @@ import net.kyori.adventure.text.Component
 @Suppress("unused", "UnstableApiUsage")
 value class DialogTemplate<S : DialogScope> private constructor(private val scope: S) {
 	
-	fun modify(title: Component? = null, block: S.() -> Unit) = apply {
-		title?.let { scope.initialTitle = title }
+	fun modify(title: Component, block: S.() -> Unit) = apply {
+		scope.initialTitle = title
 		scope.block()
 	}
+	
+	fun modify(block: S.() -> Unit) = apply { scope.block() }
 	
 	infix fun applyTo(builder: DialogRegistryEntry.Builder): DialogRegistryEntry.Builder =
 		builder.type(scope.type).base(scope.base)

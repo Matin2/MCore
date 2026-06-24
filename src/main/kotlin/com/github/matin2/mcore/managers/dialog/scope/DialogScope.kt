@@ -145,7 +145,7 @@ sealed class DialogScope(internal var initialTitle: Component) {
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
 		label, tooltip, width,
-		if (command.contains("\\$\\((?<infix>[a-zA-Z_\\-0-9]+)\\)".toRegex())) DialogAction.commandTemplate(command)
+		if ("\\$\\((?<infix>[a-zA-Z_\\-0-9]+)\\)".toRegex() in command) DialogAction.commandTemplate(command)
 		else DialogAction.staticAction(ClickEvent.runCommand(command))
 	)
 	
