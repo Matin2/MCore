@@ -9,32 +9,32 @@ import kotlin.properties.ReadOnlyProperty
 @Suppress("unused")
 class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	
+	private typealias HookHandler = Hook.Handler.() -> Unit
+	
 	internal val hooks: MutableSet<Hook> = []
 	
 	init {
 		HooksManager.hooksHandlers += this
 	}
 	
-	fun handle(name: String, required: Boolean = false, handler: Hook.() -> Unit = {}) {
-		hooks += Hook(name, required).apply {
-			handler()
-			Bukkit.getPluginManager().getPlugin(name)?.let { check(it) }
+	fun handle(name: String, required: Boolean = false, handler: HookHandler = {}) {
+		val hook = Hook(name, required)
+		hook.Handler().handler()
+		Bukkit.getPluginManager().getPlugin(name)?.let { plugin ->
+			hook.check(plugin)
 		}
+		hooks += hook
 		checkRequired()
 	}
 	
 	@Suppress("NOTHING_TO_INLINE")
 	internal inline fun check(plugin: Plugin) = hooks.find { it.name == plugin.name }?.check(plugin)
 	
-	operator fun get(name: String) = hooks.find { it.name == name }?.hooked ?: false
+	operator fun get(name: String) = hooks.first { it.name.equals(name, true) }
 	
-	@Suppress("NOTHING_TO_INLINE")
-	inline fun bind(name: String) = ReadOnlyProperty<Any?, Boolean> { _, _ ->
-		get(name)
-	}
-	
-	inline fun <reified T : Any> bind(name: String, crossinline binder: () -> T) = ReadOnlyProperty<Any?, T?> { _, _ ->
-		if (get(name)) binder() else null
+	inline fun <reified T : Any> bind(name: String, crossinline binder: () -> T): ReadOnlyProperty<Any?, T?> {
+		val hook = get(name)
+		return ReadOnlyProperty { _, _ -> if (hook.hooked) binder() else null }
 	}
 	
 	internal fun close() {

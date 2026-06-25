@@ -2,42 +2,25 @@ package com.github.matin2.mcore.managers.hook
 
 import org.bukkit.plugin.Plugin
 import kotlin.concurrent.Volatile
+import kotlin.reflect.KProperty
 
 @Suppress("unused")
-class Hook(val name: String, val required: Boolean) {
+class Hook internal constructor(val name: String, val required: Boolean) {
 	
-	typealias Requirement = (plugin: Plugin) -> Boolean
+	private typealias Requirement = (plugin: Plugin) -> Boolean
+	
+	@Volatile
+	var hooked = false
+		private set
 	
 	@Volatile
 	private var requirementMatched: Boolean? = null
 	private var requirement: Requirement = { true }
 	
-	@Volatile
-	internal var hooked = false
 	private var enableMethod = {}
 	private var disableMethod = {}
 	
-	fun onEnable(block: () -> Unit) {
-		val previous = enableMethod
-		enableMethod = {
-			previous()
-			block()
-		}
-	}
-	
-	fun onDisable(block: () -> Unit) {
-		val previous = disableMethod
-		disableMethod = {
-			previous()
-			block()
-		}
-	}
-	
-	fun requirement(block: Requirement) {
-		val previous = requirement
-		requirement = { previous(it) && block(it) }
-		requirementMatched = null
-	}
+	operator fun getValue(thisRef: Any?, property: KProperty<*>) = hooked
 	
 	internal fun check(plugin: Plugin) {
 		val requirementCheck = requirementMatched ?: requirement(plugin).also { requirementMatched = it }
@@ -45,5 +28,30 @@ class Hook(val name: String, val required: Boolean) {
 		if (hooked == this@Hook.hooked) return
 		this@Hook.hooked = hooked
 		if (hooked) enableMethod() else disableMethod()
+	}
+	
+	inner class Handler {
+		
+		fun onEnable(block: () -> Unit) {
+			val previous = enableMethod
+			enableMethod = {
+				previous()
+				block()
+			}
+		}
+		
+		fun onDisable(block: () -> Unit) {
+			val previous = disableMethod
+			disableMethod = {
+				previous()
+				block()
+			}
+		}
+		
+		fun addRequirement(block: Requirement) {
+			val previous = requirement
+			requirement = { previous(it) && block(it) }
+			requirementMatched = null
+		}
 	}
 }
