@@ -62,18 +62,18 @@ sealed class DialogScope(internal var initialTitle: Component) {
 		width: Int = 200,
 		height: Int? = null,
 		labelVisible: Boolean = true,
-	): DialogInputValue<String> {
+	): DialogTypedInput<String> {
 		inputs += DialogInput.text(
 			key, width, label, labelVisible, initial, maxLength, if (maxLines != null && height != null)
 				TextDialogInput.MultilineOptions.create(maxLines, height)
 			else null
 		)
-		return DialogInputValue(key, String::class)
+		return DialogStringInput(key)
 	}
 	
-	fun booleanInput(key: String, label: Component, initial: Boolean): DialogInputValue<Boolean> {
+	fun booleanInput(key: String, label: Component, initial: Boolean): DialogTypedInput<Boolean> {
 		inputs += DialogInput.bool(key, label, initial, "true", "false")
-		return DialogInputValue(key, Boolean::class)
+		return DialogBooleanInput(key)
 	}
 	
 	fun optionInput(
@@ -83,14 +83,14 @@ sealed class DialogScope(internal var initialTitle: Component) {
 		vararg options: DialogOption,
 		width: Int = 200,
 		labelVisible: Boolean = true,
-	): DialogInputValue<String> {
+	): DialogTypedInput<String> {
 		inputs += DialogInput.singleOption(key, width, buildList {
 			add(SingleOptionDialogInput.OptionEntry.create(initial.id, initial.display, true))
 			options.mapTo(this) { (id, display) ->
 				SingleOptionDialogInput.OptionEntry.create(id, display, false)
 			}
 		}, label, labelVisible)
-		return DialogInputValue(key, String::class)
+		return DialogStringInput(key)
 	}
 	
 	fun rangeInput(
@@ -100,12 +100,12 @@ sealed class DialogScope(internal var initialTitle: Component) {
 		initial: Float,
 		width: Int = 200,
 		labelFormat: String = "options.generic_value",
-	): DialogInputValue<Float> {
+	): DialogTypedInput<Float> {
 		inputs += DialogInput.numberRange(
 			key, width, label, labelFormat, range.start, range.endInclusive, initial,
 			(range as? FloatProgression)?.step
 		)
-		return DialogInputValue(key, Float::class)
+		return DialogFloatInput(key)
 	}
 	
 	inline fun button(
