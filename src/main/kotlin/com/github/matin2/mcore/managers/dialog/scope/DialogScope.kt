@@ -1,14 +1,16 @@
 package com.github.matin2.mcore.managers.dialog.scope
 
 import com.github.matin2.mcore.managers.FloatProgression
-import com.github.matin2.mcore.managers.dialog.DialogInputValue
 import com.github.matin2.mcore.managers.dialog.DialogOption
+import com.github.matin2.mcore.managers.dialog.input.DialogBooleanInput
+import com.github.matin2.mcore.managers.dialog.input.DialogFloatInput
+import com.github.matin2.mcore.managers.dialog.input.DialogStringInput
+import com.github.matin2.mcore.managers.dialog.input.DialogTypedInput
 import io.papermc.paper.dialog.DialogResponseView
 import io.papermc.paper.registry.data.dialog.ActionButton
 import io.papermc.paper.registry.data.dialog.DialogBase
 import io.papermc.paper.registry.data.dialog.action.DialogAction
 import io.papermc.paper.registry.data.dialog.body.DialogBody
-import io.papermc.paper.registry.data.dialog.body.PlainMessageDialogBody
 import io.papermc.paper.registry.data.dialog.input.DialogInput
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput
 import io.papermc.paper.registry.data.dialog.input.TextDialogInput
@@ -38,19 +40,24 @@ sealed class DialogScope(internal var initialTitle: Component) {
 	internal val base: DialogBase
 		get() = DialogBase.create(title, externalTitle, escapeCloses, false, afterAction, body, inputs)
 	
-	fun messageBody(message: Component, width: Int = 200): PlainMessageDialogBody =
-		DialogBody.plainMessage(message, width).also(body::add)
+	fun messageBody(message: Component, width: Int = 200) {
+		body += DialogBody.plainMessage(message, width)
+	}
 	
 	
 	fun itemBody(
 		item: ItemStack,
-		description: PlainMessageDialogBody,
+		description: Component,
 		showDecorations: Boolean = true,
 		showTooltip: Boolean = true,
 		width: Int = 16,
 		height: Int = 16,
+		descriptionWidth: Int = 200,
 	) {
-		body += DialogBody.item(item, description, showDecorations, showTooltip, width, height)
+		body += DialogBody.item(
+			item, DialogBody.plainMessage(description, descriptionWidth),
+			showDecorations, showTooltip, width, height
+		)
 	}
 	
 	fun textInput(
