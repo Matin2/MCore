@@ -35,7 +35,7 @@ object PacketManager : KoinComponent {
 			}
 		}
 	
-	override fun getKoin() = KotlinPlugin.getKoin<MCore>()
+	override fun getKoin() = KotlinPlugin.koinOf<MCore>()
 	
 	/**
 	 * Shows totem animation to the selected player.

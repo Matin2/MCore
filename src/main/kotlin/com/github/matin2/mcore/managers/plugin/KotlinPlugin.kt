@@ -3,6 +3,7 @@ package com.github.matin2.mcore.managers.plugin
 import com.github.matin2.mcore.managers.hook.HooksHandler
 import kotlinx.coroutines.*
 import org.bukkit.plugin.java.JavaPlugin
+import org.jetbrains.annotations.ApiStatus
 import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.component.KoinComponent
@@ -43,8 +44,8 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	companion {
 		private val koins = mutableMapOf<String, Koin>()
 		
-		@JvmName("getPluginKoin")
-		inline fun <reified Plugin : KotlinPlugin> getKoin() = getKoin(Plugin::class)
-		fun <Plugin : KotlinPlugin> getKoin(kClass: KClass<Plugin>) = koins.getValue(kClass.qualifiedName!!)
+		@ApiStatus.Internal
+		fun <Plugin : KotlinPlugin> koinOf(klass: KClass<Plugin>) = koins.getValue(klass.qualifiedName!!)
+		inline fun <reified Plugin : KotlinPlugin> koinOf() = koinOf(Plugin::class)
 	}
 }

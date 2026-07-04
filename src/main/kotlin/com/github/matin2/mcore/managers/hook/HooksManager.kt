@@ -18,7 +18,7 @@ internal object HooksManager : KoinComponent, Listener {
 	private val mcore: MCore by inject()
 	val hooksHandlers: MutableSet<HooksHandler> = []
 	
-	override fun getKoin() = KotlinPlugin.getKoin<MCore>()
+	override fun getKoin() = KotlinPlugin.koinOf<MCore>()
 	
 	@EventHandler
 	fun PluginEnableEvent.handle() {

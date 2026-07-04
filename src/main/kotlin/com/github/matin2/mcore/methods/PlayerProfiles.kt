@@ -30,7 +30,7 @@ object PlayerProfiles : KoinComponent {
 	
 	private val hooks: Hooks by inject()
 	
-	override fun getKoin() = KotlinPlugin.getKoin<MCore>()
+	override fun getKoin() = KotlinPlugin.koinOf<MCore>()
 	
 	/**
 	 * @return [com.destroystokyo.paper.profile.PlayerProfile] of the player
