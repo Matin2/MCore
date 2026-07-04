@@ -23,8 +23,12 @@ import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.inventory.ItemStack
 import java.net.URL
 
+@DslMarker
+annotation class DialogDsl
+
+@DialogDsl
 @Suppress("unused", "UnstableApiUsage", "NOTHING_TO_INLINE")
-sealed class DialogScope(internal var initialTitle: Component) {
+sealed class DialogContext(internal var initialTitle: Component) {
 	
 	val title get() = initialTitle
 	var externalTitle: Component = title
