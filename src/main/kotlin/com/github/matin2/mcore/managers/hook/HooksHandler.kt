@@ -20,9 +20,7 @@ class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	fun handle(name: String, required: Boolean = false, handler: HookHandler = {}) {
 		val hook = Hook(name, required)
 		hook.Handler().handler()
-		Bukkit.getPluginManager().getPlugin(name)?.let { plugin ->
-			hook.check(plugin)
-		}
+		Bukkit.getPluginManager().getPlugin(name)?.let { hook.check(it, true) }
 		hooks += hook
 		checkRequired()
 	}

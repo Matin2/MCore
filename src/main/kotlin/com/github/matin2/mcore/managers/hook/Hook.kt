@@ -19,15 +19,16 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 	
 	private var enableMethod = {}
 	private var disableMethod = {}
+	private var notFoundMethod = {}
 	
 	operator fun getValue(thisRef: Any?, property: KProperty<*>) = hooked
 	
-	internal fun check(plugin: Plugin) {
+	internal fun check(plugin: Plugin, initial: Boolean = false) {
 		val requirementCheck = requirementMatched ?: requirement(plugin).also { requirementMatched = it }
 		val hooked = plugin.isEnabled && requirementCheck
 		if (hooked == this@Hook.hooked) return
 		this@Hook.hooked = hooked
-		if (hooked) enableMethod() else disableMethod()
+		if (hooked) enableMethod() else if (initial) notFoundMethod() else disableMethod()
 	}
 	
 	inner class Handler {
@@ -43,6 +44,14 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 		fun onDisable(block: () -> Unit) {
 			val previous = disableMethod
 			disableMethod = {
+				previous()
+				block()
+			}
+		}
+		
+		fun onNotFound(block: () -> Unit) {
+			val previous = notFoundMethod
+			notFoundMethod = {
 				previous()
 				block()
 			}
