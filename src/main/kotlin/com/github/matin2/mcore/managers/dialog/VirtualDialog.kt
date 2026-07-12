@@ -1,6 +1,6 @@
 package com.github.matin2.mcore.managers.dialog
 
-import com.github.matin2.mcore.managers.dialog.scope.*
+import com.github.matin2.mcore.managers.dialog.context.*
 import io.papermc.paper.dialog.Dialog
 import io.papermc.paper.registry.data.dialog.DialogRegistryEntry
 import net.kyori.adventure.text.Component

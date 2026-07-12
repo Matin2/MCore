@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.github.matin2.mcore.managers.dialog.scope
+package com.github.matin2.mcore.managers.dialog.context
 
 import io.papermc.paper.dialog.Dialog
 import io.papermc.paper.registry.RegistryKey

@@ -1,4 +1,4 @@
-package com.github.matin2.mcore.managers.dialog.scope
+package com.github.matin2.mcore.managers.dialog.context
 
 import com.github.matin2.mcore.managers.FloatProgression
 import com.github.matin2.mcore.managers.dialog.DialogOption

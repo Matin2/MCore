@@ -2,7 +2,7 @@
 
 package com.github.matin2.mcore.managers.dialog
 
-import com.github.matin2.mcore.managers.dialog.scope.DialogContext
+import com.github.matin2.mcore.managers.dialog.context.DialogContext
 import net.kyori.adventure.text.Component
 
 data class DialogOption(val id: String, val display: Component?)
