@@ -16,9 +16,22 @@ import org.bukkit.inventory.ItemStack
  */
 inline operator fun <V : Any> ItemStack.set(data: DataComponentType.Valued<V>, value: V) = setData(data, value)
 
-@Suppress("UnstableApiUsage")
+/**
+ * Operator version of [setData].
+ *
+ * @param V value type
+ * @param data data to change
+ * @param builder new value
+ * @see setData
+ */
 inline operator fun <V : Any> ItemStack.set(data: DataComponentType.Valued<V>, builder: DataComponentBuilder<V>) =
 	setData(data, builder)
 
-@Suppress("UnstableApiUsage")
+/**
+ * Operator version of [getData].
+ *
+ * @param V value type
+ * @param data data to get
+ * @see getData
+ */
 inline operator fun <V : Any> ItemStack.get(data: DataComponentType.Valued<V>) = getData(data)
