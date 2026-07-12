@@ -24,8 +24,7 @@ internal object BukkitDispatcher : CoroutineDispatcher(), Delay {
 	
 	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
 		val task = Bukkit.getScheduler().runTaskLater(
-			plugin,
-			Runnable { continuation.resume(Unit) },
+			plugin, Runnable { continuation.resume(Unit) },
 			(timeMillis / 50).coerceAtLeast(1L)
 		)
 		continuation.invokeOnCancellation { task.cancel() }

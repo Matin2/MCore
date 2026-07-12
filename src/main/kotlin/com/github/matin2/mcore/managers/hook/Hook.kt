@@ -33,7 +33,7 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 	
 	inner class Handler {
 		
-		fun onEnable(block: () -> Unit) {
+		fun onEnabled(block: () -> Unit) {
 			val previous = enableMethod
 			enableMethod = {
 				previous()
@@ -41,7 +41,7 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 			}
 		}
 		
-		fun onDisable(block: () -> Unit) {
+		fun onDisabled(block: () -> Unit) {
 			val previous = disableMethod
 			disableMethod = {
 				previous()
