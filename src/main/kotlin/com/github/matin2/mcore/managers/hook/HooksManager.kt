@@ -2,7 +2,7 @@ package com.github.matin2.mcore.managers.hook
 
 import com.github.matin2.mcore.MCore
 import com.github.matin2.mcore.managers.plugin.Bukkit
-import com.github.matin2.mcore.managers.plugin.KotlinPlugin
+import com.github.matin2.mcore.managers.plugin.koinOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,7 +18,7 @@ internal object HooksManager : KoinComponent, Listener {
 	private val mcore: MCore by inject()
 	val hooksHandlers: MutableSet<HooksHandler> = []
 	
-	override fun getKoin() = KotlinPlugin.koinOf<MCore>()
+	override fun getKoin() = koinOf<MCore>()
 	
 	@EventHandler
 	fun PluginEnableEvent.handle() {

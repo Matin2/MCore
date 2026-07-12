@@ -46,6 +46,8 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 		
 		@ApiStatus.Internal
 		fun <Plugin : KotlinPlugin> koinOf(klass: KClass<Plugin>) = koins.getValue(klass.qualifiedName!!)
-		inline fun <reified Plugin : KotlinPlugin> koinOf() = koinOf(Plugin::class)
 	}
+	
 }
+
+inline fun <reified Plugin : KotlinPlugin> koinOf() = KotlinPlugin.koinOf(Plugin::class)

@@ -2,7 +2,7 @@ package com.github.matin2.mcore.methods
 
 import com.github.matin2.mcore.Hooks
 import com.github.matin2.mcore.MCore
-import com.github.matin2.mcore.managers.plugin.KotlinPlugin
+import com.github.matin2.mcore.managers.plugin.koinOf
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -30,7 +30,7 @@ object PlayerProfiles : KoinComponent {
 	
 	private val hooks: Hooks by inject()
 	
-	override fun getKoin() = KotlinPlugin.koinOf<MCore>()
+	override fun getKoin() = koinOf<MCore>()
 	
 	/**
 	 * @return [com.destroystokyo.paper.profile.PlayerProfile] of the player
