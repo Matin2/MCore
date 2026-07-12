@@ -6,8 +6,8 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 #minecraft
 paperweight = "2.0.0-beta.21"
-paper = "26.1.2.build.+"
-packetevents = "2.12.2"
+paper = "26.2.build.+"
+packetevents = "2.13.0"
 skinsrestorer = "15.12.2"
 #koin
 koin = "4.2.2"
