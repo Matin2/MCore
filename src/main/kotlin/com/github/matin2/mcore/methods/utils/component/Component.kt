@@ -55,6 +55,14 @@ inline fun component(
 	vararg decorations: TextDecoration
 ) = Component.text(text, color, *decorations)
 
+/**
+ * Creates a text component builder and applies the given [builder] to it.
+ *
+ * @param builder block to apply to the builder
+ * @return built text component
+ * @see Component.text
+ * @see ComponentBuilder
+ */
 inline fun component(builder: TextComponent.Builder.() -> Unit) = Component.text().apply(builder).build()
 
 /**
