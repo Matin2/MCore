@@ -6,7 +6,6 @@ import com.github.matin2.mcore.managers.dialog.input.DialogBooleanInput
 import com.github.matin2.mcore.managers.dialog.input.DialogFloatInput
 import com.github.matin2.mcore.managers.dialog.input.DialogStringInput
 import com.github.matin2.mcore.managers.dialog.input.DialogTypedInput
-import io.papermc.paper.dialog.DialogResponseView
 import io.papermc.paper.registry.data.dialog.ActionButton
 import io.papermc.paper.registry.data.dialog.DialogBase
 import io.papermc.paper.registry.data.dialog.action.DialogAction
@@ -123,10 +122,12 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
-		noinline action: DialogResponseView.(Audience) -> Unit,
+		crossinline action: DialogInputsContext.(Audience) -> Unit,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.customClick(action, ClickCallback.Options.builder().build())
+		label, tooltip, width, DialogAction.customClick(
+			{ view, audience -> DialogInputsContext(view).action(audience) },
+			ClickCallback.Options.builder().build()
+		)
 	)
 	
 	inline fun urlButton(

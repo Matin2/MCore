@@ -1,16 +1,15 @@
 package com.github.matin2.mcore.managers.dialog.input
 
-import io.papermc.paper.dialog.DialogResponseView
+import com.github.matin2.mcore.managers.dialog.context.DialogInputsContext
 
-@Suppress("UnstableApiUsage")
 interface DialogTypedInput<T> {
 	val key: String
 	
-	context(view: DialogResponseView)
+	context(_: DialogInputsContext)
 	val value: T
 	
 	operator fun component1() = key
 	
-	context(view: DialogResponseView)
+	context(_: DialogInputsContext)
 	operator fun component2() = value
 }
