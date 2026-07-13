@@ -105,17 +105,28 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	fun rangeInput(
 		key: String,
 		label: Component,
+		start: Float,
+		end: Float,
+		initial: Float,
+		step: Float? = null,
+		width: Int = 200,
+		labelFormat: String = "options.generic_value",
+	): DialogTypedInput<Float> {
+		inputs += DialogInput.numberRange(key, width, label, labelFormat, start, end, initial, step)
+		return DialogFloatInput(key)
+	}
+	
+	inline fun rangeInput(
+		key: String,
+		label: Component,
 		range: ClosedFloatingPointRange<Float>,
 		initial: Float,
 		width: Int = 200,
 		labelFormat: String = "options.generic_value",
-	): DialogTypedInput<Float> {
-		inputs += DialogInput.numberRange(
-			key, width, label, labelFormat, range.start, range.endInclusive, initial,
-			(range as? FloatProgression)?.step
-		)
-		return DialogFloatInput(key)
-	}
+	) = rangeInput(
+		key, label, range.start, range.endInclusive, initial,
+		(range as? FloatProgression)?.step, width, labelFormat
+	)
 	
 	inline fun button(
 		label: Component,
