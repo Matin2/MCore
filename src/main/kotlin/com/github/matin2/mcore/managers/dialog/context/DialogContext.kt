@@ -75,8 +75,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	): DialogTypedInput<String> {
 		inputs += DialogInput.text(
 			key, width, label, labelVisible, initial, maxLength, if (maxLines != null && height != null)
-				TextDialogInput.MultilineOptions.create(maxLines, height)
-			else null
+				TextDialogInput.MultilineOptions.create(maxLines, height) else null
 		)
 		return DialogStringInput(key)
 	}
@@ -96,8 +95,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	): DialogTypedInput<String> {
 		inputs += DialogInput.singleOption(key, width, buildList {
 			add(SingleOptionDialogInput.OptionEntry.create(initial.id, initial.display, true))
-			options.mapTo(this) { (id, display) ->
-				SingleOptionDialogInput.OptionEntry.create(id, display, false)
+			options.mapTo(this) {
+				SingleOptionDialogInput.OptionEntry.create(it.id, it.display, false)
 			}
 		}, label, labelVisible)
 		return DialogStringInput(key)
@@ -136,8 +135,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.staticAction(ClickEvent.openUrl(url))
+		label, tooltip, width, DialogAction.staticAction(ClickEvent.openUrl(url))
 	)
 	
 	inline fun urlButton(
@@ -146,8 +144,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.staticAction(ClickEvent.openUrl(url))
+		label, tooltip, width, DialogAction.staticAction(ClickEvent.openUrl(url))
 	)
 	
 	inline fun commandButton(
@@ -167,8 +164,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.staticAction(ClickEvent.suggestCommand(suggestion))
+		label, tooltip, width, DialogAction.staticAction(ClickEvent.suggestCommand(suggestion))
 	)
 	
 	inline fun changePageButton(
@@ -177,8 +173,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.staticAction(ClickEvent.changePage(page))
+		label, tooltip, width, DialogAction.staticAction(ClickEvent.changePage(page))
 	)
 	
 	inline fun copyButton(
@@ -187,8 +182,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.staticAction(ClickEvent.copyToClipboard(value))
+		label, tooltip, width, DialogAction.staticAction(ClickEvent.copyToClipboard(value))
 	)
 	
 	inline fun showDialogButton(
@@ -197,7 +191,6 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
-		label, tooltip, width,
-		DialogAction.staticAction(ClickEvent.showDialog(dialog))
+		label, tooltip, width, DialogAction.staticAction(ClickEvent.showDialog(dialog))
 	)
 }

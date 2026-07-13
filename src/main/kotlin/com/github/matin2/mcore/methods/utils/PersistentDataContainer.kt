@@ -77,7 +77,7 @@ inline fun TileState.editContainer(block: PersistentDataContainer.() -> Unit) {
 
 inline fun PersistentDataContainer.edit(block: PersistentDataContainer.() -> Unit) = block()
 
-inline fun PersistentDataContainer.addContainer(key: NamespacedKey, block: PersistentDataContainer.() -> Unit) {
+inline fun PersistentDataContainer.addContainer(key: NamespacedKey, block: PersistentDataContainer.() -> Unit = {}) {
 	set(key, PersistentDataType.TAG_CONTAINER, adapterContext.newPersistentDataContainer().apply(block))
 }
 
