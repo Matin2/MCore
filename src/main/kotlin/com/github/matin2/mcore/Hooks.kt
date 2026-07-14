@@ -1,41 +1,29 @@
 package com.github.matin2.mcore
 
+import com.github.matin2.mcore.methods.utils.component.component
 import com.github.retrooper.packetevents.PacketEvents
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.Style
 import net.skinsrestorer.api.SkinsRestorerProvider
 
-internal class Hooks(private val mcore: MCore) {
+internal class Hooks(mcore: MCore) {
 	
 	val skinsRestorer by mcore.hooksHandler.bind(Names.SKINS_RESTORER) { SkinsRestorerProvider.get() }
 	val packetEvents by mcore.hooksHandler.bind(Names.PACKET_EVENTS) { PacketEvents.getAPI() }
 	
-	fun init() {
+	init {
+		val logger = mcore.componentLogger
+		val greenColor = Style.style(NamedTextColor.GREEN)
+		val redColor = Style.style(NamedTextColor.RED)
 		mcore.hooksHandler.handle(Names.SKINS_RESTORER) {
-			onEnabled {
-				mcore.componentLogger.info(Component.text("Hooked into ${Names.SKINS_RESTORER}", NamedTextColor.GREEN))
-			}
-			onDisabled {
-				mcore.componentLogger.info(Component.text("UnHooked from ${Names.SKINS_RESTORER}", NamedTextColor.RED))
-			}
-			onNotFound {
-				mcore.componentLogger.info(
-					Component.text("Didn't find ${Names.SKINS_RESTORER} to hook", NamedTextColor.RED)
-				)
-			}
+			onEnabled { logger.info(component("Hooked into $name", greenColor)) }
+			onDisabled { logger.info(component("UnHooked from $name", redColor)) }
+			onNotFound { logger.info(component("Didn't find $name to hook", redColor)) }
 		}
 		mcore.hooksHandler.handle(Names.PACKET_EVENTS) {
-			onEnabled {
-				mcore.componentLogger.info(Component.text("Hooked into ${Names.PACKET_EVENTS}", NamedTextColor.GREEN))
-			}
-			onDisabled {
-				mcore.componentLogger.info(Component.text("UnHooked from ${Names.PACKET_EVENTS}", NamedTextColor.RED))
-			}
-			onNotFound {
-				mcore.componentLogger.info(
-					Component.text("Didn't find ${Names.PACKET_EVENTS} to hook", NamedTextColor.RED)
-				)
-			}
+			onEnabled { logger.info(component("Hooked into $name", greenColor)) }
+			onDisabled { logger.info(component("UnHooked from $name", redColor)) }
+			onNotFound { logger.info(component("Didn't find $name to hook", redColor)) }
 		}
 	}
 	
