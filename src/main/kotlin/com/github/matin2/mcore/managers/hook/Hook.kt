@@ -33,6 +33,9 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 	
 	inner class Handler {
 		
+		val name get() = this@Hook.name
+		val required get() = this@Hook.required
+		
 		fun onEnabled(block: () -> Unit) {
 			val previous = enableMethod
 			enableMethod = {
