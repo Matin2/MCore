@@ -3,7 +3,7 @@
 package com.github.matin2.mcore.methods.utils
 
 import io.papermc.paper.persistence.PersistentDataContainerView
-import org.bukkit.NamespacedKey
+import net.kyori.adventure.key.Key
 import org.bukkit.block.TileState
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataAdapterContext
@@ -77,22 +77,22 @@ inline fun TileState.editContainer(block: PersistentDataContainer.() -> Unit) {
 
 inline fun PersistentDataContainer.edit(block: PersistentDataContainer.() -> Unit) = block()
 
-inline fun PersistentDataContainer.addContainer(key: NamespacedKey, block: PersistentDataContainer.() -> Unit = {}) {
-	set(key, PersistentDataType.TAG_CONTAINER, adapterContext.newPersistentDataContainer().apply(block))
+inline fun PersistentDataContainer.addContainer(key: Key, block: PersistentDataContainer.() -> Unit = {}) {
+	set(key.bukkit, PersistentDataType.TAG_CONTAINER, adapterContext.newPersistentDataContainer().apply(block))
 }
 
-inline fun PersistentDataContainerView.getContainer(key: NamespacedKey) = get(key, PersistentDataType.TAG_CONTAINER)
+inline fun PersistentDataContainerView.getContainer(key: Key) = get(key.bukkit, PersistentDataType.TAG_CONTAINER)
 
-inline operator fun <reified V : Any> PersistentDataContainer.set(key: NamespacedKey, value: V) =
-	set(key, getType(typeOf<V>()), value)
+inline operator fun <reified V : Any> PersistentDataContainer.set(key: Key, value: V) =
+	set(key.bukkit, getType(typeOf<V>()), value)
 
-inline operator fun <reified V : Any> PersistentDataContainerView.get(key: NamespacedKey) =
-	get(key, getType<V>(typeOf<V>()))
+inline operator fun <reified V : Any> PersistentDataContainerView.get(key: Key) =
+	get(key.bukkit, getType<V>(typeOf<V>()))
 
-inline fun <reified V : Any> PersistentDataContainerView.getOrDefault(key: NamespacedKey, default: V) =
-	getOrDefault(key, getType(typeOf<V>()), default)
+inline fun <reified V : Any> PersistentDataContainerView.getOrDefault(key: Key, default: V) =
+	getOrDefault(key.bukkit, getType(typeOf<V>()), default)
 
-inline fun <reified V : Any> PersistentDataContainerView.has(key: NamespacedKey) =
-	has(key, getType(typeOf<V>()))
+inline fun <reified V : Any> PersistentDataContainerView.has(key: Key) =
+	has(key.bukkit, getType(typeOf<V>()))
 
-inline operator fun PersistentDataContainerView.contains(key: NamespacedKey) = has(key)
+inline operator fun PersistentDataContainerView.contains(key: Key) = has(key.bukkit)
