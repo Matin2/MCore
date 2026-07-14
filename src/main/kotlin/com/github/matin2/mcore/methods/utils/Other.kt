@@ -2,6 +2,8 @@
 
 package com.github.matin2.mcore.methods.utils
 
+import net.kyori.adventure.key.Key
+import org.bukkit.NamespacedKey
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
@@ -27,3 +29,6 @@ inline var Plugin.enabled: Boolean
 		true -> server.pluginManager.enablePlugin(this)
 		false -> server.pluginManager.disablePlugin(this)
 	}
+
+/** Converts this [Key] to a bukkit [NamespacedKey]. */
+inline val Key.bukkit get() = NamespacedKey(namespace(), value())
