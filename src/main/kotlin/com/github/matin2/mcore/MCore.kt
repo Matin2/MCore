@@ -1,6 +1,7 @@
 package com.github.matin2.mcore
 
 import com.github.matin2.mcore.managers.InventoryTitle
+import com.github.matin2.mcore.managers.dialog.DialogManager
 import com.github.matin2.mcore.managers.hook.HooksManager
 import com.github.matin2.mcore.managers.plugin.BukkitDispatcher
 import com.github.matin2.mcore.managers.plugin.BukkitDispatcher.initBukkitDispatcher
@@ -11,12 +12,16 @@ import org.koin.dsl.module
 
 class MCore : KotlinPlugin() {
 	
-	private val hooks: Hooks by inject()
+	val module = module {
+		single(createdAtStart = true) { Hooks(get()) }
+		includes(DialogManager.module)
+	}
+	
+	internal val hooks: Hooks by inject()
 	
 	override fun onEnable() {
 		initBukkitDispatcher()
-		enableKoin(module { single { Hooks(get()) } })
-		hooks.init()
+		enableKoin(module)
 		hooks.packetEvents?.eventManager?.registerListeners(InventoryTitle)
 		server.pluginManager.registerEvents(HooksManager, this)
 		componentLogger.info("Plugin enabled successfully.")
