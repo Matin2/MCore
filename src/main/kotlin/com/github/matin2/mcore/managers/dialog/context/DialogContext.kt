@@ -1,6 +1,8 @@
 package com.github.matin2.mcore.managers.dialog.context
 
 import com.github.matin2.mcore.managers.FloatProgression
+import com.github.matin2.mcore.managers.dialog.DialogButtonBlock
+import com.github.matin2.mcore.managers.dialog.DialogManager
 import com.github.matin2.mcore.managers.dialog.DialogOption
 import com.github.matin2.mcore.managers.dialog.input.DialogBooleanInput
 import com.github.matin2.mcore.managers.dialog.input.DialogFloatInput
@@ -14,10 +16,9 @@ import io.papermc.paper.registry.data.dialog.input.DialogInput
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput
 import io.papermc.paper.registry.data.dialog.input.TextDialogInput
 import io.papermc.paper.registry.data.dialog.type.DialogType
-import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.dialog.DialogLike
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.event.ClickCallback
 import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.inventory.ItemStack
 import java.net.URL
@@ -128,21 +129,20 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		(range as? FloatProgression)?.step, width, labelFormat
 	)
 	
-	inline fun button(
+	fun button(
+		key: Key,
 		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
-		crossinline action: DialogInputsContext.(Audience) -> Unit,
-	): ActionButton = ActionButton.create(
-		label, tooltip, width, DialogAction.customClick(
-			{ view, audience -> DialogInputsContext(view).action(audience) },
-			ClickCallback.Options.builder().build()
-		)
-	)
+		action: DialogButtonBlock
+	): ActionButton {
+		DialogManager.buttonActions[key] = action
+		return ActionButton.create(label, tooltip, width, DialogAction.customClick(key, null))
+	}
 	
 	inline fun urlButton(
-		label: Component,
 		url: URL,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
@@ -150,8 +150,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	)
 	
 	inline fun urlButton(
-		label: Component,
 		url: String,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
@@ -159,8 +159,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	)
 	
 	inline fun commandButton(
-		label: Component,
 		command: String,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
@@ -170,8 +170,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	)
 	
 	inline fun suggestionButton(
-		label: Component,
 		suggestion: String,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
@@ -179,8 +179,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	)
 	
 	inline fun changePageButton(
-		label: Component,
 		page: Int,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
@@ -188,8 +188,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	)
 	
 	inline fun copyButton(
-		label: Component,
 		value: String,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
@@ -197,8 +197,8 @@ sealed class DialogContext(internal var initialTitle: Component) {
 	)
 	
 	inline fun showDialogButton(
-		label: Component,
 		dialog: DialogLike,
+		label: Component,
 		tooltip: Component? = null,
 		width: Int = 150,
 	): ActionButton = ActionButton.create(
