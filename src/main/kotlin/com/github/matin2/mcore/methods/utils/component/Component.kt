@@ -9,6 +9,7 @@ import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 
 /**
  * Creates an empty component.
@@ -92,3 +93,5 @@ inline operator fun Component.plus(other: ComponentBuilder<*, *>) = append(other
  * @see append
  */
 inline operator fun Component.plus(other: List<ComponentLike>) = append(other)
+
+inline fun Component.plain() = PlainTextComponentSerializer.plainText().serialize(this)
