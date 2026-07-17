@@ -17,7 +17,7 @@ import com.github.retrooper.packetevents.protocol.item.ItemStack as PacketItem
 
 internal data class SearchEntry(val page: Int = 0, val input: String? = null)
 
-class SearchCancellationException : Exception()
+internal class SearchCancellationException : Exception()
 
 internal suspend fun SearchMenu.handleClose(): Unit = coroutineScope {
 	launch { if (awaitMenuClose()) throw SearchCancellationException() }

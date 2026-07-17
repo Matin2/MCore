@@ -83,8 +83,7 @@ internal class SearchMenu(val owner: Player, val items: List<ItemStack>) : KoinC
 	
 	override fun getKoin() = koinOf<MCore>()
 	
-	companion object {
-		
+	companion {
 		val menus = ConcurrentHashMap<Uuid, SearchMenu>()
 	}
 }
