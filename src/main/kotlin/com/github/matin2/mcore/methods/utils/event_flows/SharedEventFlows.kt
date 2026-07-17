@@ -3,6 +3,7 @@ package com.github.matin2.mcore.methods.utils.event_flows
 import com.github.matin2.mcore.managers.plugin.KotlinPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.shareIn
@@ -16,7 +17,7 @@ inline fun <reified E : Event> CoroutineScope.sharedEventFlow(
 	ignoreCancelled: Boolean = false,
 	replay: Int = 1,
 	start: SharingStarted = Eagerly,
-	buffer: Int = 0,
+	buffer: Int = BUFFERED,
 	onBufferOverflow: BufferOverflow = DROP_OLDEST
 ) = plugin.eventFlow<E>(priority, ignoreCancelled)
 	.buffer(buffer, onBufferOverflow)
@@ -28,7 +29,7 @@ inline fun <reified E : Event> KotlinPlugin.sharedEventFlow(
 	ignoreCancelled: Boolean = false,
 	replay: Int = 1,
 	start: SharingStarted = Eagerly,
-	buffer: Int = 0,
+	buffer: Int = BUFFERED,
 	onBufferOverflow: BufferOverflow = DROP_OLDEST
 ) = sharedEventFlow<E>(
 	this,

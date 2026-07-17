@@ -20,7 +20,7 @@ inline fun MiniMessage.Builder.tags(
 
 //Deserialization
 
-inline operator fun MiniMessage.invoke(serialized: String) = deserialize(serialized)!!
+inline operator fun MiniMessage.invoke(serialized: String): Component = deserialize(serialized)
 
 inline operator fun MiniMessage.invoke(serialized: String, target: Pointered) =
 	deserialize(serialized, target)
@@ -42,5 +42,5 @@ inline operator fun MiniMessage.invoke(
 
 //Serialization
 
-inline operator fun MiniMessage.invoke(component: Component) = serialize(component)!!
+inline operator fun MiniMessage.invoke(component: Component): String = serialize(component)
 inline operator fun MiniMessage.invoke(component: Component, fallback: String) = serializeOr(component, fallback)!!
