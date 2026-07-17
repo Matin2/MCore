@@ -13,14 +13,14 @@ import org.koin.dsl.module
 class MCore : KotlinPlugin() {
 	
 	val module = module {
-		single(createdAtStart = true) { Hooks(get()) }
 		includes(DialogManager.module)
 	}
 	
-	internal val hooks: Hooks by inject()
+	internal val hooks = Hooks(this)
 	
 	override fun onEnable() {
 		initBukkitDispatcher()
+		hooks.init()
 		enableKoin(module)
 		hooks.packetEvents?.eventManager?.registerListeners(InventoryTitle)
 		server.pluginManager.registerEvents(HooksManager, this)
