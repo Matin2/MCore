@@ -35,7 +35,7 @@ tasks.processResources {
 }
 
 java {
-	toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+	toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get().toInt()))
 }
 
 kotlin {
