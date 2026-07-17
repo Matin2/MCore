@@ -92,20 +92,23 @@ private fun Sequence<ItemStack>.toPageContent(
 	hasNextPage: AtomicBoolean
 ) = buildList {
 	var size = 0
+	var hadNextPage = false
 	this@toPageContent.withIndex()
 		.let { items -> if (entry.input!!.isBlank()) items else items.filter { it.value matches entry.input } }
-		.drop(entry.page * 27).take(28).filterIndexed { index, page ->
+		.drop(entry.page * 27).take(28)
+		.filterIndexed { index, item ->
 			if (index == 27) {
-				hasNextPage.store(true)
+				hadNextPage = true
 				return@filterIndexed false
 			}
-			pageContent[index + 3] = page
+			pageContent[index + 3] = item
 			size++
 			true
 		}.mapTo(this) { SpigotConversionUtil.fromBukkitItemStack(it.value) }
+	hasNextPage.store(hadNextPage)
 	repeat(27 - size) {
 		add(EMPTY)
-		pageContent.remove(size + 2)
+		pageContent.remove(it + 3 + size)
 	}
 	add(if (entry.page > 0) SearchMenuButtons.pageDown else EMPTY)
 	repeat(7) { add(null) }
