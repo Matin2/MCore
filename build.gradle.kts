@@ -2,6 +2,7 @@ plugins {
 	java
 	alias(libs.plugins.kotlin.jvm)
 	alias(libs.plugins.kotlin.serialization)
+	alias(libs.plugins.koin)
 	alias(libs.plugins.paperweight)
 	`maven-publish`
 }
@@ -16,6 +17,8 @@ repositories {
 	maven("https://repo.codemc.io/repository/maven-public/")
 	maven("https://jitpack.io")
 }
+
+koinCompiler { compileSafety = false }
 
 dependencies {
 	paperweight.paperDevBundle(libs.versions.paper.get())

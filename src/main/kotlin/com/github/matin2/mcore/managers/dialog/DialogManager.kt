@@ -9,7 +9,10 @@ import net.kyori.adventure.key.Key
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.koin.core.module.dsl.createdAtStart
+import org.koin.core.module.dsl.withOptions
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.single
 
 internal typealias DialogButtonBlock = suspend DialogInputsContext.(Player) -> Unit
 
@@ -28,8 +31,8 @@ internal class DialogManager(private val mcore: MCore) : Listener {
 		buttonActions.forEach { if (identifier == it.key) mcore.launch { it.value(context, player) } }
 	}
 	
-	companion object {
+	companion {
 		val buttonActions = HashMap<Key, DialogButtonBlock>()
-		val module = module { single(createdAtStart = true) { DialogManager(get()) } }
+		val module = module { single<DialogManager>() withOptions { createdAtStart() } }
 	}
 }

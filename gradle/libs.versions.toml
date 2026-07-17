@@ -1,7 +1,7 @@
 [versions]
 java = "25"
 #kotlin
-kotlin = "2.4.20-Beta1"
+kotlin = "2.4.10"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 #minecraft
@@ -11,6 +11,7 @@ packetevents = "2.13.0"
 skinsrestorer = "15.12.2"
 #koin
 koin = "4.2.2"
+koin-plugin = "1.0.2"
 
 [libraries]
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -23,6 +24,7 @@ skinsrestorer = { module = "net.skinsrestorer:skinsrestorer-api", version.ref = 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+koin = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
 
 [bundles]
