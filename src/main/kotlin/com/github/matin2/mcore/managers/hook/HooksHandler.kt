@@ -31,10 +31,8 @@ class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	operator fun get(name: String) = hooks.first { it.name.equals(name, true) }
 	
 	inline fun <reified T : Any> bind(name: String, crossinline binder: () -> T): ReadOnlyProperty<Any?, T?> {
-		var hook: Hook
 		return ReadOnlyProperty { _, _ ->
-			hook = get(name)
-			if (hook.hooked) binder() else null
+			if (get(name).hooked) binder() else null
 		}
 	}
 	
