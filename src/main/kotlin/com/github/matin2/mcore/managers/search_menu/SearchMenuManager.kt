@@ -16,6 +16,7 @@ import org.bukkit.entity.Player
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
+@Suppress("NOTHING_TO_INLINE")
 internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORMAL) {
 	
 	val clickEvents = MutableSharedFlow<ClickEvent>(extraBufferCapacity = 5, onBufferOverflow = DROP_OLDEST)
@@ -74,7 +75,7 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 		}
 	}
 	
-	private fun Player.setSlot(slot: Int, menu: SearchMenu) {
+	private inline fun <T : Any> Player.setSlot(slot: Int, menu: SearchMenu<T>) {
 		val item = when (slot) {
 			0 -> SearchMenuButtons.placeholder
 			34 -> SearchMenuButtons.close
@@ -86,8 +87,8 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 			}
 			
 			1, in 30..38 -> EMPTY
-			else -> menu.pageContent[slot]?.value?.let {
-				SpigotConversionUtil.fromBukkitItemStack(it)
+			else -> menu.pageContent[slot]?.let {
+				SpigotConversionUtil.fromBukkitItemStack(menu.transform(it))
 			} ?: EMPTY
 		}
 		

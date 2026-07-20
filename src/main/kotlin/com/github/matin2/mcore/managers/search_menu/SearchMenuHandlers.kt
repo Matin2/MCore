@@ -9,7 +9,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.bukkit.inventory.ItemStack
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration.Companion.milliseconds
@@ -19,22 +18,21 @@ internal data class SearchEntry(val page: Int = 0, val input: String? = null)
 
 internal class SearchCancellationException : Exception()
 
-internal suspend fun SearchMenu.handleClose(): Unit = coroutineScope {
+private typealias SearchEntries = MutableStateFlow<SearchEntry>
+
+internal suspend fun SearchMenu<*>.handleClose(): Unit = coroutineScope {
 	launch { if (awaitMenuClose()) throw SearchCancellationException() }
 	launch { if (clickEvents.any { it == 34 }) throw SearchCancellationException() }
 }
 
 @OptIn(FlowPreview::class)
-internal suspend fun SearchMenu.handleInputChange(entries: MutableStateFlow<SearchEntry>) =
+internal suspend fun SearchMenu<*>.handleInputChange(entries: SearchEntries) =
 	inputEvents.debounce(250.milliseconds).collect { input ->
 		entries.update { it.copy(page = 0, input = input) }
 	}
 
 @OptIn(ExperimentalAtomicApi::class)
-internal suspend fun SearchMenu.handlePageChange(
-	entries: MutableStateFlow<SearchEntry>,
-	hasNextPage: AtomicBoolean
-) =
+internal suspend fun SearchMenu<*>.handlePageChange(entries: SearchEntries, hasNextPage: AtomicBoolean) =
 	clickEvents.filter { it == 30 || it == 38 }.collect { slot ->
 		entries.update {
 			val page = when (slot) {
@@ -47,68 +45,59 @@ internal suspend fun SearchMenu.handlePageChange(
 	}
 
 @OptIn(ExperimentalAtomicApi::class)
-context(menu: SearchMenu)
-internal suspend fun MutableStateFlow<SearchEntry>.handle(hasNextPage: AtomicBoolean): Nothing =
-	collectLatest { entry ->
-		if (entry.input == null) {
-			val items: List<PacketItem> = menu.items.asSequence().toFullWindowContent(menu.pageContent, hasNextPage)
-			val packet = WrapperPlayServerWindowItems(SEARCH_WINDOW_ID, 0, items, EMPTY)
-			menu.packetEvents.playerManager.sendPacket(menu.owner, packet)
-			return@collectLatest
-		}
-		menu.items.asSequence().toPageContent(entry, menu.pageContent, hasNextPage).forEachIndexed { index, item ->
-			item ?: return@forEachIndexed
-			val packet = WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, index + 3, item)
-			menu.packetEvents.playerManager.sendPacket(menu.owner, packet)
-		}
+context(menu: SearchMenu<T>)
+internal suspend fun <T : Any> SearchEntries.handle(hasNextPage: AtomicBoolean): Nothing = collectLatest { entry ->
+	if (entry.input == null) {
+		val items: List<PacketItem> = menu.items("").toFullWindow(hasNextPage)
+		val packet = WrapperPlayServerWindowItems(SEARCH_WINDOW_ID, 0, items, EMPTY)
+		menu.packetEvents.playerManager.sendPacket(menu.owner, packet)
+		return@collectLatest
 	}
+	menu.items(entry.input).toPageContent(entry, hasNextPage).forEachIndexed { index, item ->
+		item ?: return@forEachIndexed
+		val packet = WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, index + 3, item)
+		menu.packetEvents.playerManager.sendPacket(menu.owner, packet)
+	}
+}
 
 @OptIn(ExperimentalAtomicApi::class)
-private fun Sequence<ItemStack>.toFullWindowContent(
-	pageContent: ConcurrentHashMap<Int, IndexedItem>,
-	hasNextPage: AtomicBoolean
-) = buildList {
+context(menu: SearchMenu<T>)
+private suspend fun <T : Any> Flow<T>.toFullWindow(hasNextPage: AtomicBoolean) = buildList {
 	add(SearchMenuButtons.placeholder)
 	repeat(2) { add(PacketItem.EMPTY) }
 	var size = 0
-	this@toFullWindowContent.take(28).filterIndexed { index, value ->
-		if (index == 27) {
+	this@toFullWindow.withIndex().take(28).filter {
+		if (it.index == 27) {
 			hasNextPage.store(true)
-			return@filterIndexed false
+			return@filter false
 		}
-		pageContent[index + 3] = IndexedValue(index, value)
+		menu.pageContent[it.index + 3] = it.value
 		size++
 		true
-	}.mapTo(this) { SpigotConversionUtil.fromBukkitItemStack(it) }
+	}.map { SpigotConversionUtil.fromBukkitItemStack(menu.transform(it.value)) }.toList(this)
 	repeat(36 - size) { add(PacketItem.EMPTY) }
 	set(34, SearchMenuButtons.close)
 	if (hasNextPage.load()) set(38, SearchMenuButtons.pageUp)
 }
 
 @OptIn(ExperimentalAtomicApi::class)
-private fun Sequence<ItemStack>.toPageContent(
-	entry: SearchEntry,
-	pageContent: ConcurrentHashMap<Int, IndexedItem>,
-	hasNextPage: AtomicBoolean
-) = buildList {
+context(menu: SearchMenu<T>)
+private suspend fun <T : Any> Flow<T>.toPageContent(entry: SearchEntry, hasNextPage: AtomicBoolean) = buildList {
 	var size = 0
 	var hadNextPage = false
-	this@toPageContent.withIndex()
-		.let { items -> if (entry.input!!.isBlank()) items else items.filter { it.value matches entry.input } }
-		.drop(entry.page * 27).take(28)
-		.filterIndexed { index, item ->
-			if (index == 27) {
-				hadNextPage = true
-				return@filterIndexed false
-			}
-			pageContent[index + 3] = item
-			size++
-			true
-		}.mapTo(this) { SpigotConversionUtil.fromBukkitItemStack(it.value) }
+	this@toPageContent.withIndex().drop(entry.page * 27).take(28).filter {
+		if (it.index == 27) {
+			hadNextPage = true
+			return@filter false
+		}
+		menu.pageContent[it.index + 3] = it.value
+		size++
+		true
+	}.map { SpigotConversionUtil.fromBukkitItemStack(menu.transform(it.value)) }.toList(this)
 	hasNextPage.store(hadNextPage)
 	repeat(27 - size) {
 		add(EMPTY)
-		pageContent.remove(it + 3 + size)
+		menu.pageContent.remove(it + 3 + size)
 	}
 	add(if (entry.page > 0) SearchMenuButtons.pageDown else EMPTY)
 	repeat(7) { add(null) }

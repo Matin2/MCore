@@ -22,11 +22,23 @@ import kotlin.uuid.toKotlinUuid
 
 const val SEARCH_WINDOW_ID = 451
 
-typealias IndexedItem = IndexedValue<ItemStack>
+internal typealias SearchFlowBuilder<T> = (input: String) -> Flow<T>
+
+internal typealias ItemBuilder<T> = (item: T) -> ItemStack
+
+internal typealias PageContent<T> = ConcurrentHashMap<Int, T & Any>
+
+suspend inline fun Player.openSearch(items: List<ItemStack>): IndexedValue<ItemStack>? = openSearch(
+	items = { input ->
+		if (input.isBlank()) items.withIndex().asFlow()
+		else items.withIndex().filter { it.value matches input }.asFlow()
+	},
+	transform = { it.value }
+)
 
 @Suppress("unused")
-suspend fun Player.openSearch(items: List<ItemStack>): IndexedItem? {
-	val menu = SearchMenu(this, items)
+suspend fun <T : Any> Player.openSearch(items: SearchFlowBuilder<T>, transform: ItemBuilder<T>): T? {
+	val menu = SearchMenu(this, items, transform)
 	return try {
 		menu.search()
 	} catch (_: SearchCancellationException) {
@@ -36,11 +48,15 @@ suspend fun Player.openSearch(items: List<ItemStack>): IndexedItem? {
 	}
 }
 
-internal class SearchMenu(val owner: Player, val items: List<ItemStack>) : KoinComponent {
+internal class SearchMenu<T : Any>(
+	val owner: Player,
+	val items: SearchFlowBuilder<T>,
+	val transform: ItemBuilder<T>
+) : KoinComponent {
 	
 	val packetEvents = get<MCore>().hooks.packetEvents ?: error("PacketEvents is missing!")
 	
-	val pageContent = ConcurrentHashMap<Int, IndexedItem>(27)
+	val pageContent = PageContent<T>(27)
 	
 	private val manager: SearchMenuManager by inject()
 	val clickEvents = manager.clickEvents
@@ -84,6 +100,6 @@ internal class SearchMenu(val owner: Player, val items: List<ItemStack>) : KoinC
 	override fun getKoin() = koinOf<MCore>()
 	
 	companion {
-		val menus = ConcurrentHashMap<Uuid, SearchMenu>()
+		val menus = ConcurrentHashMap<Uuid, SearchMenu<*>>()
 	}
 }
