@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration.Companion.milliseconds
-import com.github.retrooper.packetevents.protocol.item.ItemStack as PacketItem
 
 internal data class SearchEntry(val page: Int = 0, val input: String? = null)
 
@@ -34,12 +33,12 @@ internal suspend fun SearchMenu<*>.handleInputChange(entries: SearchEntries) =
 
 @OptIn(ExperimentalAtomicApi::class)
 internal suspend fun SearchMenu<*>.handlePageChange(entries: SearchEntries, hasNextPage: AtomicBoolean) =
-	clickEvents.filter { it == 30 || it == 38 }.collect { slot ->
+	clickEvents.filter { it == 30 || (it == 38 && hasNextPage.load()) }.collect { slot ->
 		entries.update {
 			val page = when (slot) {
-				38 if hasNextPage.load() -> it.page + 1
+				38 -> it.page + 1
 				30 if it.page > 0 -> it.page - 1
-				else -> it.page
+				else -> return@collect
 			}
 			it.copy(page = page)
 		}
@@ -48,61 +47,47 @@ internal suspend fun SearchMenu<*>.handlePageChange(entries: SearchEntries, hasN
 @OptIn(ExperimentalAtomicApi::class)
 context(menu: SearchMenu<T>)
 internal suspend fun <T : Any> SearchEntries.handle(hasNextPage: AtomicBoolean): Nothing = collectLatest { entry ->
-	if (entry.input == null) {
-		val items: List<PacketItem> = menu.items("").toFullWindow(hasNextPage)
-		val packet = WrapperPlayServerWindowItems(SEARCH_WINDOW_ID, 0, items, EMPTY)
-		return@collectLatest
-	}
-	menu.items(entry.input).toPageContent(entry, hasNextPage).forEachIndexed { index, item ->
-		item ?: return@forEachIndexed
-		val packet = WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, index + 3, item)
-		menu.owner.sendPacket(packet)
-		menu.owner.sendPacket(packet)
-	}
-}
-
-@OptIn(ExperimentalAtomicApi::class)
-context(menu: SearchMenu<T>)
-private suspend fun <T : Any> Flow<T>.toFullWindow(hasNextPage: AtomicBoolean) = buildList {
-	add(SearchMenuButtons.placeholder)
-	repeat(2) { add(PacketItem.EMPTY) }
-	var size = 0
-	this@toFullWindow.withIndex().take(28).filter {
-		if (it.index == 27) {
-			hasNextPage.store(true)
-			return@filter false
+	val input = if (entry.input == null) {
+		val initialContent = List(39) {
+			when (it) {
+				0 -> searchItem
+				34 -> searchCloseItem
+				else -> EMPTY
+			}
 		}
-		menu.pageContent[it.index + 3] = it.value
-		size++
-		true
-	}.map { SpigotConversionUtil.fromBukkitItemStack(menu.transform(it.value)) }.toList(this)
-	repeat(36 - size) { add(PacketItem.EMPTY) }
-	set(34, SearchMenuButtons.close)
-	if (hasNextPage.load()) set(38, SearchMenuButtons.pageUp)
+		val packet = WrapperPlayServerWindowItems(SEARCH_WINDOW_ID, 0, initialContent, EMPTY)
+		menu.owner.sendPacket(packet)
+		""
+	} else entry.input
+	menu.items(input).currentPage(entry.page, hasNextPage).collect { [slot, item] ->
+		val packet = WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, slot, item)
+		menu.owner.sendPacket(packet)
+	}
 }
 
 @OptIn(ExperimentalAtomicApi::class)
 context(menu: SearchMenu<T>)
-private suspend fun <T : Any> Flow<T>.toPageContent(entry: SearchEntry, hasNextPage: AtomicBoolean) = buildList {
+private fun <T : Any> Flow<T>.currentPage(page: Int, hasNextPage: AtomicBoolean) = flow {
 	var size = 0
 	var hadNextPage = false
-	this@toPageContent.withIndex().drop(entry.page * 27).take(28).filter {
+	emit(30 to if (page > 0) prevSearchPageItem else EMPTY)
+	withIndex().drop(page * 27).take(28).collect {
 		if (it.index == 27) {
 			hadNextPage = true
-			return@filter false
+			return@collect
 		}
-		menu.pageContent[it.index + 3] = it.value
+		val slot = it.index + 3
+		menu.pageContent[slot] = it.value
+		emit(slot to SpigotConversionUtil.fromBukkitItemStack(menu.transform(it.value)))
 		size++
-		true
-	}.map { SpigotConversionUtil.fromBukkitItemStack(menu.transform(it.value)) }.toList(this)
-	hasNextPage.store(hadNextPage)
-	repeat(27 - size) {
-		add(EMPTY)
-		menu.pageContent.remove(it + 3 + size)
 	}
-	add(if (entry.page > 0) SearchMenuButtons.pageDown else EMPTY)
-	repeat(7) { add(null) }
-	add(if (hasNextPage.load()) SearchMenuButtons.pageUp else EMPTY)
+	hasNextPage.store(hadNextPage)
+	emit(38 to if (hadNextPage) nextSearchPageItem else EMPTY)
+	repeat(27 - size) {
+		val slot = it + 3 + size
+		emit(slot to EMPTY)
+		menu.pageContent.remove(slot)
+	}
 }
 
 @Suppress("NOTHING_TO_INLINE")
