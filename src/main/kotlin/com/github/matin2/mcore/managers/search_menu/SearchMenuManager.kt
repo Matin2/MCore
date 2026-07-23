@@ -14,15 +14,14 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSe
 import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.bukkit.entity.Player
-import kotlin.uuid.Uuid
-import kotlin.uuid.toKotlinUuid
+import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
 internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORMAL) {
 	
-	val clickEvents = MutableSharedFlow<ClickEvent>(extraBufferCapacity = 5, onBufferOverflow = DROP_OLDEST)
-	val inputEvents = MutableSharedFlow<InputEvent>(extraBufferCapacity = 10, onBufferOverflow = DROP_OLDEST)
-	val closeEvents = MutableSharedFlow<Uuid>(extraBufferCapacity = 5, onBufferOverflow = DROP_OLDEST)
+	val clickEvents = MutableSharedFlow<PacketData<Int>>(extraBufferCapacity = 5, onBufferOverflow = DROP_OLDEST)
+	val inputEvents = MutableSharedFlow<PacketData<String>>(extraBufferCapacity = 10, onBufferOverflow = DROP_OLDEST)
+	val closeEvents = MutableSharedFlow<UUID>(extraBufferCapacity = 5, onBufferOverflow = DROP_OLDEST)
 	
 	private var packetEvents = mcore.hooks.packetEvents ?: error("PacketEvents is not available!")
 	
@@ -32,12 +31,11 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 	
 	override fun onPacketReceive(event: PacketReceiveEvent) {
 		val player = event.getPlayer() as? Player ?: return
-		val playerId = player.uniqueId.toKotlinUuid()
+		val playerId = player.uniqueId
 		
 		when (event.packetType) {
-			PacketType.Play.Client.NAME_ITEM -> {
-				inputEvents.tryEmit(InputEvent(playerId, WrapperPlayClientNameItem(event).itemName ?: return))
-			}
+			PacketType.Play.Client.NAME_ITEM ->
+				inputEvents.tryEmit(PacketData(playerId, WrapperPlayClientNameItem(event).itemName ?: return))
 			
 			PacketType.Play.Client.CLICK_WINDOW -> {
 				val packet = WrapperPlayClientClickWindow(event)
@@ -64,7 +62,7 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 					CLONE -> player.emptyCursor()
 					else -> Unit
 				}
-				clickEvents.tryEmit(ClickEvent(playerId, packet.slot))
+				clickEvents.tryEmit(PacketData(playerId, packet.slot))
 			}
 			
 			PacketType.Play.Client.CLOSE_WINDOW -> {
@@ -96,6 +94,5 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 	
 	private inline fun Player.emptyCursor() = sendPacket(WrapperPlayServerSetCursorItem(ItemStack.EMPTY))
 	
-	data class InputEvent(val playerId: Uuid, val input: String)
-	data class ClickEvent(val playerId: Uuid, val slot: Int)
+	data class PacketData<T>(val playerId: UUID, val data: T)
 }

@@ -13,13 +13,11 @@ import kotlinx.coroutines.launch
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.component.inject
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.uuid.Uuid
-import kotlin.uuid.toKotlinUuid
 
 const val SEARCH_WINDOW_ID = 451
 
@@ -55,15 +53,12 @@ internal class SearchMenu<T : Any>(
 	val pageContent = PageContent<T>(27)
 	
 	private val manager: SearchMenuManager by inject()
-	val clickEvents = manager.clickEvents
-		.filter { it.playerId == owner.uniqueId.toKotlinUuid() }.map { it.slot }
-	val inputEvents = manager.inputEvents
-		.filter { it.playerId == owner.uniqueId.toKotlinUuid() }.map { it.input }
-	
+	val clickEvents = manager.clickEvents.filter { it.playerId == owner.uniqueId }.map { it.data }
+	val inputEvents = manager.inputEvents.filter { it.playerId == owner.uniqueId }.map { it.data }
 	
 	@OptIn(ExperimentalAtomicApi::class)
 	suspend fun search() = coroutineScope {
-		menus[owner.uniqueId.toKotlinUuid()] = this@SearchMenu
+		menus[owner.uniqueId] = this@SearchMenu
 		val handlers = launch(Dispatchers.IO) {
 			val entries = MutableStateFlow(SearchEntry())
 			val hasNextPage = AtomicBoolean(false)
@@ -79,7 +74,7 @@ internal class SearchMenu<T : Any>(
 			.first()
 	}
 	
-	suspend fun awaitMenuClose() = manager.closeEvents.any { it == owner.uniqueId.toKotlinUuid() }
+	suspend fun awaitMenuClose() = manager.closeEvents.any { it == owner.uniqueId }
 	
 	private fun open() {
 		owner.sendPacket(WrapperPlayServerOpenWindow(SEARCH_WINDOW_ID, 8, component("Search")))
@@ -88,12 +83,12 @@ internal class SearchMenu<T : Any>(
 	fun close() {
 		owner.sendPacket(WrapperPlayServerCloseWindow(SEARCH_WINDOW_ID))
 		owner.updateInventory()
-		menus.remove(owner.uniqueId.toKotlinUuid())
+		menus.remove(owner.uniqueId)
 	}
 	
 	override fun getKoin() = koinOf<MCore>()
 	
 	companion {
-		val menus = ConcurrentHashMap<Uuid, SearchMenu<*>>()
+		val menus = ConcurrentHashMap<UUID, SearchMenu<*>>()
 	}
 }
