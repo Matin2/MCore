@@ -8,7 +8,6 @@ import com.github.matin2.mcore.managers.plugin.BukkitDispatcher.initBukkitDispat
 import com.github.matin2.mcore.managers.plugin.KotlinPlugin
 import com.github.matin2.mcore.managers.search_menu.SearchMenuManager
 import kotlinx.coroutines.cancel
-import org.koin.core.component.inject
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.single
 
