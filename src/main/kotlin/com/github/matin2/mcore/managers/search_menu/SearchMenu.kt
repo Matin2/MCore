@@ -1,6 +1,7 @@
 package com.github.matin2.mcore.managers.search_menu
 
 import com.github.matin2.mcore.MCore
+import com.github.matin2.mcore.managers.PacketManager.sendPacket
 import com.github.matin2.mcore.managers.plugin.koinOf
 import com.github.matin2.mcore.methods.utils.component.component
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCloseWindow
@@ -51,8 +52,6 @@ internal class SearchMenu<T : Any>(
 	val transform: ItemBuilder<T>
 ) : KoinComponent {
 	
-	val packetEvents = get<MCore>().hooks.packetEvents ?: error("PacketEvents is missing!")
-	
 	val pageContent = PageContent<T>(27)
 	
 	private val manager: SearchMenuManager by inject()
@@ -83,13 +82,11 @@ internal class SearchMenu<T : Any>(
 	suspend fun awaitMenuClose() = manager.closeEvents.any { it == owner.uniqueId.toKotlinUuid() }
 	
 	private fun open() {
-		val packet = WrapperPlayServerOpenWindow(SEARCH_WINDOW_ID, 8, component("Search"))
-		packetEvents.playerManager.sendPacket(owner, packet)
+		owner.sendPacket(WrapperPlayServerOpenWindow(SEARCH_WINDOW_ID, 8, component("Search")))
 	}
 	
 	fun close() {
-		val packet = WrapperPlayServerCloseWindow(SEARCH_WINDOW_ID)
-		packetEvents.playerManager.sendPacket(owner, packet)
+		owner.sendPacket(WrapperPlayServerCloseWindow(SEARCH_WINDOW_ID))
 		owner.updateInventory()
 		menus.remove(owner.uniqueId.toKotlinUuid())
 	}

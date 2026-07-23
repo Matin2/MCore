@@ -1,6 +1,7 @@
 package com.github.matin2.mcore.managers.search_menu
 
 import com.github.matin2.mcore.MCore
+import com.github.matin2.mcore.managers.PacketManager.sendPacket
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketReceiveEvent
 import com.github.retrooper.packetevents.protocol.item.ItemStack
@@ -80,9 +81,7 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 			0 -> SearchMenuButtons.placeholder
 			34 -> SearchMenuButtons.close
 			2 -> {
-				WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, 0, SearchMenuButtons.placeholder).let {
-					packetEvents.playerManager.sendPacket(this, it)
-				}
+				sendPacket(WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, 0, searchItem))
 				EMPTY
 			}
 			
@@ -91,16 +90,11 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 				SpigotConversionUtil.fromBukkitItemStack(menu.transform(it))
 			} ?: EMPTY
 		}
-		
-		WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, slot, item).let {
-			packetEvents.playerManager.sendPacket(this, it)
-		}
+		sendPacket(WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, slot, item))
 	}
 	
 	
-	private fun Player.emptyCursor() = WrapperPlayServerSetCursorItem(ItemStack.EMPTY).let {
-		packetEvents.playerManager.sendPacket(this, it)
-	}
+	private inline fun Player.emptyCursor() = sendPacket(WrapperPlayServerSetCursorItem(ItemStack.EMPTY))
 	
 	data class InputEvent(val playerId: Uuid, val input: String)
 	data class ClickEvent(val playerId: Uuid, val slot: Int)

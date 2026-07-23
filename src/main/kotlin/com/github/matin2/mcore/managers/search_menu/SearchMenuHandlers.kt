@@ -1,5 +1,6 @@
 package com.github.matin2.mcore.managers.search_menu
 
+import com.github.matin2.mcore.managers.PacketManager.sendPacket
 import com.github.matin2.mcore.methods.utils.component.plain
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetSlot
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowItems
@@ -50,13 +51,13 @@ internal suspend fun <T : Any> SearchEntries.handle(hasNextPage: AtomicBoolean):
 	if (entry.input == null) {
 		val items: List<PacketItem> = menu.items("").toFullWindow(hasNextPage)
 		val packet = WrapperPlayServerWindowItems(SEARCH_WINDOW_ID, 0, items, EMPTY)
-		menu.packetEvents.playerManager.sendPacket(menu.owner, packet)
 		return@collectLatest
 	}
 	menu.items(entry.input).toPageContent(entry, hasNextPage).forEachIndexed { index, item ->
 		item ?: return@forEachIndexed
 		val packet = WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, index + 3, item)
-		menu.packetEvents.playerManager.sendPacket(menu.owner, packet)
+		menu.owner.sendPacket(packet)
+		menu.owner.sendPacket(packet)
 	}
 }
 
