@@ -28,16 +28,13 @@ internal typealias ItemBuilder<T> = (item: T) -> ItemStack
 
 internal typealias PageContent<T> = ConcurrentHashMap<Int, T & Any>
 
-suspend inline fun Player.openSearch(items: List<ItemStack>): IndexedValue<ItemStack>? = openSearch(
-	items = { input ->
-		if (input.isBlank()) items.withIndex().asFlow()
-		else items.withIndex().filter { it.value matches input }.asFlow()
-	},
-	transform = { it.value }
-)
-
 @Suppress("unused")
-suspend fun <T : Any> Player.openSearch(items: SearchFlowBuilder<T>, transform: ItemBuilder<T>): T? {
+suspend inline fun Player.openSearch(items: List<ItemStack>) = openSearch({ it.value }) { input ->
+	if (input.isBlank()) items.withIndex().asFlow()
+	else items.withIndex().filter { it.value matches input }.asFlow()
+}
+
+suspend fun <T : Any> Player.openSearch(transform: ItemBuilder<T>, items: SearchFlowBuilder<T>): T? {
 	val menu = SearchMenu(this, items, transform)
 	return try {
 		menu.search()
