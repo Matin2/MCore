@@ -76,14 +76,15 @@ internal class SearchMenuManager(val mcore: MCore) : PacketListenerAbstract(NORM
 	
 	private inline fun <T : Any> Player.setSlot(slot: Int, menu: SearchMenu<T>) {
 		val item = when (slot) {
-			0 -> SearchMenuButtons.placeholder
-			34 -> SearchMenuButtons.close
+			0 -> searchItem
+			34 -> searchCloseItem
+			1, in 30..38 -> EMPTY
+			
 			2 -> {
 				sendPacket(WrapperPlayServerSetSlot(SEARCH_WINDOW_ID, 0, 0, searchItem))
 				EMPTY
 			}
 			
-			1, in 30..38 -> EMPTY
 			else -> menu.pageContent[slot]?.let {
 				SpigotConversionUtil.fromBukkitItemStack(menu.transform(it))
 			} ?: EMPTY
