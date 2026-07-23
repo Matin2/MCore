@@ -3,9 +3,11 @@ package com.github.matin2.mcore.managers
 import com.github.matin2.mcore.Hooks
 import com.github.matin2.mcore.MCore
 import com.github.matin2.mcore.managers.plugin.koinOf
+import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketSendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play
+import com.github.retrooper.packetevents.wrapper.PacketWrapper
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityStatus
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow
 import io.papermc.paper.datacomponent.DataComponentTypes
@@ -17,12 +19,11 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-@Suppress("unused", "UnstableApiUsage")
+@Suppress("unused", "UnstableApiUsage", "NOTHING_TO_INLINE")
 object PacketManager : KoinComponent {
 	
 	private val hooks: Hooks by inject()
 	
-	@JvmStatic
 	var InventoryView.displayTitle: Component
 		get() = InventoryTitle.openWindows[player]?.title ?: title()
 		set(value) {
@@ -43,7 +44,6 @@ object PacketManager : KoinComponent {
 	 * @param model (Optional) CustomModelData for the totem. default to `null`
 	 * @receiver Selected [Player].
 	 */
-	@JvmStatic
 	fun Player.showTotem(model: CustomModelData? = null) {
 		model ?: return sendTotemPacket()
 		val item = inventory.itemInOffHand
@@ -55,12 +55,14 @@ object PacketManager : KoinComponent {
 		inventory.setItem(40, item)
 	}
 	
-	@JvmStatic
-	@Suppress("NOTHING_TO_INLINE")
 	private inline fun Player.sendTotemPacket() = hooks.packetEvents?.playerManager?.sendPacket(
 		this,
 		WrapperPlayServerEntityStatus(entityId, 35)
 	) ?: Unit
+	
+	inline infix fun Player.sendPacket(packet: PacketWrapper<*>) = runCatching {
+		PacketEvents.getAPI().playerManager.sendPacket(this, packet)
+	}.getOrNull()
 }
 
 internal object InventoryTitle : PacketListenerAbstract(NORMAL) {
