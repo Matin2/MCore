@@ -3,7 +3,6 @@ package com.github.matin2.mcore.managers
 import com.github.matin2.mcore.Hooks
 import com.github.matin2.mcore.MCore
 import com.github.matin2.mcore.managers.plugin.koinOf
-import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.event.PacketListenerAbstract
 import com.github.retrooper.packetevents.event.PacketSendEvent
 import com.github.retrooper.packetevents.protocol.packettype.PacketType.Play
@@ -24,19 +23,22 @@ object PacketManager : KoinComponent {
 	
 	private val hooks: Hooks by inject()
 	
+	private val packetEvents by hooks.packetEvents
+	
 	var InventoryView.displayTitle: Component
 		get() = InventoryTitle.openWindows[player]?.title ?: title()
 		set(value) {
 			val user = player as Player
 			InventoryTitle.openWindows[user]?.let {
 				it.title = value
-				hooks.packetEvents?.playerManager?.sendPacket(user, it)
+				packetEvents?.playerManager?.sendPacket(user, it)
 				user.updateInventory()
 				InventoryTitle.openWindows[user] = it
 			}
 		}
 	
-	override fun getKoin() = koinOf<MCore>()
+	infix fun Player.sendPacket(packet: PacketWrapper<*>) =
+		packetEvents?.playerManager?.sendPacket(this, packet)
 	
 	/**
 	 * Shows totem animation to the selected player.
@@ -55,14 +57,10 @@ object PacketManager : KoinComponent {
 		inventory.setItem(40, item)
 	}
 	
-	private inline fun Player.sendTotemPacket() = hooks.packetEvents?.playerManager?.sendPacket(
-		this,
-		WrapperPlayServerEntityStatus(entityId, 35)
-	) ?: Unit
+	private inline fun Player.sendTotemPacket(): Unit =
+		sendPacket(WrapperPlayServerEntityStatus(entityId, 35)) ?: return
 	
-	inline infix fun Player.sendPacket(packet: PacketWrapper<*>) = runCatching {
-		PacketEvents.getAPI().playerManager.sendPacket(this, packet)
-	}.getOrNull()
+	override fun getKoin() = koinOf<MCore>()
 }
 
 internal object InventoryTitle : PacketListenerAbstract(NORMAL) {

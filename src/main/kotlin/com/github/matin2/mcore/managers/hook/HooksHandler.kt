@@ -4,7 +4,6 @@ import com.github.matin2.mcore.managers.plugin.KotlinPlugin
 import com.github.matin2.mcore.methods.utils.enabled
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
-import kotlin.properties.ReadOnlyProperty
 
 @Suppress("unused")
 class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
@@ -30,11 +29,7 @@ class HooksHandler internal constructor(private val plugin: KotlinPlugin) {
 	
 	operator fun get(name: String) = hooks.first { it.name.equals(name, true) }
 	
-	inline fun <reified T : Any> bind(name: String, crossinline binder: () -> T): ReadOnlyProperty<Any?, T?> {
-		return ReadOnlyProperty { _, _ ->
-			if (get(name).hooked) binder() else null
-		}
-	}
+	inline fun <reified T : Any> bind(name: String, noinline binder: () -> T) = get(name).BoundValue(binder)
 	
 	internal fun close() {
 		HooksManager.hooksHandlers -= this

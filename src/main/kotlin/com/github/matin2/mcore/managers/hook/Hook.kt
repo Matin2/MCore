@@ -1,5 +1,9 @@
 package com.github.matin2.mcore.managers.hook
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.updateAndGet
 import org.bukkit.plugin.Plugin
 import kotlin.concurrent.Volatile
 import kotlin.reflect.KProperty
@@ -7,15 +11,17 @@ import kotlin.reflect.KProperty
 @Suppress("unused")
 class Hook internal constructor(val name: String, val required: Boolean) {
 	
-	private typealias Requirement = (plugin: Plugin) -> Boolean
+	private typealias Condition = (plugin: Plugin) -> Boolean
+	
+	private val hookState = MutableStateFlow<Boolean?>(null)
+	
+	val hooked get() = hookState.value ?: false
+	
+	suspend fun hooked() = hookState.value ?: hookState.filterNotNull().first()
 	
 	@Volatile
-	var hooked = false
-		private set
-	
-	@Volatile
-	private var requirementMatched: Boolean? = null
-	private var requirement: Requirement = { true }
+	private var conditionMet: Boolean? = null
+	private var condition: Condition = { true }
 	
 	private var enableMethod = {}
 	private var disableMethod = {}
@@ -24,11 +30,14 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 	operator fun getValue(thisRef: Any?, property: KProperty<*>) = hooked
 	
 	internal fun check(plugin: Plugin, initial: Boolean = false) {
-		val requirementCheck = requirementMatched ?: requirement(plugin).also { requirementMatched = it }
-		val hooked = plugin.isEnabled && requirementCheck
-		if (hooked == this@Hook.hooked) return
-		this@Hook.hooked = hooked
-		if (hooked) enableMethod() else if (initial) notFoundMethod() else disableMethod()
+		val conditionMet = conditionMet ?: condition(plugin).also { conditionMet = it }
+		val pluginEnabled = plugin.isEnabled
+		val hooked = hookState.updateAndGet { pluginEnabled && conditionMet }!!
+		when {
+			hooked -> enableMethod()
+			initial -> notFoundMethod()
+			else -> disableMethod()
+		}
 	}
 	
 	inner class Handler {
@@ -60,10 +69,20 @@ class Hook internal constructor(val name: String, val required: Boolean) {
 			}
 		}
 		
-		fun addRequirement(block: Requirement) {
-			val previous = requirement
-			requirement = { previous(it) && block(it) }
-			requirementMatched = null
+		fun addCondition(block: Condition) {
+			val previous = condition
+			condition = { previous(it) && block(it) }
+			conditionMet = null
 		}
+	}
+	
+	inner class BoundValue<Value : Any>(private val binder: () -> Value) {
+		
+		suspend operator fun invoke(): Value? = if (hooked()) binder() else null
+		
+		fun current(): Value? = if (hooked) binder() else null
+		
+		@Suppress("NOTHING_TO_INLINE")
+		inline operator fun getValue(thisRef: Any?, property: KProperty<*>) = current()
 	}
 }

@@ -9,8 +9,10 @@ import net.skinsrestorer.api.SkinsRestorerProvider
 
 internal class Hooks(private val mcore: MCore) {
 	
-	val skinsRestorer by mcore.hooksHandler.bind(SKINS_RESTORER) { SkinsRestorerProvider.get() }
-	val packetEvents by mcore.hooksHandler.bind(PACKET_EVENTS) { PacketEvents.getAPI() }
+	private inline val handler get() = mcore.hooksHandler
+	
+	val skinsRestorer by handler.bind(SKINS_RESTORER) { SkinsRestorerProvider.get()!! }
+	val packetEvents = handler.bind(PACKET_EVENTS) { PacketEvents.getAPI()!! }
 	
 	fun init() {
 		fun Hook.Handler.log() {
@@ -21,11 +23,11 @@ internal class Hooks(private val mcore: MCore) {
 			onDisabled { logger.info(component("UnHooked from $name", redColor)) }
 			onNotFound { logger.info(component("Didn't find $name to hook", redColor)) }
 		}
-		mcore.hooksHandler.handle(SKINS_RESTORER, handler = Hook.Handler::log)
-		mcore.hooksHandler.handle(PACKET_EVENTS, handler = Hook.Handler::log)
+		handler.handle(SKINS_RESTORER, handler = Hook.Handler::log)
+		handler.handle(PACKET_EVENTS, handler = Hook.Handler::log)
 	}
 	
-	companion object {
+	private companion object {
 		const val SKINS_RESTORER = "SkinsRestorer"
 		const val PACKET_EVENTS = "packetevents"
 	}
