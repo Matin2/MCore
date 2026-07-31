@@ -11,7 +11,7 @@ packetevents = "2.13.0"
 skinsrestorer = "15.12.2"
 #koin
 koin = "4.2.2"
-koin-plugin = "1.0.2"
+koin-plugin = "1.1.0"
 
 [libraries]
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }

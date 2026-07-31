@@ -1,34 +1,41 @@
 package com.github.matin2.mcore
 
-import com.github.matin2.mcore.managers.hook.Hook
-import com.github.matin2.mcore.methods.utils.component.component
+import com.github.matin2.mcore.services.hook
+import com.github.matin2.mcore.services.plugin.Hook
+import com.github.matin2.mcore.utils.component.component
 import com.github.retrooper.packetevents.PacketEvents
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.skinsrestorer.api.SkinsRestorerProvider
+import org.koin.dsl.module
 
-internal class Hooks(private val mcore: MCore) {
+val hooksModule = module {
+	hook { PacketEventsHook(get()) }
+	hook { SkinsRestorerHook(get()) }
+}
+
+private val greenColor = Style.style(NamedTextColor.GREEN)
+private val redColor = Style.style(NamedTextColor.RED)
+
+private fun ComponentLogger.logHookEnabled(name: String) = info(component("Hooked into $name", greenColor))
+private fun ComponentLogger.logHookDisabled(name: String) = info(component("UnHooked from $name", redColor))
+private fun ComponentLogger.logHookNotFound(name: String) = info(component("Didn't find $name to hook", redColor))
+
+class PacketEventsHook(private val mcore: MCore) : Hook("packetevents") {
 	
-	private inline val handler get() = mcore.hooksHandler
+	val api by bind { PacketEvents.getAPI()!! }
 	
-	val skinsRestorer by handler.bind(SKINS_RESTORER) { SkinsRestorerProvider.get()!! }
-	val packetEvents = handler.bind(PACKET_EVENTS) { PacketEvents.getAPI()!! }
+	override fun onEnable() = mcore.componentLogger.logHookEnabled(name)
+	override fun onDisable() = mcore.componentLogger.logHookDisabled(name)
+	override fun onNotFound() = mcore.componentLogger.logHookNotFound(name)
+}
+
+class SkinsRestorerHook(private val mcore: MCore) : Hook("packetevents") {
 	
-	fun init() {
-		fun Hook.Handler.log() {
-			val logger = mcore.componentLogger
-			val greenColor = Style.style(NamedTextColor.GREEN)
-			val redColor = Style.style(NamedTextColor.RED)
-			onEnabled { logger.info(component("Hooked into $name", greenColor)) }
-			onDisabled { logger.info(component("UnHooked from $name", redColor)) }
-			onNotFound { logger.info(component("Didn't find $name to hook", redColor)) }
-		}
-		handler.handle(SKINS_RESTORER, handler = Hook.Handler::log)
-		handler.handle(PACKET_EVENTS, handler = Hook.Handler::log)
-	}
+	val provider by bind { SkinsRestorerProvider.get()!! }
 	
-	private companion object {
-		const val SKINS_RESTORER = "SkinsRestorer"
-		const val PACKET_EVENTS = "packetevents"
-	}
+	override fun onEnable() = mcore.componentLogger.logHookEnabled(name)
+	override fun onDisable() = mcore.componentLogger.logHookDisabled(name)
+	override fun onNotFound() = mcore.componentLogger.logHookNotFound(name)
 }
