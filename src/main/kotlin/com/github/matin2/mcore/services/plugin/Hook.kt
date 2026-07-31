@@ -1,6 +1,5 @@
 package com.github.matin2.mcore.services.plugin
 
-import com.github.matin2.mcore.utils.enabled
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
@@ -14,7 +13,7 @@ import org.bukkit.plugin.Plugin
 import kotlin.reflect.KProperty
 
 @Suppress("unused")
-abstract class Hook(val name: String, val required: Boolean = false) {
+abstract class Hook(val name: String) {
 	
 	lateinit var state: StateFlow<Boolean> private set
 	inline val hooked get() = state.value
@@ -47,7 +46,7 @@ abstract class Hook(val name: String, val required: Boolean = false) {
 				if (plugin.name != name) return
 				onDisable()
 				bounded.forEach { it.reset() }
-				if (required) owner.enabled = false else trySend(false)
+				trySend(false)
 			}
 		}
 		Bukkit.getPluginManager().registerEvents(listener, owner)
@@ -61,22 +60,6 @@ abstract class Hook(val name: String, val required: Boolean = false) {
 	}.stateIn(owner)
 	
 	operator fun getValue(thisRef: Any?, property: KProperty<*>) = hooked
-	
-	companion {
-		operator fun invoke(
-			name: String,
-			required: Boolean = false,
-			onEnable: Hook.() -> Unit = {},
-			onDisable: Hook.() -> Unit = {},
-			onNotFound: Hook.() -> Unit = {},
-			withCondition: Hook.(plugin: Plugin) -> Boolean = { true }
-		) = object : Hook(name, required) {
-			override fun onEnable() = onEnable(this)
-			override fun onDisable() = onDisable(this)
-			override fun onNotFound() = onNotFound(this)
-			override fun withCondition(plugin: Plugin) = withCondition(this, plugin)
-		}
-	}
 	
 	inner class Bound<Value>(private val binder: () -> Value) {
 		
