@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component
 data class DialogOption(val id: String, val display: Component?)
 
 context(_: DialogContext)
-inline val String.option get() = DialogOption(this, null)
+inline fun String.option() = DialogOption(this, null)
 
 context(_: DialogContext)
-inline infix fun String.labeled(label: Component) = DialogOption(this, label)
+inline infix fun String.option(label: Component) = DialogOption(this, label)
