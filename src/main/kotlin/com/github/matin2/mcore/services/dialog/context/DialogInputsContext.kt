@@ -1,6 +1,6 @@
 package com.github.matin2.mcore.services.dialog.context
 
-import com.github.matin2.mcore.services.dialog.input.DialogTypedInput
+import com.github.matin2.mcore.services.dialog.DialogTypedInput
 import io.papermc.paper.dialog.DialogResponseView
 import kotlin.reflect.KProperty
 

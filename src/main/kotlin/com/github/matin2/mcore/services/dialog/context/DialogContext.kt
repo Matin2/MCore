@@ -4,10 +4,7 @@ import com.github.matin2.mcore.services.FloatProgression
 import com.github.matin2.mcore.services.dialog.DialogButtonBlock
 import com.github.matin2.mcore.services.dialog.DialogOption
 import com.github.matin2.mcore.services.dialog.DialogService
-import com.github.matin2.mcore.services.dialog.input.DialogBooleanInput
-import com.github.matin2.mcore.services.dialog.input.DialogFloatInput
-import com.github.matin2.mcore.services.dialog.input.DialogStringInput
-import com.github.matin2.mcore.services.dialog.input.DialogTypedInput
+import com.github.matin2.mcore.services.dialog.DialogTypedInput
 import io.papermc.paper.registry.data.dialog.ActionButton
 import io.papermc.paper.registry.data.dialog.DialogBase
 import io.papermc.paper.registry.data.dialog.action.DialogAction
@@ -78,12 +75,12 @@ sealed class DialogContext(internal var initialTitle: Component) {
 			key, width, label, labelVisible, initial, maxLength, if (maxLines != null && height != null)
 				TextDialogInput.MultilineOptions.create(maxLines, height) else null
 		)
-		return DialogStringInput(key)
+		return DialogTypedInput.string(key)
 	}
 	
 	fun booleanInput(key: String, label: Component, initial: Boolean): DialogTypedInput<Boolean> {
 		inputs += DialogInput.bool(key, label, initial, "true", "false")
-		return DialogBooleanInput(key)
+		return DialogTypedInput.boolean(key)
 	}
 	
 	fun optionInput(
@@ -100,7 +97,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 				SingleOptionDialogInput.OptionEntry.create(it.id, it.display, false)
 			}
 		}, label, labelVisible)
-		return DialogStringInput(key)
+		return DialogTypedInput.string(key)
 	}
 	
 	fun rangeInput(
@@ -114,7 +111,7 @@ sealed class DialogContext(internal var initialTitle: Component) {
 		labelFormat: String = "options.generic_value",
 	): DialogTypedInput<Float> {
 		inputs += DialogInput.numberRange(key, width, label, labelFormat, start, end, initial, step)
-		return DialogFloatInput(key)
+		return DialogTypedInput.float(key)
 	}
 	
 	inline fun rangeInput(
