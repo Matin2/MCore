@@ -44,8 +44,8 @@ abstract class Hook(val name: String) {
 			@EventHandler
 			fun PluginDisableEvent.handle() {
 				if (plugin.name != name) return
-				onDisable()
 				bounded.forEach { it.reset() }
+				onDisable()
 				trySend(false)
 			}
 		}
