@@ -2,7 +2,6 @@ package com.github.matin2.mcore.services.plugin
 
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
@@ -21,7 +20,7 @@ abstract class Hook(val name: String) {
 	private val bounded: MutableList<Bound<*>> = []
 	
 	infix fun hookTo(plugin: KotlinPlugin) {
-		state = runBlocking { hookStateFlow(plugin) }
+		state = hookStateFlow(plugin)
 	}
 	
 	protected fun <T> bind(binder: () -> T) = Bound(binder).also { bounded += it }
@@ -31,33 +30,34 @@ abstract class Hook(val name: String) {
 	protected open fun onNotFound() {}
 	protected open fun withCondition(plugin: Plugin): Boolean = true
 	
-	private suspend fun hookStateFlow(owner: KotlinPlugin) = callbackFlow {
-		val listener = object : Listener {
-			@EventHandler
-			fun PluginEnableEvent.handle() {
-				if (plugin.name != name) return
-				val available = withCondition(plugin)
-				if (available) onEnable()
-				trySend(available)
-			}
-			
-			@EventHandler
-			fun PluginDisableEvent.handle() {
-				if (plugin.name != name) return
-				bounded.forEach { it.reset() }
-				onDisable()
-				trySend(false)
-			}
-		}
-		Bukkit.getPluginManager().registerEvents(listener, owner)
-		awaitClose { HandlerList.unregisterAll(listener) }
-	}.buffer(onBufferOverflow = DROP_OLDEST).onStart {
-		val available = Bukkit.getPluginManager().getPlugin(name)?.run {
+	private fun hookStateFlow(owner: KotlinPlugin): StateFlow<Boolean> {
+		
+		fun initialize() = (Bukkit.getPluginManager().getPlugin(name)?.run {
 			isEnabled && withCondition(this)
-		} ?: false
-		emit(available)
-		if (available) onEnable() else onNotFound()
-	}.stateIn(owner)
+		} ?: false).also { if (it) onEnable() else onNotFound() }
+		
+		return callbackFlow {
+			val listener = object : Listener {
+				@EventHandler
+				fun PluginEnableEvent.handle() {
+					if (plugin.name != name) return
+					val available = withCondition(plugin)
+					if (available) onEnable()
+					trySend(available)
+				}
+				
+				@EventHandler
+				fun PluginDisableEvent.handle() {
+					if (plugin.name != name) return
+					bounded.forEach { it.reset() }
+					onDisable()
+					trySend(false)
+				}
+			}
+			Bukkit.getPluginManager().registerEvents(listener, owner)
+			awaitClose { HandlerList.unregisterAll(listener) }
+		}.buffer(onBufferOverflow = DROP_OLDEST).stateIn(owner, SharingStarted.Eagerly, initialize())
+	}
 	
 	operator fun getValue(thisRef: Any?, property: KProperty<*>) = hooked
 	
