@@ -24,7 +24,7 @@ private fun ComponentLogger.logHookNotFound(name: String) = info(component("Didn
 
 class PacketEventsHook(private val mcore: MCore) : Hook("packetevents") {
 	
-	val api by bind { PacketEvents.getAPI()!! }
+	val api by bind { PacketEvents.getAPI() }
 	
 	override fun onEnable() = mcore.componentLogger.logHookEnabled(name)
 	override fun onDisable() = mcore.componentLogger.logHookDisabled(name)
@@ -33,7 +33,7 @@ class PacketEventsHook(private val mcore: MCore) : Hook("packetevents") {
 
 class SkinsRestorerHook(private val mcore: MCore) : Hook("packetevents") {
 	
-	val provider by bind { SkinsRestorerProvider.get()!! }
+	val api by bind { SkinsRestorerProvider.get() }
 	
 	override fun onEnable() = mcore.componentLogger.logHookEnabled(name)
 	override fun onDisable() = mcore.componentLogger.logHookDisabled(name)

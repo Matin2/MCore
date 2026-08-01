@@ -38,7 +38,7 @@ object PlayerProfiles : KoinComponent {
 	 * @receiver Player witch you want the profile of.
 	 */
 	@JvmStatic
-	fun OfflinePlayer.getProfile() = skinsRestorer.provider
+	fun OfflinePlayer.getProfile() = skinsRestorer.api
 		?.playerStorage
 		?.runCatching { getSkinForPlayer(uniqueId, name).get() }
 		?.map { PropertyUtils.getSkinTextureUrl(it) }
