@@ -4,7 +4,6 @@ import com.github.matin2.mcore.services.plugin.Hook
 import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import org.koin.core.Koin
 import org.koin.core.KoinApplication
-import org.koin.core.context.loadKoinModules
 import org.koin.core.module.Module
 import org.koin.core.parameter.ParametersHolder
 import org.koin.core.qualifier.Qualifier
@@ -13,31 +12,31 @@ import org.koin.dsl.KoinConfiguration
 import org.koin.dsl.binds
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import kotlin.reflect.KClass
 
-object KoinService {
+internal object KoinService {
 	
 	val koins: Map<String, KoinApplication>
 		field = mutableMapOf()
 	
-	internal inline fun <reified Plugin : KotlinPlugin> new(
-		plugin: Plugin,
-		config: KoinConfiguration
-	): Koin {
+	fun new(plugin: KotlinPlugin, clazz: KClass<out KotlinPlugin>, config: KoinConfiguration): Koin {
 		val app = koinApplication {
-			loadKoinModules(module { single { plugin } binds [KotlinPlugin::class, Plugin::class] })
+			modules(module { single { plugin } binds [KotlinPlugin::class, clazz] })
 			config()()
 		}
-		koins[requireNotNull(Plugin::class.qualifiedName) { "The plugin class is invalid" }] = app
+		koins[requireNotNull(clazz::class.qualifiedName) { "The plugin class is invalid" }] = app
 		return app.koin
 	}
 	
-	internal inline fun <reified Plugin : KotlinPlugin> close(): Unit =
-		koins.remove(Plugin::class.qualifiedName ?: return)?.close() ?: return
+	fun close(clazz: KClass<out KotlinPlugin>): Unit = koins.remove(clazz.qualifiedName ?: return)?.close() ?: return
 }
 
-inline fun <reified Plugin : KotlinPlugin> koinOf(): Koin = requireNotNull(
-	KoinService.koins[requireNotNull(Plugin::class.qualifiedName) { "The plugin class is invalid" }]?.koin
-) { "There is no koin registered for ${Plugin::class.simpleName}" }
+fun koinOf(pluginMainClassReference: String): Koin = requireNotNull(KoinService.koins[pluginMainClassReference]?.koin) {
+	"There is no koin registered for plugin with $pluginMainClassReference main class"
+}
+
+inline fun <reified Plugin : KotlinPlugin> koinOf(): Koin =
+	koinOf(requireNotNull(Plugin::class.qualifiedName) { "The plugin class is invalid" })
 
 inline fun <reified T : Hook> Module.hook(
 	qualifier: Qualifier? = null,
