@@ -19,7 +19,7 @@ class MCore : KotlinPlugin() {
 		includes(DialogService.module, hooksModule)
 	}
 	
-	override var koinConfig = koinConfiguration {
+	override val koinConfig = koinConfiguration {
 		modules(module)
 	}
 	

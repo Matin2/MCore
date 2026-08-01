@@ -12,17 +12,17 @@ abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
 	override val coroutineContext = CoroutineName(name) + SupervisorJob() + Dispatchers.Bukkit
 	
-	open lateinit var koinConfig: KoinConfiguration
+	open val koinConfig: KoinConfiguration? = null
 	private lateinit var koin: Koin
 	
 	override fun getKoin() = koin
 	
 	override fun onEnable() {
-		if (::koinConfig.isInitialized) koin = KoinService.new(this, koinConfig)
+		koin = KoinService.new(this, koinConfig ?: return)
 	}
 	
 	override fun onDisable() {
-		if (::koinConfig.isInitialized) KoinService.close<MCore>()
+		if (::koin.isInitialized) KoinService.close<MCore>()
 		cancel("$name has been disabled.")
 	}
 }
