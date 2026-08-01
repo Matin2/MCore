@@ -2,7 +2,7 @@ name: MCore
 version: '${version}'
 main: com.github.matin2.mcore.MCore
 loader: com.github.matin2.mcore.MCoreLoader
-api-version: '26.1.2'
+api-version: '${api-version}'
 load: STARTUP
 authors: [ Matin3000 ]
 dependencies:

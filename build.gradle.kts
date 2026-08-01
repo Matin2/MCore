@@ -31,10 +31,13 @@ dependencies {
 }
 
 tasks.processResources {
-	val version = "version" to version.toString()
-	inputs.properties(version)
+	val properties = mapOf(
+		"version" to version.toString(),
+		"api-version" to paperweight.minecraftVersion.get()
+	)
+	inputs.properties(properties)
 	filteringCharset = "UTF-8"
-	filesMatching("paper-plugin.yml") { expand(version) }
+	filesMatching("paper-plugin.yml") { expand(properties) }
 }
 
 java {
