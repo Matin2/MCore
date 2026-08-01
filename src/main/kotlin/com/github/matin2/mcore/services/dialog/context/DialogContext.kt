@@ -76,12 +76,18 @@ sealed class DialogContext(var title: Component) {
 			key, width, label, labelVisible, initial, maxLength, if (maxLines != null && height != null)
 				TextDialogInput.MultilineOptions.create(maxLines, height) else null
 		)
-		return DialogTypedInput.string(key)
+		return object : DialogTypedInput<String>(key) {
+			context(ctx: DialogInputsContext)
+			override val value get() = requireNotNull(ctx.view.getText(key))
+		}
 	}
 	
 	fun booleanInput(key: String, label: Component, initial: Boolean): DialogTypedInput<Boolean> {
 		inputs += DialogInput.bool(key, label, initial, "true", "false")
-		return DialogTypedInput.boolean(key)
+		return object : DialogTypedInput<Boolean>(key) {
+			context(ctx: DialogInputsContext)
+			override val value get() = requireNotNull(ctx.view.getBoolean(key))
+		}
 	}
 	
 	fun optionInput(
@@ -98,7 +104,10 @@ sealed class DialogContext(var title: Component) {
 				SingleOptionDialogInput.OptionEntry.create(it.id, it.display, false)
 			}
 		}, label, labelVisible)
-		return DialogTypedInput.string(key)
+		return object : DialogTypedInput<String>(key) {
+			context(ctx: DialogInputsContext)
+			override val value get() = requireNotNull(ctx.view.getText(key))
+		}
 	}
 	
 	fun rangeInput(
@@ -112,7 +121,10 @@ sealed class DialogContext(var title: Component) {
 		labelFormat: String = "options.generic_value",
 	): DialogTypedInput<Float> {
 		inputs += DialogInput.numberRange(key, width, label, labelFormat, start, end, initial, step)
-		return DialogTypedInput.float(key)
+		return object : DialogTypedInput<Float>(key) {
+			context(ctx: DialogInputsContext)
+			override val value get() = requireNotNull(ctx.view.getFloat(key))
+		}
 	}
 	
 	inline fun rangeInput(
