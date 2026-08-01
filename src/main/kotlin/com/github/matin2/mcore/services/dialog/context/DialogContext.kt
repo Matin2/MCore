@@ -56,10 +56,8 @@ sealed class DialogContext(var title: Component) {
 		height: Int = 16,
 		descriptionWidth: Int = 200,
 	) {
-		body += DialogBody.item(
-			item, DialogBody.plainMessage(description, descriptionWidth),
-			showDecorations, showTooltip, width, height
-		)
+		val description = DialogBody.plainMessage(description, descriptionWidth)
+		body += DialogBody.item(item, description, showDecorations, showTooltip, width, height)
 	}
 	
 	fun textInput(
@@ -72,10 +70,9 @@ sealed class DialogContext(var title: Component) {
 		height: Int? = null,
 		labelVisible: Boolean = true,
 	): DialogTypedInput<String> {
-		inputs += DialogInput.text(
-			key, width, label, labelVisible, initial, maxLength, if (maxLines != null && height != null)
-				TextDialogInput.MultilineOptions.create(maxLines, height) else null
-		)
+		val multilineOptions =
+			if (maxLines != null && height != null) TextDialogInput.MultilineOptions.create(maxLines, height) else null
+		inputs += DialogInput.text(key, width, label, labelVisible, initial, maxLength, multilineOptions)
 		return object : DialogTypedInput<String>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getText(key))
@@ -98,12 +95,13 @@ sealed class DialogContext(var title: Component) {
 		width: Int = 200,
 		labelVisible: Boolean = true,
 	): DialogTypedInput<String> {
-		inputs += DialogInput.singleOption(key, width, buildList {
+		val optionEntries = buildList {
 			add(SingleOptionDialogInput.OptionEntry.create(initial.id, initial.display, true))
 			options.mapTo(this) {
 				SingleOptionDialogInput.OptionEntry.create(it.id, it.display, false)
 			}
-		}, label, labelVisible)
+		}
+		inputs += DialogInput.singleOption(key, width, optionEntries, label, labelVisible)
 		return object : DialogTypedInput<String>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getText(key))
