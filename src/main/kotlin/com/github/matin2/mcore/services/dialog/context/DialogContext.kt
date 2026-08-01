@@ -20,6 +20,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.inventory.ItemStack
 import java.net.URL
+import kotlin.enums.enumEntries
 
 @DslMarker
 annotation class DialogDsl
@@ -105,6 +106,24 @@ sealed class DialogContext(var title: Component) {
 		return object : DialogTypedInput<String>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getText(key))
+		}
+	}
+	
+	inline fun <reified E : Enum<E>> optionInput(
+		key: String,
+		label: Component,
+		initial: E,
+		width: Int = 200,
+		labelVisible: Boolean = true,
+		labeler: (option: E) -> Component? = { null },
+	): DialogTypedInput<E> {
+		val optionEntries = enumEntries<E>().map {
+			SingleOptionDialogInput.OptionEntry.create(it.name, labeler(it), it == initial)
+		}
+		inputs += DialogInput.singleOption(key, width, optionEntries, label, labelVisible)
+		return object : DialogTypedInput<E>(key) {
+			context(ctx: DialogInputsContext)
+			override val value get() = enumValueOf<E>(requireNotNull(ctx.view.getText(key)))
 		}
 	}
 	
