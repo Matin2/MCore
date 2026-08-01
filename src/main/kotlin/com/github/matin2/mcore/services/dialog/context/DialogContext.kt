@@ -7,6 +7,7 @@ import com.github.matin2.mcore.services.dialog.DialogService
 import com.github.matin2.mcore.services.dialog.DialogTypedInput
 import io.papermc.paper.registry.data.dialog.ActionButton
 import io.papermc.paper.registry.data.dialog.DialogBase
+import io.papermc.paper.registry.data.dialog.DialogRegistryEntry
 import io.papermc.paper.registry.data.dialog.action.DialogAction
 import io.papermc.paper.registry.data.dialog.body.DialogBody
 import io.papermc.paper.registry.data.dialog.input.DialogInput
@@ -25,21 +26,21 @@ annotation class DialogDsl
 
 @DialogDsl
 @Suppress("unused", "UnstableApiUsage", "NOTHING_TO_INLINE")
-sealed class DialogContext(internal var initialTitle: Component) {
+sealed class DialogContext(var title: Component) {
 	
-	val title get() = initialTitle
 	var externalTitle: Component = title
 	var escapeCloses: Boolean = true
 	var afterAction: DialogBase.DialogAfterAction = CLOSE
 	
-	val body: List<DialogBody>
-		field : MutableList<DialogBody> = []
-	val inputs: List<DialogInput>
-		field : MutableList<DialogInput> = []
+	val body: MutableList<DialogBody> = []
+	val inputs: MutableList<DialogInput> = []
 	
-	internal abstract val type: DialogType
-	internal val base: DialogBase
+	protected abstract val type: DialogType
+	private inline val base: DialogBase
 		get() = DialogBase.create(title, externalTitle, escapeCloses, false, afterAction, body, inputs)
+	
+	internal fun applyTo(builder: DialogRegistryEntry.Builder) =
+		builder.base(base).type(type)
 	
 	fun messageBody(message: Component, width: Int = 200) {
 		body += DialogBody.plainMessage(message, width)

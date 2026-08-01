@@ -3,7 +3,7 @@ package com.github.matin2.mcore.services.dialog
 import com.github.matin2.mcore.services.dialog.context.DialogInputsContext
 
 @Suppress("UnstableApiUsage", "NOTHING_TO_INLINE")
-abstract class DialogTypedInput<T> private constructor(val key: String) {
+abstract class DialogTypedInput<T>(val key: String) {
 	
 	context(_: DialogInputsContext)
 	abstract val value: T

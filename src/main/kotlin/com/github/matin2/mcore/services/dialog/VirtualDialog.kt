@@ -9,15 +9,9 @@ import net.kyori.adventure.text.Component
 @Suppress("unused", "UnstableApiUsage", "NOTHING_TO_INLINE")
 value class VirtualDialog<Context : DialogContext> private constructor(private val context: Context) {
 	
-	fun modify(title: Component, block: Context.() -> Unit) = apply {
-		context.initialTitle = title
-		context.block()
-	}
-	
 	fun modify(block: Context.() -> Unit) = apply { context.block() }
 	
-	infix fun applyTo(builder: DialogRegistryEntry.Builder): DialogRegistryEntry.Builder =
-		builder.type(context.type).base(context.base)
+	infix fun applyTo(builder: DialogRegistryEntry.Builder): DialogRegistryEntry.Builder = context.applyTo(builder)
 	
 	inline fun toDialog(): Dialog = Dialog.create { applyTo(it.empty()) }
 	
