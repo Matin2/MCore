@@ -9,7 +9,7 @@ import org.koin.dsl.KoinConfiguration
 
 abstract class KotlinPlugin : JavaPlugin(), CoroutineScope, KoinComponent {
 	
-	override val coroutineContext = CoroutineName(name) + SupervisorJob() + Dispatchers.Bukkit
+	override val coroutineContext = CoroutineName("Plugin #$name") + SupervisorJob() + Dispatchers.Bukkit
 	
 	open val koinConfig: KoinConfiguration? = null
 	private lateinit var koin: Koin
