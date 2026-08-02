@@ -33,7 +33,7 @@ dependencies {
 tasks.processResources {
 	val properties = mapOf(
 		"version" to version.toString(),
-		"api-version" to paperweight.minecraftVersion.get()
+		"api" to paperweight.minecraftVersion.get()
 	)
 	inputs.properties(properties)
 	filteringCharset = "UTF-8"

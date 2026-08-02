@@ -2,7 +2,8 @@ name: MCore
 version: '${version}'
 main: com.github.matin2.mcore.MCore
 loader: com.github.matin2.mcore.MCoreLoader
-api-version: '${api-version}'
+# noinspection YAMLSchemaValidation
+api-version: '${api}'
 load: STARTUP
 authors: [ Matin3000 ]
 dependencies:
