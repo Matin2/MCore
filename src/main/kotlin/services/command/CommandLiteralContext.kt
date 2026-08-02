@@ -1,25 +1,33 @@
 package com.github.matin2.mcore.services.command
 
 import com.github.matin2.mcore.services.command.execution.CommandExecution
+import com.github.matin2.mcore.services.command.execution.Condition
 import io.papermc.paper.command.brigadier.Commands
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.annotations.ApiStatus
 
 @CommandDsl
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "unused")
 class CommandLiteralContext(name: String, vararg val aliases: String) {
 	
 	private var scope: CoroutineScope? = null
 	private val builder = Commands.literal(name)
-	val executes = CommandExecution(::scope.getter)
+	private var requirements: Condition = { true }
+	val executes = CommandExecution()
 	lateinit var description: String
+	
+	fun requires(requirement: Condition) {
+		val current = requirements
+		requirements = { current() && requirement() }
+	}
 	
 	@ApiStatus.Internal
 	fun build() = CommandLiteral(buildList {
-		val main = builder.executes(executes.build()).build()
+		val main = builder.requires { requirements(it) && executes.conditions(it) }
+			.executes(executes.build { scope }).build()
 		add(main)
 		aliases.mapTo(this) { Commands.literal(it).redirect(main).build() }
-	}, if (::description.isInitialized) description else null, ::scope.setter)
+	}, if (::description.isInitialized) description else null) { scope = it }
 	
 	inline operator fun String.invoke(action: CommandLiteralContext.() -> Unit) =
 		+command(this, action = action)
