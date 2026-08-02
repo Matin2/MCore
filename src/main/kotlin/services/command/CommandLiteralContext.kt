@@ -2,14 +2,16 @@ package com.github.matin2.mcore.services.command
 
 import com.github.matin2.mcore.services.command.execution.CommandExecution
 import io.papermc.paper.command.brigadier.Commands
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.annotations.ApiStatus
 
 @CommandDsl
 @Suppress("NOTHING_TO_INLINE")
 class CommandLiteralContext(name: String, vararg val aliases: String) {
 	
+	private var scope: CoroutineScope? = null
 	private val builder = Commands.literal(name)
-	val executes = CommandExecution()
+	val executes = CommandExecution(::scope.getter)
 	lateinit var description: String
 	
 	@ApiStatus.Internal
@@ -17,7 +19,7 @@ class CommandLiteralContext(name: String, vararg val aliases: String) {
 		val main = builder.executes(executes.build()).build()
 		add(main)
 		aliases.mapTo(this) { Commands.literal(it).redirect(main).build() }
-	}, if (::description.isInitialized) description else null)
+	}, if (::description.isInitialized) description else null, ::scope.setter)
 	
 	inline operator fun String.invoke(action: CommandLiteralContext.() -> Unit) =
 		+command(this, action = action)

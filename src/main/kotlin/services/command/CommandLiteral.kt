@@ -4,20 +4,20 @@ import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
-import net.kyori.adventure.key.Key
+import kotlinx.coroutines.CoroutineScope
 
 class CommandLiteral(
 	internal val nodes: List<LiteralCommandNode<CommandSourceStack>>,
-	private val description: String?
+	private val description: String?,
+	private val setScope: (CoroutineScope) -> Unit
 ) {
 	
 	@Suppress("unused")
 	fun register(plugin: KotlinPlugin) {
-		val node = nodes.first()
+		setScope(plugin)
 		plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { commands ->
-			commands.registrar().register(node, description, nodes.drop(1).map { it.name })
+			commands.registrar().register(nodes.first(), description, nodes.drop(1).map { it.name })
 		}
-		CommandService[Key.key(plugin, node.name)] = plugin
 	}
 }
 
