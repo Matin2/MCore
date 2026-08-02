@@ -1,6 +1,6 @@
 package com.github.matin2.mcore.services.dialog.context
 
-import com.github.matin2.mcore.services.dialog.DialogTypedInput
+import com.github.matin2.mcore.services.dialog.DialogInputHolder
 import io.papermc.paper.dialog.DialogResponseView
 import kotlin.reflect.KProperty
 
@@ -8,5 +8,5 @@ import kotlin.reflect.KProperty
 @JvmInline
 value class DialogInputsContext(val view: DialogResponseView) {
 	
-	operator fun <T> DialogTypedInput<T>.getValue(thisRef: Any?, property: KProperty<*>): T = value
+	operator fun <T> DialogInputHolder<T>.getValue(thisRef: Any?, property: KProperty<*>): T = value
 }

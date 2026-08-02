@@ -2,9 +2,9 @@ package com.github.matin2.mcore.services.dialog.context
 
 import com.github.matin2.mcore.services.FloatProgression
 import com.github.matin2.mcore.services.dialog.DialogButtonBlock
+import com.github.matin2.mcore.services.dialog.DialogInputHolder
 import com.github.matin2.mcore.services.dialog.DialogOption
 import com.github.matin2.mcore.services.dialog.DialogService
-import com.github.matin2.mcore.services.dialog.DialogTypedInput
 import io.papermc.paper.registry.data.dialog.ActionButton
 import io.papermc.paper.registry.data.dialog.DialogBase
 import io.papermc.paper.registry.data.dialog.DialogRegistryEntry
@@ -70,19 +70,19 @@ sealed class DialogContext(var title: Component) {
 		width: Int = 200,
 		height: Int? = null,
 		labelVisible: Boolean = true,
-	): DialogTypedInput<String> {
+	): DialogInputHolder<String> {
 		val multilineOptions =
 			if (maxLines != null && height != null) TextDialogInput.MultilineOptions.create(maxLines, height) else null
 		inputs += DialogInput.text(key, width, label, labelVisible, initial, maxLength, multilineOptions)
-		return object : DialogTypedInput<String>(key) {
+		return object : DialogInputHolder<String>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getText(key))
 		}
 	}
 	
-	fun booleanInput(key: String, label: Component, initial: Boolean): DialogTypedInput<Boolean> {
+	fun booleanInput(key: String, label: Component, initial: Boolean): DialogInputHolder<Boolean> {
 		inputs += DialogInput.bool(key, label, initial, "true", "false")
-		return object : DialogTypedInput<Boolean>(key) {
+		return object : DialogInputHolder<Boolean>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getBoolean(key))
 		}
@@ -95,7 +95,7 @@ sealed class DialogContext(var title: Component) {
 		vararg options: DialogOption,
 		width: Int = 200,
 		labelVisible: Boolean = true,
-	): DialogTypedInput<String> {
+	): DialogInputHolder<String> {
 		val optionEntries = buildList {
 			add(SingleOptionDialogInput.OptionEntry.create(initial.id, initial.display, true))
 			options.mapTo(this) {
@@ -103,7 +103,7 @@ sealed class DialogContext(var title: Component) {
 			}
 		}
 		inputs += DialogInput.singleOption(key, width, optionEntries, label, labelVisible)
-		return object : DialogTypedInput<String>(key) {
+		return object : DialogInputHolder<String>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getText(key))
 		}
@@ -116,12 +116,12 @@ sealed class DialogContext(var title: Component) {
 		width: Int = 200,
 		labelVisible: Boolean = true,
 		labeler: (option: E) -> Component? = { null },
-	): DialogTypedInput<E> {
+	): DialogInputHolder<E> {
 		val optionEntries = enumEntries<E>().map {
 			SingleOptionDialogInput.OptionEntry.create(it.name, labeler(it), it == initial)
 		}
 		inputs += DialogInput.singleOption(key, width, optionEntries, label, labelVisible)
-		return object : DialogTypedInput<E>(key) {
+		return object : DialogInputHolder<E>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = enumValueOf<E>(requireNotNull(ctx.view.getText(key)))
 		}
@@ -131,9 +131,9 @@ sealed class DialogContext(var title: Component) {
 		key: String, label: Component,
 		start: Float, end: Float, initial: Float, step: Float? = null,
 		width: Int = 200, labelFormat: String = "options.generic_value",
-	): DialogTypedInput<Float> {
+	): DialogInputHolder<Float> {
 		inputs += DialogInput.numberRange(key, width, label, labelFormat, start, end, initial, step)
-		return object : DialogTypedInput<Float>(key) {
+		return object : DialogInputHolder<Float>(key) {
 			context(ctx: DialogInputsContext)
 			override val value get() = requireNotNull(ctx.view.getFloat(key))
 		}
