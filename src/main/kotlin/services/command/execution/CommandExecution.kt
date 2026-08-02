@@ -22,7 +22,7 @@ class CommandExecution {
 	private typealias Condition = CommandExecutionContext.() -> Boolean
 	
 	private val executors = HashSet<Single>()
-	private var scope: CoroutineScope? = null
+	private lateinit var scope: CoroutineScope
 	
 	operator fun invoke(
 		context: CoroutineContext = EmptyCoroutineContext,
@@ -47,18 +47,18 @@ class CommandExecution {
 	internal fun build() = Command { context ->
 		val executionContext = CommandExecutionContext(context)
 		val executor = executors.find { it.condition(executionContext) } ?: return@Command 1
-		scope(context.nodes.first().node)?.launch(Dispatchers.Bukkit + executor.context) {
+		context.nodes.first().node.getScope()?.launch(Dispatchers.Bukkit + executor.context) {
 			executor.executor(executionContext)
 		}
 		1
 	}
 	
 	@Suppress("NOTHING_TO_INLINE")
-	private inline fun scope(node: CommandNode<*>): CoroutineScope? {
-		scope?.let { return it }
-		val command = node.name
+	private fun CommandNode<*>.getScope(): CoroutineScope? {
+		if (::scope.isInitialized) return scope
+		val command = name
 		val key = if (command.contains(":")) Key.key(command)
-		else Key.key(node.wrappedCached?.apiCommandMeta?.plugin() ?: return null, command)
+		else Key.key(wrappedCached?.apiCommandMeta?.plugin() ?: return null, command)
 		return CommandService[key]?.also { scope = it }
 	}
 	
