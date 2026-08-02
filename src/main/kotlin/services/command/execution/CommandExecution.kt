@@ -3,6 +3,8 @@ package com.github.matin2.mcore.services.command.execution
 import com.github.matin2.mcore.services.command.CommandService
 import com.github.matin2.mcore.services.plugin.Bukkit
 import com.mojang.brigadier.Command
+import com.mojang.brigadier.tree.CommandNode
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.kyori.adventure.key.Key
@@ -20,6 +22,7 @@ class CommandExecution {
 	private typealias Condition = CommandExecutionContext.() -> Boolean
 	
 	private val executors = HashSet<Single>()
+	private var scope: CoroutineScope? = null
 	
 	operator fun invoke(
 		context: CoroutineContext = EmptyCoroutineContext,
@@ -44,12 +47,19 @@ class CommandExecution {
 	internal fun build() = Command { context ->
 		val executionContext = CommandExecutionContext(context)
 		val executor = executors.find { it.condition(executionContext) } ?: return@Command 1
-		val rootNode = context.nodes.first().node
-		val command = rootNode.name
-		val key = if (command.contains(":")) Key.key(command)
-		else Key.key(rootNode.wrappedCached?.apiCommandMeta?.plugin() ?: return@Command 1, command)
-		CommandService[key]?.launch(Dispatchers.Bukkit + executor.context) { executor.executor(executionContext) }
+		scope(context.nodes.first().node)?.launch(Dispatchers.Bukkit + executor.context) {
+			executor.executor(executionContext)
+		}
 		1
+	}
+	
+	@Suppress("NOTHING_TO_INLINE")
+	private inline fun scope(node: CommandNode<*>): CoroutineScope? {
+		scope?.let { return it }
+		val command = node.name
+		val key = if (command.contains(":")) Key.key(command)
+		else Key.key(node.wrappedCached?.apiCommandMeta?.plugin() ?: return null, command)
+		return CommandService[key]?.also { scope = it }
 	}
 	
 	private data class Single(val context: CoroutineContext, val condition: Condition, val executor: Executor)
