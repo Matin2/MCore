@@ -24,7 +24,7 @@ class CommandExecution {
 	private typealias Execution = suspend CommandExecutionContext.() -> Unit
 	private typealias SourceExecution<Source> = suspend CommandExecutionContext.(Source) -> Unit
 	
-	internal var conditions: Condition = { true }
+	internal var conditions: Condition? = null
 	private val executors = HashSet<Single>()
 	
 	operator fun invoke(
@@ -32,34 +32,37 @@ class CommandExecution {
 		condition: Condition = { true },
 		execution: Execution
 	) {
-		val current = conditions
-		conditions = { current() || condition() }
 		executors += Single(context, condition, execution)
+		conditions?.let { conditions = { it() || condition() } } ?: run { conditions = condition }
 	}
 	
 	inline fun player(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { this.executor is Player },
+		crossinline condition: Condition = { true },
 		crossinline execution: SourceExecution<Player>
-	) = invoke(context, condition) { execution(source.executor as Player) }
+	) = invoke(context, { executor is Player && condition() }) { execution(source.executor as Player) }
 	
 	inline fun console(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { sender is ConsoleCommandSender },
+		noinline condition: Condition = { true },
 		crossinline execution: SourceExecution<ConsoleCommandSender>
-	) = invoke(context, condition) { execution(source.sender as ConsoleCommandSender) }
+	) = invoke(context, { sender is ConsoleCommandSender && condition() }) {
+		execution(source.sender as ConsoleCommandSender)
+	}
 	
 	inline fun block(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { sender is BlockCommandSender },
+		noinline condition: Condition = { true },
 		crossinline execution: SourceExecution<BlockCommandSender>
-	) = invoke(context, condition) { execution(source.sender as BlockCommandSender) }
+	) = invoke(context, { sender is BlockCommandSender && condition() }) {
+		execution(source.sender as BlockCommandSender)
+	}
 	
-	inline fun entity(
+	inline fun <reified E : Entity> entity(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { this.executor is Entity },
-		crossinline execution: SourceExecution<Entity>
-	) = invoke(context, condition) { execution(source.executor as Entity) }
+		noinline condition: Condition = { true },
+		crossinline execution: SourceExecution<E>
+	) = invoke(context, { executor is E && condition() }) { execution(source.executor as E) }
 	
 	internal inline fun build(crossinline getScope: () -> CoroutineScope?) = Command { context ->
 		val executionContext = CommandExecutionContext(context)

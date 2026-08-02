@@ -23,7 +23,7 @@ class CommandLiteralContext(name: String, vararg val aliases: String) {
 	
 	@ApiStatus.Internal
 	fun build() = CommandLiteral(buildList {
-		val main = builder.requires { requirements(it) && executes.conditions(it) }
+		val main = builder.requires { requirements(it) && executes.conditions?.invoke(it) != false }
 			.executes(executes.build { scope }).build()
 		add(main)
 		aliases.mapTo(this) { Commands.literal(it).redirect(main).build() }
