@@ -4,9 +4,6 @@ import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
-import kotlinx.coroutines.CoroutineScope
-
-typealias CommandScopeSetter = (CoroutineScope) -> Unit
 
 class CommandLiteral(
 	internal val nodes: List<LiteralCommandNode<CommandSourceStack>>,

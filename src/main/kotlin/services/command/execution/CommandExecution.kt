@@ -1,10 +1,10 @@
 package com.github.matin2.mcore.services.command.execution
 
+import com.github.matin2.mcore.services.command.CommandSourcePredicate
 import com.github.matin2.mcore.services.plugin.Bukkit
 import com.github.matin2.mcore.utils.component.component
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import io.papermc.paper.command.brigadier.CommandSourceStack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,8 +15,6 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-
-typealias CommandSourcePredicate = CommandSourceStack.() -> Boolean
 
 @Suppress("unused")
 class CommandExecution {
