@@ -6,10 +6,12 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import kotlinx.coroutines.CoroutineScope
 
+typealias CommandScopeSetter = (CoroutineScope) -> Unit
+
 class CommandLiteral(
 	internal val nodes: List<LiteralCommandNode<CommandSourceStack>>,
 	private val description: String?,
-	private val setScope: (CoroutineScope) -> Unit
+	internal val setScope: CommandScopeSetter
 ) {
 	
 	@Suppress("unused")
