@@ -8,43 +8,36 @@ import kotlinx.coroutines.CoroutineScope
 @Suppress("NOTHING_TO_INLINE", "unused")
 class CommandLiteralContext(name: String, vararg val aliases: String) {
 	
-	private var scope: CoroutineScope? = null
+	internal var scope: CoroutineScope? = null
+		set(value) {
+			field = value ?: return
+			scopeSetters.forEach { it(value) }
+		}
 	private val builder = Commands.literal(name)
 	private val requirements: MutableList<CommandSourcePredicate> = []
-	private val scopeSetters: MutableList<CommandScopeSetter> = []
+	private val scopeSetters: MutableList<(CoroutineScope?) -> Unit> = []
 	val executes = CommandExecution()
 	lateinit var description: String
 	
-	fun requires(requirement: CommandSourcePredicate) {
-		requirements += requirement
-	}
+	internal fun getDescription() = if (::description.isInitialized) description else null
 	
-	private fun setScope(scope: CoroutineScope) {
-		this.scope = scope
-		scopeSetters.forEach { it(scope) }
-	}
+	internal inline fun build() = CommandLiteral(this, builder.requires { source ->
+		executes.executors.any { it.condition(source) } && requirements.all { it(source) }
+	}.executes(executes.build { scope }).build())
 	
-	@PublishedApi
-	internal fun build() = CommandLiteral(buildList {
-		val main = builder.requires { source ->
-			executes.executors.any { it.condition(source) } && requirements.all { it(source) }
-		}.executes(executes.build { scope }).build()
-		add(main)
-		aliases.mapTo(this) { Commands.literal(it).redirect(main).build() }
-	}, if (::description.isInitialized) description else null, ::setScope)
-	
-	@PublishedApi
-	internal fun CommandLiteral.asChild() {
-		scopeSetters += setScope
-		nodes.forEach { builder.then(it) }
-	}
-	
-	inline fun literal(name: String, vararg aliases: String, action: CommandLiteralContext.() -> Unit) =
-		command(name, aliases = aliases, action).asChild()
+	fun literal(name: String, vararg aliases: String, action: CommandLiteralContext.() -> Unit) =
+		command(name, aliases = aliases, action).run {
+			scopeSetters += context::scope.setter
+			nodes.forEach { builder.then(it) }
+		}
 	
 	inline operator fun String.invoke(noinline action: CommandLiteralContext.() -> Unit) =
 		literal(this, action = action)
 	
 	inline operator fun List<String>.invoke(noinline action: CommandLiteralContext.() -> Unit) =
 		literal(first(), aliases = drop(1).toTypedArray(), action)
+	
+	fun requires(requirement: CommandSourcePredicate) {
+		requirements += requirement
+	}
 }
