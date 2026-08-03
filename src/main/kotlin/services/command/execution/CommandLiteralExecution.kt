@@ -17,9 +17,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 @Suppress("unused")
-class CommandExecution {
+class CommandLiteralExecution {
 	
-	private typealias Execution = suspend CommandExecutionContext.() -> Unit
+	private typealias Block = suspend CommandExecutionContext.() -> Unit
 	private typealias SourceExecution<Source> = suspend CommandExecutionContext.(Source) -> Unit
 	
 	internal val executors = HashSet<Single>()
@@ -27,7 +27,7 @@ class CommandExecution {
 	operator fun invoke(
 		context: CoroutineContext = EmptyCoroutineContext,
 		condition: CommandSourcePredicate = { true },
-		execution: Execution
+		execution: Block
 	) {
 		executors += Single(context, condition, execution)
 	}
@@ -79,6 +79,6 @@ class CommandExecution {
 	internal data class Single(
 		val context: CoroutineContext,
 		val condition: CommandSourcePredicate,
-		val execution: Execution
+		val execution: Block
 	)
 }
