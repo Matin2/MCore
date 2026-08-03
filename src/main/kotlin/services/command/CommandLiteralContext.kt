@@ -12,19 +12,19 @@ class CommandLiteralContext(name: String, vararg val aliases: String) {
 	
 	private var scope: CoroutineScope? = null
 	private val builder = Commands.literal(name)
-	private var requirements: Condition = { true }
+	private val requirements: MutableList<CommandSourcePredicate> = []
 	val executes = CommandExecution()
 	lateinit var description: String
 	
-	fun requires(requirement: Condition) {
-		val current = requirements
-		requirements = { current() && requirement() }
+	fun requires(requirement: CommandSourcePredicate) {
+		requirements += requirement
 	}
 	
 	@ApiStatus.Internal
 	fun build() = CommandLiteral(buildList {
-		val main = builder.requires { requirements(it) && executes.conditions?.invoke(it) != false }
-			.executes(executes.build { scope }).build()
+		val main = builder.requires { source ->
+			executes.executors.any { it.condition(source) } && requirements.all { it(source) }
+		}.executes(executes.build { scope }).build()
 		add(main)
 		aliases.mapTo(this) { Commands.literal(it).redirect(main).build() }
 	}, if (::description.isInitialized) description else null) { scope = it }

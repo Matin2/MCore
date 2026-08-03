@@ -16,7 +16,7 @@ import org.bukkit.entity.Player
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-typealias Condition = CommandSourceStack.() -> Boolean
+typealias CommandSourcePredicate = CommandSourceStack.() -> Boolean
 
 @Suppress("unused")
 class CommandExecution {
@@ -24,27 +24,25 @@ class CommandExecution {
 	private typealias Execution = suspend CommandExecutionContext.() -> Unit
 	private typealias SourceExecution<Source> = suspend CommandExecutionContext.(Source) -> Unit
 	
-	internal var conditions: Condition? = null
-	private val executors = HashSet<Single>()
+	internal val executors = HashSet<Single>()
 	
 	operator fun invoke(
 		context: CoroutineContext = EmptyCoroutineContext,
-		condition: Condition = { true },
+		condition: CommandSourcePredicate = { true },
 		execution: Execution
 	) {
 		executors += Single(context, condition, execution)
-		conditions?.let { conditions = { it() || condition() } } ?: run { conditions = condition }
 	}
 	
 	inline fun player(
 		context: CoroutineContext = EmptyCoroutineContext,
-		crossinline condition: Condition = { true },
+		crossinline condition: CommandSourcePredicate = { true },
 		crossinline execution: SourceExecution<Player>
 	) = invoke(context, { executor is Player && condition() }) { execution(source.executor as Player) }
 	
 	inline fun console(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { true },
+		crossinline condition: CommandSourcePredicate = { true },
 		crossinline execution: SourceExecution<ConsoleCommandSender>
 	) = invoke(context, { sender is ConsoleCommandSender && condition() }) {
 		execution(source.sender as ConsoleCommandSender)
@@ -52,7 +50,7 @@ class CommandExecution {
 	
 	inline fun block(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { true },
+		crossinline condition: CommandSourcePredicate = { true },
 		crossinline execution: SourceExecution<BlockCommandSender>
 	) = invoke(context, { sender is BlockCommandSender && condition() }) {
 		execution(source.sender as BlockCommandSender)
@@ -60,7 +58,7 @@ class CommandExecution {
 	
 	inline fun <reified E : Entity> entity(
 		context: CoroutineContext = EmptyCoroutineContext,
-		noinline condition: Condition = { true },
+		crossinline condition: CommandSourcePredicate = { true },
 		crossinline execution: SourceExecution<E>
 	) = invoke(context, { executor is E && condition() }) { execution(source.executor as E) }
 	
@@ -80,5 +78,9 @@ class CommandExecution {
 		1
 	}
 	
-	internal data class Single(val context: CoroutineContext, val condition: Condition, val execution: Execution)
+	internal data class Single(
+		val context: CoroutineContext,
+		val condition: CommandSourcePredicate,
+		val execution: Execution
+	)
 }
