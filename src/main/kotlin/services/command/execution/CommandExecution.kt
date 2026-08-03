@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import net.kyori.adventure.text.format.NamedTextColor
 import kotlin.coroutines.CoroutineContext
 
-abstract class CommandExecution {
+abstract class CommandExecution internal constructor() {
 	
 	protected typealias Execution = suspend CommandExecutionContext.() -> Unit
 	

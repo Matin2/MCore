@@ -5,7 +5,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 
-class CommandLiteral(
+class CommandLiteral internal constructor(
 	internal val context: CommandLiteralContext,
 	internal val mainNode: LiteralCommandNode<CommandSourceStack>
 ) {

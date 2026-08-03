@@ -14,7 +14,7 @@ import org.jetbrains.annotations.ApiStatus
 @Suppress("unused", "NOTHING_TO_INLINE")
 @CommandDsl
 @JvmInline
-value class CommandExecutionContext(@ApiStatus.Internal val context: CommandContext<CommandSourceStack>) {
+value class CommandExecutionContext internal constructor(@ApiStatus.Internal val context: CommandContext<CommandSourceStack>) {
 	
 	inline val source: CommandSourceStack get() = context.source
 	inline val nodes: List<ParsedCommandNode<CommandSourceStack>> get() = context.nodes

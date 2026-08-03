@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @CommandDsl
 @Suppress("NOTHING_TO_INLINE", "unused")
-class CommandLiteralContext(name: String, vararg val aliases: String) {
+class CommandLiteralContext internal constructor(name: String, vararg val aliases: String) {
 	
 	internal var scope: CoroutineScope? = null
 		set(value) {

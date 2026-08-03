@@ -9,7 +9,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 @Suppress("unused")
-class CommandLiteralExecution : CommandExecution() {
+class CommandLiteralExecution internal constructor() : CommandExecution() {
 	
 	private typealias SourceExecution<Source> = suspend CommandExecutionContext.(Source) -> Unit
 	
