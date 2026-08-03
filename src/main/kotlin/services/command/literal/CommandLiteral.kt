@@ -1,4 +1,4 @@
-package com.github.matin2.mcore.services.command
+package com.github.matin2.mcore.services.command.literal
 
 import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import com.mojang.brigadier.tree.LiteralCommandNode
@@ -18,6 +18,3 @@ class CommandLiteral internal constructor(
 		}
 	}
 }
-
-fun command(name: String, vararg aliases: String, action: CommandLiteralContext.() -> Unit): CommandLiteral =
-	CommandLiteralContext(name, aliases = aliases).apply(action).build()
