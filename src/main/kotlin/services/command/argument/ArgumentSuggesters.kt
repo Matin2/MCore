@@ -1,4 +1,4 @@
-package com.github.matin2.mcore.services.command
+package com.github.matin2.mcore.services.command.argument
 
 import org.bukkit.command.CommandSender
 import java.util.concurrent.CompletableFuture

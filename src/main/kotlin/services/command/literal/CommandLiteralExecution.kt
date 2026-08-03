@@ -1,6 +1,8 @@
-package com.github.matin2.mcore.services.command.execution
+package com.github.matin2.mcore.services.command.literal
 
 import com.github.matin2.mcore.services.command.CommandSourcePredicate
+import com.github.matin2.mcore.services.command.execution.CommandExecution
+import com.github.matin2.mcore.services.command.execution.CommandExecutionContext
 import org.bukkit.command.BlockCommandSender
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Entity

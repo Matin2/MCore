@@ -1,6 +1,8 @@
-package com.github.matin2.mcore.services.command
+package com.github.matin2.mcore.services.command.literal
 
-import com.github.matin2.mcore.services.command.execution.CommandLiteralExecution
+import com.github.matin2.mcore.services.command.CommandDsl
+import com.github.matin2.mcore.services.command.CommandSourcePredicate
+import com.github.matin2.mcore.services.command.command
 import io.papermc.paper.command.brigadier.Commands
 import kotlinx.coroutines.CoroutineScope
 
