@@ -3,19 +3,12 @@ package com.github.matin2.mcore.services.command
 import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
-import io.papermc.paper.command.brigadier.Commands
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 
 class CommandLiteral(
 	internal val context: CommandLiteralContext,
-	private val mainNode: LiteralCommandNode<CommandSourceStack>
+	internal val mainNode: LiteralCommandNode<CommandSourceStack>
 ) {
-	
-	internal val nodes: List<LiteralCommandNode<CommandSourceStack>>
-		get() = buildList {
-			add(mainNode)
-			context.aliases.mapTo(this) { Commands.literal(it).redirect(mainNode).build() }
-		}
 	
 	@Suppress("unused")
 	fun register(plugin: KotlinPlugin) {

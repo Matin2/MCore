@@ -28,7 +28,8 @@ class CommandLiteralContext(name: String, vararg val aliases: String) {
 	fun literal(name: String, vararg aliases: String, action: CommandLiteralContext.() -> Unit) =
 		command(name, aliases = aliases, action).run {
 			scopeSetters += context::scope.setter
-			nodes.forEach { builder.then(it) }
+			builder.then(mainNode)
+			context.aliases.forEach { builder.then(Commands.literal(it).redirect(mainNode)) }
 		}
 	
 	inline operator fun String.invoke(noinline action: CommandLiteralContext.() -> Unit) =
