@@ -6,7 +6,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 
-class CommandLiteral internal constructor(
+class CommandRegistrar internal constructor(
 	internal val context: CommandContext,
 	internal val node: LiteralCommandNode<CommandSourceStack>
 ) {
@@ -24,9 +24,9 @@ fun command(
 	name: String,
 	aliases: Collection<String>,
 	action: CommandContext.() -> Unit
-): CommandLiteral = CommandContext(name, aliases).run {
+): CommandRegistrar = CommandContext(name, aliases).run {
 	action()
-	CommandLiteral(this, finalize().build())
+	CommandRegistrar(this, finalize().build())
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -34,4 +34,4 @@ inline fun command(
 	name: String,
 	vararg aliases: String,
 	noinline action: CommandContext.() -> Unit
-): CommandLiteral = command(name, aliases.toList(), action)
+): CommandRegistrar = command(name, aliases.toList(), action)
