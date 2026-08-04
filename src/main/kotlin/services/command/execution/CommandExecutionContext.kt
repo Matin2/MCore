@@ -16,8 +16,8 @@ import org.jetbrains.annotations.ApiStatus
 @JvmInline
 value class CommandExecutionContext internal constructor(@ApiStatus.Internal val context: CommandContext<CommandSourceStack>) {
 	
-	inline val source: CommandSourceStack get() = context.source
 	inline val nodes: List<ParsedCommandNode<CommandSourceStack>> get() = context.nodes
+	inline val source: CommandSource get() = CommandSource(context.source)
 	inline val input: String get() = context.input
 	inline val range: StringRange get() = context.range
 	

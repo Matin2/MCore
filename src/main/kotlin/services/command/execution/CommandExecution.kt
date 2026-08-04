@@ -61,12 +61,14 @@ class CommandExecution internal constructor() {
 		crossinline execution: SourceExecution<E>
 	) = invoke(context, { executor is E && condition() }) { execution(source.executor as E) }
 	
+	internal inline fun requires(source: CommandSource) = executors.any { it.condition(source) }
+	
 	internal inline fun build(crossinline getScope: () -> CoroutineScope?) = Command { context ->
-		val executionContext = CommandExecutionContext(context)
-		val executor = executors.find { it.condition(context.source) } ?: return@Command 0
+		val source = CommandSource(context.source)
+		val executor = executors.find { it.condition(source) } ?: return@Command 0
 		getScope()?.launch(Dispatchers.Bukkit + executor.context) {
 			try {
-				executor.execution(executionContext)
+				executor.execution(CommandExecutionContext(context))
 			} catch (e: CommandSyntaxException) {
 				context.source.sender.sendMessage(e.componentMessage()!!)
 			} catch (e: Exception) {
