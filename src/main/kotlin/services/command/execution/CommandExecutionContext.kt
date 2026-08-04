@@ -1,10 +1,9 @@
 package com.github.matin2.mcore.services.command.execution
 
 import com.github.matin2.mcore.services.command.CommandDsl
-import com.github.matin2.mcore.utils.component.component
+import com.github.matin2.mcore.services.command.CommandSource
+import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.context.ParsedCommandNode
-import com.mojang.brigadier.context.StringRange
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
@@ -16,10 +15,8 @@ import org.jetbrains.annotations.ApiStatus
 @JvmInline
 value class CommandExecutionContext internal constructor(@ApiStatus.Internal val context: CommandContext<CommandSourceStack>) {
 	
-	inline val nodes: List<ParsedCommandNode<CommandSourceStack>> get() = context.nodes
 	inline val source: CommandSource get() = CommandSource(context.source)
 	inline val input: String get() = context.input
-	inline val range: StringRange get() = context.range
 	
 	inline fun fail(message: Component): Nothing =
 		throw SimpleCommandExceptionType(MessageComponentSerializer.message().serialize(message)).create()
