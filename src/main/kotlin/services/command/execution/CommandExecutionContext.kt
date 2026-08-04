@@ -21,5 +21,5 @@ value class CommandExecutionContext internal constructor(@ApiStatus.Internal val
 	inline fun fail(message: Component): Nothing =
 		throw SimpleCommandExceptionType(MessageComponentSerializer.message().serialize(message)).create()
 	
-	inline fun fail(message: String): Nothing = fail(component(message))
+	inline fun fail(message: String): Nothing = throw SimpleCommandExceptionType(LiteralMessage(message)).create()
 }

@@ -70,9 +70,13 @@ class CommandExecution internal constructor() {
 			try {
 				executor.execution(CommandExecutionContext(context))
 			} catch (e: CommandSyntaxException) {
-				context.source.sender.sendMessage(e.componentMessage()!!)
+				CommandExecutionContext(context).source.sender.sendMessage(
+					e.componentMessage() ?: component(e.rawMessage.string)
+				)
 			} catch (e: Exception) {
-				context.source.sender.sendMessage(component("Failed to execute command.", NamedTextColor.DARK_RED))
+				CommandExecutionContext(context).source.sender.sendMessage(
+					component("Failed to execute command.", NamedTextColor.RED)
+				)
 				e.printStackTrace()
 			}
 		}
