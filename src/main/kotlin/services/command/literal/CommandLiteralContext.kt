@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @CommandDsl
 @Suppress("NOTHING_TO_INLINE", "unused")
-class CommandLiteralContext internal constructor(name: String, vararg val aliases: String) {
+class CommandLiteralContext internal constructor(name: String, val aliases: Collection<String>) {
 	
 	internal var scope: CoroutineScope? = null
 		set(value) {
@@ -30,16 +30,19 @@ class CommandLiteralContext internal constructor(name: String, vararg val aliase
 		executes.requires(source) && requires(source)
 	}.executes(executes.build { scope }).build())
 	
-	fun literal(name: String, vararg aliases: String, action: CommandLiteralContext.() -> Unit) =
-		command(name, aliases = aliases, action).run {
+	fun literal(name: String, aliases: List<String>, action: CommandLiteralContext.() -> Unit) =
+		command(name, aliases, action).run {
 			scopeSetters += context::scope.setter
 			builder.then(mainNode)
 			context.aliases.forEach { builder.then(Commands.literal(it).redirect(mainNode)) }
 		}
 	
-	inline operator fun String.invoke(noinline action: CommandLiteralContext.() -> Unit) =
-		literal(this, action = action)
+	inline fun literal(name: String, vararg aliases: String, noinline action: CommandLiteralContext.() -> Unit) =
+		literal(name, aliases.toList(), action)
 	
-	inline operator fun List<String>.invoke(noinline action: CommandLiteralContext.() -> Unit) =
-		literal(first(), aliases = drop(1).toTypedArray(), action)
+	inline operator fun String.invoke(vararg aliases: String, noinline action: CommandLiteralContext.() -> Unit) =
+		literal(this, aliases = aliases, action)
+	
+	inline operator fun Collection<String>.invoke(noinline action: CommandLiteralContext.() -> Unit) =
+		literal(first(), drop(1), action)
 }
