@@ -23,9 +23,7 @@ abstract class CommandContext<Builder : ArgumentBuilder<CommandSourceStack, Buil
 	val requires = CommandRequirement()
 	val executes = CommandExecution()
 	
-	internal open fun finalizeBuilder() = builder.requires {
-		executes.requires(it) && requires(it)
-	}.executes(executes.build { scope })
+	internal open fun finalizeBuilder() = requires.addTo(builder).executes(executes.build { scope })
 	
 	fun literal(name: String, aliases: List<String>, action: LiteralBlock) = command(name, aliases, action).run {
 		scopeSetters += context::scope.setter

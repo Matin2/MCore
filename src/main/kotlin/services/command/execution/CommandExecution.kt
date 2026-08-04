@@ -5,7 +5,8 @@ import com.github.matin2.mcore.services.plugin.Bukkit
 import com.github.matin2.mcore.utils.component.component
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import io.papermc.paper.command.brigadier.CommandSourceStack
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,21 +62,19 @@ class CommandExecution internal constructor() {
 		crossinline execution: SourceExecution<E>
 	) = invoke(context, { executor is E && condition() }) { execution(source.executor as E) }
 	
-	internal inline fun requires(source: CommandSourceStack) = executors.any { it.condition(source) }
-	
 	internal inline fun build(crossinline getScope: () -> CoroutineScope?) = Command { context ->
-		val executor = executors.find { it.condition(context.source) } ?: return@Command 0
+		val executor = executors.find { it.condition(context.source) } ?: throw SimpleCommandExceptionType(
+			MessageComponentSerializer.message().serialize(component("You can't execute this command"))
+		).create()
 		getScope()?.launch(Dispatchers.Bukkit + executor.context) {
 			try {
 				executor.execution(CommandExecutionContext(context))
 			} catch (e: CommandSyntaxException) {
-				CommandExecutionContext(context).source.sender.sendMessage(
-					e.componentMessage() ?: component(e.rawMessage.string)
+				context.source.sender.sendMessage(
+					e.componentMessage() ?: component(e.rawMessage.string, NamedTextColor.RED)
 				)
 			} catch (e: Exception) {
-				CommandExecutionContext(context).source.sender.sendMessage(
-					component("Failed to execute command.", NamedTextColor.RED)
-				)
+				context.source.sender.sendMessage(component("Failed to execute command.", NamedTextColor.RED))
 				e.printStackTrace()
 			}
 		}
