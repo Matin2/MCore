@@ -4,6 +4,7 @@ import com.github.matin2.mcore.services.command.argument.ArgumentContext
 import com.github.matin2.mcore.services.command.argument.ArgumentHolder
 import com.github.matin2.mcore.services.command.execution.CommandExecution
 import com.github.matin2.mcore.services.command.literal.LiteralContext
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
@@ -39,4 +40,10 @@ abstract class CommandContext<Builder : ArgumentBuilder<CommandSourceStack, Buil
 	
 	inline operator fun Collection<String>.invoke(noinline action: LiteralBlock) =
 		literal(first(), drop(1), action)
+	
+	fun <T : Any> argument(name: String, type: ArgumentType<T>, action: ArgumentBlock<T>) {
+		val context = ArgumentContext(name, type) { scope }
+		context.action(ArgumentHolder(name))
+		builder.then(context.finalizeBuilder())
+	}
 }
