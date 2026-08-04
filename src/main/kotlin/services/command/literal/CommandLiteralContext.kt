@@ -31,8 +31,8 @@ class CommandLiteralContext internal constructor(name: String, val aliases: Coll
 	fun literal(name: String, aliases: List<String>, action: CommandLiteralContext.() -> Unit) =
 		command(name, aliases, action).run {
 			scopeSetters += context::scope.setter
-			builder.then(mainNode)
-			context.aliases.forEach { builder.then(Commands.literal(it).redirect(mainNode)) }
+			builder.then(node)
+			context.aliases.forEach { builder.then(Commands.literal(it).redirect(node)) }
 		}
 	
 	inline fun literal(name: String, vararg aliases: String, noinline action: CommandLiteralContext.() -> Unit) =

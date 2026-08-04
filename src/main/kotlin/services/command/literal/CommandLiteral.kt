@@ -7,14 +7,14 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 
 class CommandLiteral internal constructor(
 	internal val context: CommandLiteralContext,
-	internal val mainNode: LiteralCommandNode<CommandSourceStack>
+	internal val node: LiteralCommandNode<CommandSourceStack>
 ) {
 	
 	@Suppress("unused")
 	fun register(plugin: KotlinPlugin) {
 		context.scope = plugin
 		plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { commands ->
-			commands.registrar().register(mainNode, context.getDescription(), context.aliases.toList())
+			commands.registrar().register(node, context.getDescription(), context.aliases)
 		}
 	}
 }
