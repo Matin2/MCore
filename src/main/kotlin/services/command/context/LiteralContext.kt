@@ -1,0 +1,15 @@
+package com.github.matin2.mcore.services.command.context
+
+import com.github.matin2.mcore.services.command.CommandLiteralBuilder
+import io.papermc.paper.command.brigadier.Commands
+import kotlinx.coroutines.CoroutineScope
+
+@Suppress("NOTHING_TO_INLINE", "unused")
+class LiteralContext internal constructor(
+	name: String,
+	internal val aliases: Collection<String>,
+	override val scope: () -> CoroutineScope?
+) : CommandNodeContext<CommandLiteralBuilder>() {
+	
+	override val builder: CommandLiteralBuilder = Commands.literal(name)
+}
