@@ -3,6 +3,7 @@ package com.github.matin2.mcore.services.command.literal
 import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.CommandSourcePredicate
 import com.github.matin2.mcore.services.command.command
+import com.github.matin2.mcore.services.command.execution.CommandExecution
 import io.papermc.paper.command.brigadier.Commands
 import kotlinx.coroutines.CoroutineScope
 
@@ -18,7 +19,7 @@ class CommandLiteralContext internal constructor(name: String, vararg val aliase
 	private val builder = Commands.literal(name)
 	private val requirements: MutableList<CommandSourcePredicate> = []
 	private val scopeSetters: MutableList<(CoroutineScope?) -> Unit> = []
-	val executes = CommandLiteralExecution()
+	val executes = CommandExecution()
 	lateinit var description: String
 	
 	internal fun getDescription() = if (::description.isInitialized) description else null
