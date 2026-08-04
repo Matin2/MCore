@@ -19,3 +19,19 @@ class CommandLiteral internal constructor(
 		}
 	}
 }
+
+fun command(
+	name: String,
+	aliases: Collection<String>,
+	action: CommandContext.() -> Unit
+): CommandLiteral = CommandContext(name, aliases).run {
+	action()
+	CommandLiteral(this, finalize().build())
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun command(
+	name: String,
+	vararg aliases: String,
+	noinline action: CommandContext.() -> Unit
+): CommandLiteral = command(name, aliases.toList(), action)
