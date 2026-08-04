@@ -2,7 +2,6 @@ package com.github.matin2.mcore.services.command.literal
 
 import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.CommandRequirement
-import com.github.matin2.mcore.services.command.CommandSource
 import com.github.matin2.mcore.services.command.command
 import com.github.matin2.mcore.services.command.execution.CommandExecution
 import io.papermc.paper.command.brigadier.Commands
@@ -26,8 +25,7 @@ class CommandLiteralContext internal constructor(name: String, val aliases: Coll
 	internal fun getDescription() = if (::description.isInitialized) description else null
 	
 	internal inline fun build() = CommandLiteral(this, builder.requires {
-		val source = CommandSource(it)
-		executes.requires(source) && requires(source)
+		executes.requires(it) && requires(it)
 	}.executes(executes.build { scope }).build())
 	
 	fun literal(name: String, aliases: List<String>, action: CommandLiteralContext.() -> Unit) =

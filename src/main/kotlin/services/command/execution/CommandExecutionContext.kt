@@ -1,7 +1,6 @@
 package com.github.matin2.mcore.services.command.execution
 
 import com.github.matin2.mcore.services.command.CommandDsl
-import com.github.matin2.mcore.services.command.CommandSource
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.ApiStatus
 @JvmInline
 value class CommandExecutionContext internal constructor(@ApiStatus.Internal val context: CommandContext<CommandSourceStack>) {
 	
-	inline val source: CommandSource get() = CommandSource(context.source)
+	inline val source: CommandSourceStack get() = context.source
 	inline val input: String get() = context.input
 	
 	inline fun fail(message: Component): Nothing =
