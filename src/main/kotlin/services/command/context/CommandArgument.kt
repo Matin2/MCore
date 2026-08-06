@@ -1,7 +1,7 @@
 package com.github.matin2.mcore.services.command.context
 
-import com.github.matin2.mcore.services.command.argument.ArgumentSuggesters
 import com.github.matin2.mcore.services.command.argument.ArgumentSuggestionContext
+import com.github.matin2.mcore.services.command.argument.ArgumentSuggesters.suggestionFuture
 import com.github.matin2.mcore.services.plugin.Bukkit
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
@@ -11,7 +11,6 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -28,9 +27,9 @@ class ArgumentContext<T : Any> internal constructor(
 		context: CoroutineContext = EmptyCoroutineContext,
 		suggester: suspend ArgumentSuggestionContext.() -> Unit
 	) {
-		SuggestionProvider { commandContext, builder ->
-			scope()?.future {
 				val ctx = ArgumentSuggestionContext(commandContext, builder)
+		SuggestionProvider<CommandSourceStack> { commandContext, builder ->
+			scope()?.suggestionFuture(commandContext.source.sender) {
 				launch(Dispatchers.Bukkit + context) {
 					try {
 						ctx.suggester()
@@ -39,7 +38,7 @@ class ArgumentContext<T : Any> internal constructor(
 					}
 				}
 				ctx.get()
-			}?.also { ArgumentSuggesters[commandContext.source.sender] = it } ?: error("")
+			} ?: error("Scope is unavailable")
 		}.let { builder.suggests(it) }
 	}
 	
