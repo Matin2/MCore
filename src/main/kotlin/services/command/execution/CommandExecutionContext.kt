@@ -8,13 +8,12 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import net.kyori.adventure.text.Component
-import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.ApiStatus.Internal
 import kotlin.reflect.KProperty
 
 @Suppress("unused", "NOTHING_TO_INLINE")
 @CommandDsl
-@JvmInline
-value class CommandExecutionContext internal constructor(@ApiStatus.Internal val context: CommandContext<CommandSourceStack>) {
+open class CommandExecutionContext internal constructor(@Internal val context: CommandContext<CommandSourceStack>) {
 	
 	inline val source: CommandSourceStack get() = context.source
 	inline val input: String get() = context.input
