@@ -1,14 +1,12 @@
 package com.github.matin2.mcore.services.command.execution
 
 import com.github.matin2.mcore.services.command.CommandSourcePredicate
-import com.github.matin2.mcore.services.plugin.Bukkit
 import com.github.matin2.mcore.utils.component.component
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.BlockCommandSender
@@ -66,7 +64,7 @@ class CommandExecutor internal constructor() {
 		val executor = executors.find { it.condition(context.source) } ?: throw SimpleCommandExceptionType(
 			MessageComponentSerializer.message().serialize(component("You can't execute this command"))
 		).create()
-		getScope()?.launch(Dispatchers.Bukkit + executor.context) {
+		getScope()?.launch(executor.context) {
 			try {
 				executor.execution(CommandExecution(context))
 			} catch (e: CommandSyntaxException) {

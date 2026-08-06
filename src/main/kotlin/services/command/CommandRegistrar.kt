@@ -1,10 +1,15 @@
 package com.github.matin2.mcore.services.command
 
 import com.github.matin2.mcore.services.command.context.CommandRoot
+import com.github.matin2.mcore.services.plugin.Bukkit
 import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.job
 
 class CommandRegistrar internal constructor(
 	internal val root: CommandRoot,
@@ -13,7 +18,9 @@ class CommandRegistrar internal constructor(
 	
 	@Suppress("unused")
 	fun register(plugin: KotlinPlugin) {
-		root._scope = plugin
+		root._scope = CoroutineScope(
+			plugin.coroutineContext + SupervisorJob(plugin.coroutineContext.job) + Dispatchers.Bukkit
+		)
 		plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { commands ->
 			commands.registrar().register(node, root.getDescription(), root.aliases)
 		}
