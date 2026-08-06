@@ -1,21 +1,21 @@
 package com.github.matin2.mcore.services.command
 
-import com.github.matin2.mcore.services.command.context.CommandContext
+import com.github.matin2.mcore.services.command.context.CommandRoot
 import com.github.matin2.mcore.services.plugin.KotlinPlugin
 import com.mojang.brigadier.tree.LiteralCommandNode
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 
 class CommandRegistrar internal constructor(
-	internal val context: CommandContext,
+	internal val root: CommandRoot,
 	internal val node: LiteralCommandNode<CommandSourceStack>
 ) {
 	
 	@Suppress("unused")
 	fun register(plugin: KotlinPlugin) {
-		context._scope = plugin
+		root._scope = plugin
 		plugin.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { commands ->
-			commands.registrar().register(node, context.getDescription(), context.aliases)
+			commands.registrar().register(node, root.getDescription(), root.aliases)
 		}
 	}
 }
@@ -23,9 +23,9 @@ class CommandRegistrar internal constructor(
 fun command(
 	name: String,
 	aliases: Collection<String>,
-	action: CommandContext.() -> Unit
-): CommandRegistrar = CommandContext(name, aliases).run {
-	action()
+	block: CommandRoot.() -> Unit
+): CommandRegistrar = CommandRoot(name, aliases).run {
+	block()
 	CommandRegistrar(this, finalize().build())
 }
 
@@ -33,5 +33,5 @@ fun command(
 inline fun command(
 	name: String,
 	vararg aliases: String,
-	noinline action: CommandContext.() -> Unit
-): CommandRegistrar = command(name, aliases.toList(), action)
+	noinline block: CommandRoot.() -> Unit
+): CommandRegistrar = command(name, aliases.toList(), block)

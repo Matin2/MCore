@@ -16,7 +16,7 @@ import net.kyori.adventure.text.Component
 
 @CommandDsl
 @Suppress("unused", "NOTHING_TO_INLINE")
-class ArgumentSuggestionContext(
+class CommandSuggestion(
 	context: CommandContext<CommandSourceStack>,
 	@PublishedApi internal val builder: SuggestionsBuilder
 ) : CommandExecutionContext(context) {

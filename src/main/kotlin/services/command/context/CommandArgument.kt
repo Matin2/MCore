@@ -1,7 +1,7 @@
 package com.github.matin2.mcore.services.command.context
 
-import com.github.matin2.mcore.services.command.argument.ArgumentSuggestionContext
 import com.github.matin2.mcore.services.command.argument.ArgumentSuggesters.suggestionFuture
+import com.github.matin2.mcore.services.command.argument.CommandSuggestion
 import com.github.matin2.mcore.services.plugin.Bukkit
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-class ArgumentContext<T : Any> internal constructor(
+class CommandArgument<T : Any> internal constructor(
 	name: String,
 	type: ArgumentType<T>,
 	override val scope: () -> CoroutineScope?,
@@ -25,11 +25,11 @@ class ArgumentContext<T : Any> internal constructor(
 	
 	fun suggests(
 		context: CoroutineContext = EmptyCoroutineContext,
-		suggester: suspend ArgumentSuggestionContext.() -> Unit
+		suggester: suspend CommandSuggestion.() -> Unit
 	) {
-				val ctx = ArgumentSuggestionContext(commandContext, builder)
 		SuggestionProvider<CommandSourceStack> { commandContext, builder ->
 			scope()?.suggestionFuture(commandContext.source.sender) {
+				val ctx = CommandSuggestion(commandContext, builder)
 				launch(Dispatchers.Bukkit + context) {
 					try {
 						ctx.suggester()
