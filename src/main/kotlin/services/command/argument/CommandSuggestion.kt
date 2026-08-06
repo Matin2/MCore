@@ -1,7 +1,7 @@
 package com.github.matin2.mcore.services.command.argument
 
 import com.github.matin2.mcore.services.command.CommandDsl
-import com.github.matin2.mcore.services.command.execution.CommandExecutionContext
+import com.github.matin2.mcore.services.command.execution.CommandExecution
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.context.StringRange
 import com.mojang.brigadier.suggestion.Suggestion
@@ -19,7 +19,7 @@ import net.kyori.adventure.text.Component
 class CommandSuggestion(
 	context: CommandContext<CommandSourceStack>,
 	@PublishedApi internal val builder: SuggestionsBuilder
-) : CommandExecutionContext(context) {
+) : CommandExecution(context) {
 	
 	private val channel = Channel<Suggestion>(BUFFERED)
 	private val range = StringRange.between(builder.start, builder.input.length)

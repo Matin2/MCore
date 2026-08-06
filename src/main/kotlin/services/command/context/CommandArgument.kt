@@ -19,7 +19,7 @@ class CommandArgument<T : Any> internal constructor(
 	name: String,
 	type: ArgumentType<T>,
 	override val scope: () -> CoroutineScope?,
-) : CommandNodeContext<RequiredArgumentBuilder<CommandSourceStack, T>>() {
+) : CommandPart<RequiredArgumentBuilder<CommandSourceStack, T>>() {
 	
 	override val builder = Commands.argument(name, type)
 	

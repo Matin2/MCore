@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @CommandDsl
 @Suppress("NOTHING_TO_INLINE")
-sealed class CommandNodeContext<Builder : ArgumentBuilder<CommandSourceStack, Builder>> {
+sealed class CommandPart<Builder : ArgumentBuilder<CommandSourceStack, Builder>> {
 	
 	private typealias LiteralBlock = CommandLiteral.() -> Unit
 	private typealias ArgumentBlock<T> = CommandArgument<T>.(holder: ArgumentHolder<T>) -> Unit

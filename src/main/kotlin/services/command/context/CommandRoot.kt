@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 class CommandRoot internal constructor(
 	name: String,
 	internal val aliases: Collection<String>
-) : CommandNodeContext<CommandLiteralBuilder>() {
+) : CommandPart<CommandLiteralBuilder>() {
 	
 	override val builder: CommandLiteralBuilder = Commands.literal(name)
 	

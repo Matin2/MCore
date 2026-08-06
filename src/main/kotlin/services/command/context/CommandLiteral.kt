@@ -9,7 +9,7 @@ class CommandLiteral internal constructor(
 	name: String,
 	internal val aliases: Collection<String>,
 	override val scope: () -> CoroutineScope?
-) : CommandNodeContext<CommandLiteralBuilder>() {
+) : CommandPart<CommandLiteralBuilder>() {
 	
 	override val builder: CommandLiteralBuilder = Commands.literal(name)
 }

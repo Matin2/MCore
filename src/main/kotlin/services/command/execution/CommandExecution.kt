@@ -13,7 +13,7 @@ import kotlin.reflect.KProperty
 
 @Suppress("unused", "NOTHING_TO_INLINE")
 @CommandDsl
-open class CommandExecutionContext internal constructor(@Internal val context: CommandContext<CommandSourceStack>) {
+open class CommandExecution internal constructor(@Internal val context: CommandContext<CommandSourceStack>) {
 	
 	inline val source: CommandSourceStack get() = context.source
 	inline val input: String get() = context.input
