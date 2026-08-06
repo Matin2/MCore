@@ -11,7 +11,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.channels.toList
+import kotlinx.coroutines.channels.consumeEach
 import net.kyori.adventure.text.Component
 
 @CommandDsl
@@ -46,5 +46,5 @@ class CommandSuggestion(
 		channel.close()
 	}
 	
-	internal suspend inline fun get() = Suggestions(range, channel.toList())
+	internal suspend inline fun get() = Suggestions(range, buildList { channel.consumeEach { add(it) } })
 }

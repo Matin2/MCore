@@ -11,7 +11,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -30,7 +30,7 @@ class CommandArgument<T : Any> internal constructor(
 		SuggestionProvider<CommandSourceStack> { commandContext, builder ->
 			scope()?.suggestionFuture(commandContext.source.sender) {
 				val ctx = CommandSuggestion(commandContext, builder)
-				launch(Dispatchers.Bukkit + context) {
+				withContext(Dispatchers.Bukkit + context) {
 					try {
 						ctx.suggester()
 					} finally {
