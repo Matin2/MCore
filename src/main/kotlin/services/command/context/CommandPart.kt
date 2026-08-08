@@ -1,5 +1,6 @@
 package com.github.matin2.mcore.services.command.context
 
+import com.github.matin2.mcore.services.command.CommandCoroutineScope
 import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.CommandRequirement
 import com.github.matin2.mcore.services.command.argument.ArgumentHolder
@@ -8,7 +9,6 @@ import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
-import kotlinx.coroutines.CoroutineScope
 
 @CommandDsl
 @Suppress("NOTHING_TO_INLINE")
@@ -18,7 +18,7 @@ sealed class CommandPart<Builder : ArgumentBuilder<CommandSourceStack, Builder>>
 	private typealias ArgumentBlock<T> = CommandArgument<T>.(holder: ArgumentHolder<T>) -> Unit
 	
 	protected abstract val builder: Builder
-	internal abstract val scope: () -> CoroutineScope?
+	internal abstract val scope: CommandCoroutineScope
 	
 	val requires = CommandRequirement()
 	val executes = CommandExecutor()
