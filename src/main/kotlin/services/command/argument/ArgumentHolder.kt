@@ -1,3 +1,4 @@
 package com.github.matin2.mcore.services.command.argument
 
-data class ArgumentHolder<@Suppress("unused") T : Any>(val name: String)
+@ConsistentCopyVisibility
+data class ArgumentHolder<@Suppress("unused") T : Any> internal constructor(val name: String)

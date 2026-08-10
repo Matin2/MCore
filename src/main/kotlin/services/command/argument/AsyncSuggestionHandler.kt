@@ -22,12 +22,12 @@ internal object AsyncSuggestionHandler {
 	
 	private val suggestions = ConcurrentHashMap<CommandSender, Job>()
 	
-	fun CoroutineScope.suggest(
+	inline fun CoroutineScope.suggest(
 		future: CompletableFuture<Suggestions>,
 		context: CommandContext<CommandSourceStack>,
 		builder: SuggestionsBuilder,
-		suggester: suspend CommandSuggestion.() -> Unit,
-		extraContext: CoroutineContext
+		extraContext: CoroutineContext,
+		crossinline block: suspend CommandSuggestion.() -> Unit
 	) {
 		suggestions[context.source.sender]?.cancel()
 		suggestions[context.source.sender] = launch {
@@ -36,7 +36,7 @@ internal object AsyncSuggestionHandler {
 			val ctx = CommandSuggestion(channel, context, builder, range)
 			launch(Dispatchers.Bukkit + extraContext) {
 				try {
-					ctx.suggester()
+					ctx.block()
 				} finally {
 					channel.close()
 				}

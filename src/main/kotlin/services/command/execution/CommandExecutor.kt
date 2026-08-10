@@ -19,46 +19,46 @@ import kotlin.coroutines.EmptyCoroutineContext
 @Suppress("unused", "NOTHING_TO_INLINE")
 class CommandExecutor internal constructor() {
 	
-	private typealias Execution = suspend CommandExecution.() -> Unit
-	private typealias SourceExecution<Source> = suspend CommandExecution.(Source) -> Unit
+	private typealias ExecutionBlock = suspend CommandExecution.() -> Unit
+	private typealias SourcedExecutionBlock<Source> = suspend CommandExecution.(Source) -> Unit
 	
 	private val executors = HashSet<Single>()
 	
 	operator fun invoke(
 		context: CoroutineContext = EmptyCoroutineContext,
 		condition: CommandSourcePredicate = { true },
-		execution: Execution
+		block: ExecutionBlock
 	) {
-		executors += Single(context, condition, execution)
+		executors += Single(context, condition, block)
 	}
 	
 	inline fun player(
 		context: CoroutineContext = EmptyCoroutineContext,
 		crossinline condition: CommandSourcePredicate = { true },
-		crossinline execution: SourceExecution<Player>
-	) = entity(context, condition, execution)
+		crossinline block: SourcedExecutionBlock<Player>
+	) = entity(context, condition, block)
 	
 	inline fun console(
 		context: CoroutineContext = EmptyCoroutineContext,
 		crossinline condition: CommandSourcePredicate = { true },
-		crossinline execution: SourceExecution<ConsoleCommandSender>
+		crossinline block: SourcedExecutionBlock<ConsoleCommandSender>
 	) = invoke(context, { sender is ConsoleCommandSender && condition() }) {
-		execution(source.sender as ConsoleCommandSender)
+		block(source.sender as ConsoleCommandSender)
 	}
 	
 	inline fun block(
 		context: CoroutineContext = EmptyCoroutineContext,
 		crossinline condition: CommandSourcePredicate = { true },
-		crossinline execution: SourceExecution<BlockCommandSender>
+		crossinline block: SourcedExecutionBlock<BlockCommandSender>
 	) = invoke(context, { sender is BlockCommandSender && condition() }) {
-		execution(source.sender as BlockCommandSender)
+		block(source.sender as BlockCommandSender)
 	}
 	
 	inline fun <reified E : Entity> entity(
 		context: CoroutineContext = EmptyCoroutineContext,
 		crossinline condition: CommandSourcePredicate = { true },
-		crossinline execution: SourceExecution<E>
-	) = invoke(context, { executor is E && condition() }) { execution(source.executor as E) }
+		crossinline block: SourcedExecutionBlock<E>
+	) = invoke(context, { executor is E && condition() }) { block(source.executor as E) }
 	
 	internal inline fun build(crossinline getScope: () -> CoroutineScope?) = Command { context ->
 		val executor = executors.find { it.condition(context.source) } ?: throw SimpleCommandExceptionType(
@@ -66,7 +66,7 @@ class CommandExecutor internal constructor() {
 		).create()
 		getScope()?.launch(executor.context) {
 			try {
-				executor.execution(CommandExecution(context))
+				executor.block(CommandExecution(context))
 			} catch (e: CommandSyntaxException) {
 				context.source.sender.sendMessage(
 					e.componentMessage() ?: component(e.rawMessage.string, NamedTextColor.RED)
@@ -82,6 +82,6 @@ class CommandExecutor internal constructor() {
 	internal data class Single(
 		val context: CoroutineContext,
 		val condition: CommandSourcePredicate,
-		val execution: Execution
+		val block: ExecutionBlock
 	)
 }

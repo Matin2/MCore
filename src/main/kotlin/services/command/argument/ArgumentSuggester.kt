@@ -9,25 +9,25 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 @Suppress("unused")
-class ArgumentSuggester(
-	val scope: CommandCoroutineScope,
-	val builder: CommandArgumentBuilder<*>
+class ArgumentSuggester internal constructor(
+	private val scope: CommandCoroutineScope,
+	private val builder: CommandArgumentBuilder<*>
 ) {
 	
 	operator fun invoke(
 		context: CoroutineContext = EmptyCoroutineContext,
-		suggester: suspend CommandSuggestion.() -> Unit
+		block: suspend CommandSuggestion.() -> Unit
 	) {
 		builder.suggests { commandContext, builder ->
 			val future = CompletableFuture<Suggestions>()
-			scope()?.suggest(future, commandContext, builder, suggester, context) ?: error("Scope is unavailable")
+			scope()?.suggest(future, commandContext, builder, context, block) ?: error("Scope is unavailable")
 			future
 		}
 	}
 	
-	fun sync(suggester: CommandSyncSuggestion.() -> Unit) {
+	fun sync(block: CommandSyncSuggestion.() -> Unit) {
 		builder.suggests { context, builder ->
-			CommandSyncSuggestion(builder, context).suggester()
+			CommandSyncSuggestion(builder, context).block()
 			builder.buildFuture()
 		}
 	}
