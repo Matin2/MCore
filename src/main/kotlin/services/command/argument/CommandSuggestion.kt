@@ -1,31 +1,62 @@
+@file:Suppress("NOTHING_TO_INLINE", "unused")
+
 package com.github.matin2.mcore.services.command.argument
 
 import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.execution.CommandExecution
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.context.StringRange
+import com.mojang.brigadier.suggestion.Suggestion
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
+import kotlinx.coroutines.channels.Channel
 import net.kyori.adventure.text.Component
 
 @CommandDsl
-@Suppress("unused", "NOTHING_TO_INLINE")
-abstract class CommandSuggestion internal constructor(
+class CommandSuggestion internal constructor(
+	private val channel: Channel<Suggestion>,
 	context: CommandContext<CommandSourceStack>,
-	@PublishedApi internal val builder: SuggestionsBuilder,
+	builder: SuggestionsBuilder,
+	private val range: StringRange
 ) : CommandExecution(context) {
 	
-	inline val remaining: String get() = builder.remaining
-	inline val start: Int get() = builder.start
+	val remaining: String = builder.remaining
+	val start: Int = builder.start
 	
-	protected val serializer by lazy { MessageComponentSerializer.message() }
+	private val serializer by lazy { MessageComponentSerializer.message() }
 	
-	abstract fun suggest(suggestion: String)
+	suspend fun suggest(suggestion: String) = channel.send(Suggestion(range, suggestion))
 	
-	abstract fun suggest(suggestion: String, tooltip: Component)
+	suspend fun suggest(suggestion: String, tooltip: Component) =
+		channel.send(Suggestion(range, suggestion, serializer.serialize(tooltip)))
+	
+	suspend inline fun suggestAll(suggestions: Iterable<String>) = suggestions.forEach { suggest(it) }
+	
+	suspend inline fun suggestAll(suggestions: Iterable<String>, tooltip: (String) -> Component) =
+		suggestions.forEach { suggest(it, tooltip(it)) }
+}
+
+@CommandDsl
+class CommandSyncSuggestion internal constructor(
+	private val builder: SuggestionsBuilder,
+	context: CommandContext<CommandSourceStack>,
+) : CommandExecution(context) {
+	val remaining: String = builder.remaining
+	
+	val start: Int = builder.start
+	
+	private val serializer by lazy { MessageComponentSerializer.message() }
+	
+	fun suggest(suggestion: String) {
+		builder.suggest(suggestion)
+	}
+	
+	fun suggest(suggestion: String, tooltip: Component) {
+		builder.suggest(suggestion, serializer.serialize(tooltip))
+	}
 	
 	inline fun suggestAll(suggestions: Iterable<String>) = suggestions.forEach { suggest(it) }
-	
 	inline fun suggestAll(suggestions: Iterable<String>, tooltip: (String) -> Component) =
 		suggestions.forEach { suggest(it, tooltip(it)) }
 }
