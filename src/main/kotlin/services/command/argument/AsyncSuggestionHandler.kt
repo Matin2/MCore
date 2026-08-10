@@ -30,7 +30,7 @@ internal object AsyncSuggestionHandler {
 		crossinline block: suspend CommandSuggestion.() -> Unit
 	) {
 		suggestions[context.source.sender]?.cancel()
-		suggestions[context.source.sender] = launch {
+		val suggestion = launch {
 			val channel = Channel<Suggestion>(10)
 			val range = StringRange(builder.start, builder.remaining.length)
 			val ctx = CommandSuggestion(channel, context, builder, range)
@@ -46,5 +46,7 @@ internal object AsyncSuggestionHandler {
 				builder.remaining.startsWith(it.text, ignoreCase = true)
 			}))
 		}
+		suggestions[context.source.sender] = suggestion
+		suggestion.invokeOnCompletion { suggestions.remove(context.source.sender, suggestion) }
 	}
 }
