@@ -15,7 +15,7 @@ import io.papermc.paper.command.brigadier.Commands
 sealed class CommandPart<Builder : ArgumentBuilder<CommandSourceStack, Builder>> {
 	
 	private typealias LiteralBlock = CommandLiteral.() -> Unit
-	private typealias ArgumentBlock<T> = CommandArgument<T>.(holder: ArgumentHolder<T>) -> Unit
+	private typealias ArgumentBlock<T> = CommandArgument<T>.(argument: ArgumentHolder<T>) -> Unit
 	
 	protected abstract val builder: Builder
 	internal abstract val scope: CommandCoroutineScope
@@ -26,7 +26,9 @@ sealed class CommandPart<Builder : ArgumentBuilder<CommandSourceStack, Builder>>
 	internal open fun finalize() = requires.addTo(builder).executes(executes.build(scope))
 	
 	fun literal(name: String, aliases: Collection<String>, block: LiteralBlock) {
-		val context = CommandLiteral(name, aliases, scope)
+		val context = object : CommandLiteral(name, aliases) {
+			override val scope = this@CommandPart.scope
+		}
 		context.block()
 		val node = context.finalize().build()
 		builder.then(node)

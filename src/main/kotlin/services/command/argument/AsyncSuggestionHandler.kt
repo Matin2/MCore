@@ -15,12 +15,11 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import org.bukkit.command.CommandSender
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 internal object AsyncSuggestionHandler {
 	
-	private val suggestions = ConcurrentHashMap<CommandSender, Job>()
+	private val suggestions = HashMap<CommandSender, Job>()
 	
 	inline fun CoroutineScope.suggest(
 		future: CompletableFuture<Suggestions>,
@@ -29,7 +28,8 @@ internal object AsyncSuggestionHandler {
 		extraContext: CoroutineContext,
 		crossinline block: suspend CommandSuggestion.() -> Unit
 	) {
-		suggestions[context.source.sender]?.cancel()
+		val sender = context.source.sender
+		suggestions[sender]?.cancel()
 		val suggestion = launch {
 			val channel = Channel<Suggestion>(10)
 			val range = StringRange(builder.start, builder.remaining.length)
@@ -46,7 +46,7 @@ internal object AsyncSuggestionHandler {
 				builder.remaining.startsWith(it.text, ignoreCase = true)
 			}))
 		}
-		suggestions[context.source.sender] = suggestion
-		suggestion.invokeOnCompletion { suggestions.remove(context.source.sender, suggestion) }
+		suggestions[sender] = suggestion
+		suggestion.invokeOnCompletion { suggestions.remove(sender, suggestion) }
 	}
 }
