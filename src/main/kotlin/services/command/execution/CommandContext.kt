@@ -3,17 +3,17 @@ package com.github.matin2.mcore.services.command.execution
 import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.argument.ArgumentHolder
 import com.mojang.brigadier.LiteralMessage
-import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import net.kyori.adventure.text.Component
 import org.jetbrains.annotations.ApiStatus.Internal
 import kotlin.reflect.KProperty
+import com.mojang.brigadier.context.CommandContext as BackedContext
 
 @Suppress("unused", "NOTHING_TO_INLINE")
 @CommandDsl
-open class CommandExecution internal constructor(@Internal val context: CommandContext<CommandSourceStack>) {
+open class CommandContext internal constructor(@Internal val context: BackedContext<CommandSourceStack>) {
 	
 	inline val source: CommandSourceStack get() = context.source
 	inline val input: String get() = context.input

@@ -3,8 +3,7 @@
 package com.github.matin2.mcore.services.command.argument
 
 import com.github.matin2.mcore.services.command.CommandDsl
-import com.github.matin2.mcore.services.command.execution.CommandExecution
-import com.mojang.brigadier.context.CommandContext
+import com.github.matin2.mcore.services.command.execution.CommandContext
 import com.mojang.brigadier.context.StringRange
 import com.mojang.brigadier.suggestion.Suggestion
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
@@ -12,14 +11,15 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import kotlinx.coroutines.channels.Channel
 import net.kyori.adventure.text.Component
+import com.mojang.brigadier.context.CommandContext as BackedContext
 
 @CommandDsl
 class CommandSuggestion internal constructor(
 	private val channel: Channel<Suggestion>,
-	context: CommandContext<CommandSourceStack>,
+	context: BackedContext<CommandSourceStack>,
 	builder: SuggestionsBuilder,
 	private val range: StringRange
-) : CommandExecution(context) {
+) : CommandContext(context) {
 	
 	val remaining: String = builder.remaining
 	val start: Int = builder.start
@@ -40,8 +40,8 @@ class CommandSuggestion internal constructor(
 @CommandDsl
 class CommandSyncSuggestion internal constructor(
 	private val builder: SuggestionsBuilder,
-	context: CommandContext<CommandSourceStack>,
-) : CommandExecution(context) {
+	context: BackedContext<CommandSourceStack>,
+) : CommandContext(context) {
 	val remaining: String = builder.remaining
 	
 	val start: Int = builder.start

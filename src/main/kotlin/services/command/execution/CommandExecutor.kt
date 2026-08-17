@@ -19,8 +19,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 @Suppress("unused", "NOTHING_TO_INLINE")
 class CommandExecutor internal constructor() {
 	
-	private typealias ExecutionBlock = suspend CommandExecution.() -> Unit
-	private typealias SourcedExecutionBlock<Source> = suspend CommandExecution.(Source) -> Unit
+	private typealias ExecutionBlock = suspend CommandContext.() -> Unit
+	private typealias SourcedExecutionBlock<Source> = suspend CommandContext.(Source) -> Unit
 	
 	private val executors = HashSet<Single>()
 	
@@ -66,7 +66,7 @@ class CommandExecutor internal constructor() {
 		).create()
 		getScope()?.launch(executor.context) {
 			try {
-				executor.block(CommandExecution(context))
+				executor.block(CommandContext(context))
 			} catch (e: CommandSyntaxException) {
 				context.source.sender.sendMessage(
 					e.componentMessage() ?: component(e.rawMessage.string, NamedTextColor.RED)
