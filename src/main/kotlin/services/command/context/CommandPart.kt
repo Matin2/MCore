@@ -4,6 +4,7 @@ import com.github.matin2.mcore.services.command.CommandCoroutineScope
 import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.CommandRequirement
 import com.github.matin2.mcore.services.command.argument.ArgumentHolder
+import com.github.matin2.mcore.services.command.execution.CommandExecution
 import com.github.matin2.mcore.services.command.execution.CommandExecutor
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
@@ -11,11 +12,12 @@ import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.Commands
 
 @CommandDsl
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "unused")
 sealed class CommandPart<Builder : ArgumentBuilder<CommandSourceStack, Builder>> {
 	
 	private typealias LiteralBlock = CommandLiteral.() -> Unit
 	private typealias ArgumentBlock<T> = CommandArgument<T>.(argument: ArgumentHolder<T>) -> Unit
+	private typealias ExecutionBlock = CommandExecution.() -> Unit
 	
 	protected abstract val builder: Builder
 	internal abstract val scope: CommandCoroutineScope
@@ -48,5 +50,11 @@ sealed class CommandPart<Builder : ArgumentBuilder<CommandSourceStack, Builder>>
 		val context = CommandArgument(name, type, scope)
 		context.block(ArgumentHolder(name))
 		builder.then(context.finalize())
+	}
+	
+	fun execution(block: ExecutionBlock) {
+		val execution = CommandExecution(scope)
+		execution.block()
+		execution addTo builder
 	}
 }
