@@ -2,7 +2,6 @@ package com.github.matin2.mcore.services.command.argument
 
 import com.github.matin2.mcore.services.plugin.Bukkit
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.context.StringRange
 import com.mojang.brigadier.suggestion.Suggestion
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
@@ -32,8 +31,7 @@ internal object AsyncSuggestionHandler {
 		suggestions[sender]?.cancel()
 		val suggestion = launch {
 			val channel = Channel<Suggestion>(10)
-			val range = StringRange(builder.start, builder.remaining.length)
-			val ctx = CommandSuggestion(channel, context, builder, range)
+			val ctx = CommandSuggestion(channel, context, builder)
 			launch(Dispatchers.Bukkit + extraContext) {
 				try {
 					ctx.block()
@@ -42,9 +40,7 @@ internal object AsyncSuggestionHandler {
 				}
 			}
 			val suggestions = buildList { channel.consumeEach { add(it) } }
-			future.complete(Suggestions(range, suggestions.filter {
-				builder.remaining.startsWith(it.text, ignoreCase = true)
-			}))
+			future.complete(Suggestions.create(builder.input, suggestions))
 		}
 		suggestions[sender] = suggestion
 		suggestion.invokeOnCompletion { suggestions.remove(sender, suggestion) }

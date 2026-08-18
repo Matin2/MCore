@@ -10,6 +10,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import io.papermc.paper.command.brigadier.CommandSourceStack
 import io.papermc.paper.command.brigadier.MessageComponentSerializer
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import net.kyori.adventure.text.Component
 import com.mojang.brigadier.context.CommandContext as BackedContext
 
@@ -17,19 +19,26 @@ import com.mojang.brigadier.context.CommandContext as BackedContext
 class CommandSuggestion internal constructor(
 	private val channel: Channel<Suggestion>,
 	context: BackedContext<CommandSourceStack>,
-	builder: SuggestionsBuilder,
-	private val range: StringRange
+	builder: SuggestionsBuilder
 ) : CommandContext(context) {
 	
 	val remaining: String = builder.remaining
 	val start: Int = builder.start
+	private val range = StringRange.between(start, builder.input.length)
 	
 	private val serializer by lazy { MessageComponentSerializer.message() }
 	
-	suspend fun suggest(suggestion: String) = channel.send(Suggestion(range, suggestion))
+	suspend fun suggest(suggestion: String) {
+		currentCoroutineContext().ensureActive()
+		if (suggestion != remaining && suggestion.startsWith(remaining, ignoreCase = true))
+			channel.send(Suggestion(range, suggestion))
+	}
 	
-	suspend fun suggest(suggestion: String, tooltip: Component) =
-		channel.send(Suggestion(range, suggestion, serializer.serialize(tooltip)))
+	suspend fun suggest(suggestion: String, tooltip: Component) {
+		currentCoroutineContext().ensureActive()
+		if (suggestion != remaining && suggestion.startsWith(remaining, ignoreCase = true))
+			channel.send(Suggestion(range, suggestion, serializer.serialize(tooltip)))
+	}
 	
 	suspend inline fun suggestAll(suggestions: Iterable<String>) = suggestions.forEach { suggest(it) }
 	
@@ -49,11 +58,13 @@ class CommandSyncSuggestion internal constructor(
 	private val serializer by lazy { MessageComponentSerializer.message() }
 	
 	fun suggest(suggestion: String) {
-		builder.suggest(suggestion)
+		if (suggestion.startsWith(remaining, ignoreCase = true))
+			builder.suggest(suggestion)
 	}
 	
 	fun suggest(suggestion: String, tooltip: Component) {
-		builder.suggest(suggestion, serializer.serialize(tooltip))
+		if (suggestion.startsWith(remaining, ignoreCase = true))
+			builder.suggest(suggestion, serializer.serialize(tooltip))
 	}
 	
 	inline fun suggestAll(suggestions: Iterable<String>) = suggestions.forEach { suggest(it) }
