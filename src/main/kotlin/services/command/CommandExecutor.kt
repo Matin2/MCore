@@ -1,6 +1,5 @@
-package com.github.matin2.mcore.services.command.execution
+package com.github.matin2.mcore.services.command
 
-import com.github.matin2.mcore.services.command.CommandSourcePredicate
 import com.github.matin2.mcore.utils.component.component
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.exceptions.CommandSyntaxException

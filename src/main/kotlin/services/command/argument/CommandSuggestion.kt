@@ -2,8 +2,8 @@
 
 package com.github.matin2.mcore.services.command.argument
 
+import com.github.matin2.mcore.services.command.CommandContext
 import com.github.matin2.mcore.services.command.CommandDsl
-import com.github.matin2.mcore.services.command.execution.CommandContext
 import com.mojang.brigadier.context.StringRange
 import com.mojang.brigadier.suggestion.Suggestion
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
@@ -43,31 +43,5 @@ class CommandSuggestion internal constructor(
 	suspend inline fun suggestAll(suggestions: Iterable<String>) = suggestions.forEach { suggest(it) }
 	
 	suspend inline fun suggestAll(suggestions: Iterable<String>, tooltip: (String) -> Component) =
-		suggestions.forEach { suggest(it, tooltip(it)) }
-}
-
-@CommandDsl
-class CommandSyncSuggestion internal constructor(
-	private val builder: SuggestionsBuilder,
-	context: BackedContext<CommandSourceStack>,
-) : CommandContext(context) {
-	val remaining: String = builder.remaining
-	
-	val start: Int = builder.start
-	
-	private val serializer by lazy { MessageComponentSerializer.message() }
-	
-	fun suggest(suggestion: String) {
-		if (suggestion.startsWith(remaining, ignoreCase = true))
-			builder.suggest(suggestion)
-	}
-	
-	fun suggest(suggestion: String, tooltip: Component) {
-		if (suggestion.startsWith(remaining, ignoreCase = true))
-			builder.suggest(suggestion, serializer.serialize(tooltip))
-	}
-	
-	inline fun suggestAll(suggestions: Iterable<String>) = suggestions.forEach { suggest(it) }
-	inline fun suggestAll(suggestions: Iterable<String>, tooltip: (String) -> Component) =
 		suggestions.forEach { suggest(it, tooltip(it)) }
 }

@@ -1,6 +1,5 @@
-package com.github.matin2.mcore.services.command.execution
+package com.github.matin2.mcore.services.command
 
-import com.github.matin2.mcore.services.command.CommandDsl
 import com.github.matin2.mcore.services.command.argument.ArgumentHolder
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
@@ -21,25 +20,25 @@ open class CommandContext internal constructor(@Internal val context: BackedCont
 	inline operator fun <reified T : Any> ArgumentHolder<T>.invoke(): T = context.getArgument(name, T::class.java)
 	inline operator fun <reified T : Any> ArgumentHolder<T>.getValue(thisRef: T?, property: KProperty<*>) = invoke()
 	
-	inline operator fun <reified T : Any> OptionalArgument<T>.invoke() = try {
+	inline operator fun <reified T : Any> ArgumentHolder<T?>.invoke() = try {
 		context.getArgument(name, T::class.java)
 	} catch (_: IllegalArgumentException) {
 		null
 	}
 	
-	inline operator fun <reified T : Any> OptionalArgument<T>.invoke(default: T): T = try {
+	inline operator fun <reified T : Any> ArgumentHolder<T?>.invoke(default: T): T = try {
 		context.getArgument(name, T::class.java)
 	} catch (_: IllegalArgumentException) {
 		default
 	}
 	
-	inline fun <reified T : Any> OptionalArgument<T>.orElse(block: () -> T): T = try {
+	inline fun <reified T : Any> ArgumentHolder<T?>.orElse(block: () -> T): T = try {
 		context.getArgument(name, T::class.java)
 	} catch (_: IllegalArgumentException) {
 		block()
 	}
 	
-	inline operator fun <reified T : Any> OptionalArgument<T>.getValue(thisRef: T?, property: KProperty<*>) = invoke()
+	inline operator fun <reified T : Any> ArgumentHolder<T?>.getValue(thisRef: T?, property: KProperty<*>) = invoke()
 	
 	inline fun fail(message: Component): Nothing =
 		throw SimpleCommandExceptionType(MessageComponentSerializer.message().serialize(message)).create()
