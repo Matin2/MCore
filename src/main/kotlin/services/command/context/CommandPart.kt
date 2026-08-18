@@ -2,10 +2,10 @@ package com.github.matin2.mcore.services.command.context
 
 import com.github.matin2.mcore.services.command.CommandCoroutineScope
 import com.github.matin2.mcore.services.command.CommandDsl
+import com.github.matin2.mcore.services.command.CommandExecutor
 import com.github.matin2.mcore.services.command.CommandRequirement
 import com.github.matin2.mcore.services.command.argument.ArgumentHolder
 import com.github.matin2.mcore.services.command.execution.CommandExecution
-import com.github.matin2.mcore.services.command.execution.CommandExecutor
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import io.papermc.paper.command.brigadier.CommandSourceStack
